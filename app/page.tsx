@@ -20,7 +20,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,18,.15)_0%,transparent_42%,rgba(8,10,18,.76)_100%)]" aria-hidden="true" />
         <div className="relative z-10 grid w-full gap-8 px-5 pb-8 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:pb-11">
           <div className="max-w-3xl">
-            <p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-white/65">风景 · 建筑 · 在路上</p>
+            <p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-white/65">风光 · 建筑 · 在路上</p>
             <h1 className="text-[clamp(2.7rem,5.6vw,5.6rem)] font-medium leading-[0.95] tracking-[-0.045em]">风从群山来</h1>
             <p className="mt-5 max-w-md text-xs font-light leading-6 text-white/62 md:text-sm">在抵达与离开之间，记录光线、天气和地景短暂相遇的瞬间。</p>
           </div>
@@ -47,7 +47,7 @@ export default function Home() {
               </div>
               <div className={index % 2 ? 'md:order-1' : ''}>
                 <div className="flex items-center justify-between border-t border-black/10 pt-3 text-[10px] tracking-[.18em] text-black/40">
-                  <span>{String(index + 1).padStart(2, '0')} · {item.category}</span>
+                  <span>{String(index + 1).padStart(2, '0')} · {item.category === '风景' ? '风光' : item.category}</span>
                   <span>{item.year}</span>
                 </div>
                 <h2 className="mt-5 text-4xl font-medium leading-none tracking-[-.05em] md:text-5xl">{item.title}</h2>
@@ -62,7 +62,7 @@ export default function Home() {
 
       <section className="grid gap-12 bg-[#181817] px-5 py-20 text-white md:grid-cols-2 md:px-10 md:py-24">
         <div><p className="mb-5 text-[10px] tracking-[.22em] text-white/38">合作与委托</p><h2 className="text-[clamp(2.4rem,5vw,4.6rem)] font-medium leading-[.98] tracking-[-.05em]">让影像保持呼吸</h2></div>
-        <div className="max-w-lg md:self-end md:justify-self-end"><p className="font-light leading-8 text-white/62">可承接建筑、风景、旅行与编辑类拍摄。若你有一个等待被看见的地点，欢迎来信。</p><a href="mailto:hello@example.com" className="mt-8 inline-flex border-b border-white/35 pb-2 text-sm tracking-[.1em] transition-colors hover:border-white">发起合作 →</a></div>
+        <div className="max-w-lg md:self-end md:justify-self-end"><p className="font-light leading-8 text-white/62">可承接建筑、风光、旅行与编辑类拍摄。若你有一个等待被看见的地点，欢迎来信。</p><a href="mailto:hello@example.com" className="mt-8 inline-flex border-b border-white/35 pb-2 text-sm tracking-[.1em] transition-colors hover:border-white">发起合作 →</a></div>
       </section>
       <SiteFooter />
     </main>
