@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Noto_Sans_SC } from 'next/font/google';
+import { Toaster } from '@/components/ui/toast';
 import './globals.css';
 
 const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });
@@ -23,5 +24,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN"><body className={`${sans.variable} ${chinese.variable}`}>{children}</body></html>;
+  return <html lang="zh-CN"><body className={`${sans.variable} ${chinese.variable}`}>{children}<Toaster /></body></html>;
 }
