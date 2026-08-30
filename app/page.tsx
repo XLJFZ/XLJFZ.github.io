@@ -62,7 +62,7 @@ export default function Home() {
 
       <section className="grid gap-12 bg-[#181817] px-5 py-20 text-white md:grid-cols-2 md:px-10 md:py-24">
         <div><p className="mb-5 text-[10px] tracking-[.22em] text-white/38">合作与委托</p><h2 className="text-[clamp(2.4rem,5vw,4.6rem)] font-medium leading-[.98] tracking-[-.05em]">让影像保持呼吸</h2></div>
-        <div className="max-w-lg md:self-end md:justify-self-end"><p className="font-light leading-8 text-white/62">可承接建筑、风光、旅行与编辑类拍摄。若你有一个等待被看见的地点，欢迎来信。</p><a href="mailto:hello@example.com" className="mt-8 inline-flex border-b border-white/35 pb-2 text-sm tracking-[.1em] transition-colors hover:border-white">发起合作 →</a></div>
+        <div className="max-w-lg md:self-end md:justify-self-end"><p className="font-light leading-8 text-white/62">可承接建筑、风光、旅行与编辑类拍摄。若你有一个等待被看见的地点，欢迎来信。</p><a href="mailto:zbzzzzzzz@qq.com" className="mt-8 inline-flex border-b border-white/35 pb-2 text-sm tracking-[.1em] transition-colors hover:border-white">发起合作 →</a></div>
       </section>
       <SiteFooter />
     </main>
