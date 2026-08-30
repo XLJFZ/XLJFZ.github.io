@@ -9,7 +9,7 @@ export default function SeriesIndex() {
       <SiteHeader />
       <section className="px-5 pb-16 pt-14 md:px-10 md:pb-24 md:pt-24">
         <div className="mb-14 grid gap-6 md:grid-cols-2 md:items-end">
-          <h1 className="text-[clamp(3rem,8vw,7rem)] font-medium leading-none tracking-[-0.06em]">作品系列</h1>
+          <h1 className="text-[clamp(2.8rem,6.5vw,5.8rem)] font-medium leading-none tracking-[-0.055em]">作品系列</h1>
           <p className="max-w-md text-sm font-light leading-7 text-black/55 md:justify-self-end">从城市边缘到高原腹地，观察光线、时间与自然之间的关系。</p>
         </div>
         <div className="space-y-16 md:space-y-24">

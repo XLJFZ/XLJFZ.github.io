@@ -49,8 +49,15 @@
 }
 
 html { scroll-behavior: smooth; }
-body { margin: 0; font-family: var(--font-cjk), var(--font-sans), Arial, sans-serif; }
+body { margin: 0; overflow-x: hidden; font-family: var(--font-cjk), var(--font-sans), Arial, sans-serif; text-rendering: optimizeLegibility; }
 a { color: inherit; text-decoration: none; }
+::selection { background: rgba(35, 35, 32, .92); color: #fff; }
+:focus-visible { outline: 1px solid currentColor; outline-offset: 5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
 
 :root {
   --background: oklch(0.965 0.004 78);

@@ -25,7 +25,7 @@ export default async function SeriesPage({ params }: Props) {
     <main>
       <SiteHeader />
       <section className="grid gap-10 px-5 pb-14 pt-12 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24">
-        <div><p className="text-[10px] uppercase tracking-[0.24em] text-black/45">{item.category} · {item.englishTitle}</p><h1 className="mt-4 text-[clamp(3.2rem,8vw,8rem)] font-medium leading-[.9] tracking-[-0.065em]">{item.title}</h1></div>
+        <div><p className="text-[10px] uppercase tracking-[0.24em] text-black/45">{item.category} · {item.englishTitle}</p><h1 className="mt-4 text-[clamp(2.8rem,6.5vw,6.2rem)] font-medium leading-[.94] tracking-[-0.055em]">{item.title}</h1></div>
         <div className="max-w-lg md:self-end"><p className="text-sm font-light leading-7 text-black/65">{item.statement}</p><dl className="mt-8 grid grid-cols-2 gap-4 border-t border-black/10 pt-4 text-xs"><div><dt className="text-black/40">地点</dt><dd className="mt-1">{item.location}</dd></div><div><dt className="text-black/40">年份</dt><dd className="mt-1">{item.year}</dd></div></dl></div>
       </section>
       <section className="px-0 md:px-5"><LightboxGallery images={item.images} /></section>
