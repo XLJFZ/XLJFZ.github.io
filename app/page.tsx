@@ -8,7 +8,7 @@ export default function Home() {
     <main>
       <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white">
         <SiteHeader inverse />
-        <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=2200&q=88" alt="粗野主义建筑在阴云下的几何轮廓" className="absolute inset-0 h-full w-full scale-[1.01] object-cover opacity-85" />
+        <img src="/hero-zbz-2714.jpg" alt="暮色中的雪山群峰与湖面倒影" width="3000" height="1717" fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full scale-[1.01] object-cover opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/70" aria-hidden="true" />
         <div className="relative z-10 grid w-full gap-6 px-5 pb-7 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:pb-10">
           <div><p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-white/70">建筑 · 风景 · 2023—2026</p><h1 className="max-w-4xl text-[clamp(3.2rem,9vw,8.7rem)] font-medium leading-[0.86] tracking-[-0.065em]">空间的<br />静默叙事</h1></div>

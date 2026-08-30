@@ -7,16 +7,16 @@ const chinese = Noto_Sans_SC({ variable: '--font-cjk', subsets: ['latin'], weigh
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://linye-photo-portfolio.zhaobz2006.chatgpt.site'),
-  title: '林野影像｜建筑与风景摄影',
+  title: '迅雷疾风｜建筑与风景摄影',
   description: '专注建筑、空间与自然景观的个人摄影作品集。',
   openGraph: {
-    title: '林野影像｜建筑与风景摄影',
+    title: '迅雷疾风｜建筑与风景摄影',
     description: '专注建筑、空间与自然景观的个人摄影作品集。',
-    images: [{ url: '/og.png', width: 1731, height: 909, alt: '林野影像——建筑与风景摄影' }],
+    images: [{ url: '/og.png', width: 1734, height: 907, alt: '迅雷疾风——建筑与风景摄影' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '林野影像｜建筑与风景摄影',
+    title: '迅雷疾风｜建筑与风景摄影',
     description: '专注建筑、空间与自然景观的个人摄影作品集。',
     images: ['/og.png'],
   },

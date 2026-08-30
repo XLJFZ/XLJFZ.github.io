@@ -13,7 +13,7 @@ export function generateStaticParams() { return series.map(({ slug }) => ({ slug
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = getSeries((await params).slug);
   if (!item) return {};
-  const title = `${item.title}｜林野影像`;
+  const title = `${item.title}｜迅雷疾风`;
   return { title, description: item.statement, openGraph: { title, description: item.statement, images: [{ url: item.cover, alt: item.title }] }, twitter: { card: 'summary_large_image', title, description: item.statement, images: [item.cover] } };
 }
 
