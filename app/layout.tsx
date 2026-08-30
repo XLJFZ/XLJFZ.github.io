@@ -8,16 +8,16 @@ const chinese = Noto_Sans_SC({ variable: '--font-cjk', subsets: ['latin'], weigh
 export const metadata: Metadata = {
   metadataBase: new URL('https://xunlei-jifeng.zhaobz2006.chatgpt.site'),
   title: '迅雷疾风｜建筑与风景摄影',
-  description: '专注建筑、空间与自然景观的个人摄影作品集。',
+  description: '专注建筑、旅行与自然风景的个人摄影作品集。',
   openGraph: {
     title: '迅雷疾风｜建筑与风景摄影',
-    description: '专注建筑、空间与自然景观的个人摄影作品集。',
+    description: '专注建筑、旅行与自然风景的个人摄影作品集。',
     images: [{ url: '/og.png', width: 1734, height: 907, alt: '迅雷疾风——建筑与风景摄影' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: '迅雷疾风｜建筑与风景摄影',
-    description: '专注建筑、空间与自然景观的个人摄影作品集。',
+    description: '专注建筑、旅行与自然风景的个人摄影作品集。',
     images: ['/og.png'],
   },
 };
