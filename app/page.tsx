@@ -25,7 +25,7 @@ export default function Home() {
             <p className="mt-5 max-w-md text-xs font-light leading-6 text-white/62 md:text-sm">在抵达与离开之间，记录光线、天气和地景短暂相遇的瞬间。</p>
           </div>
           <div className="flex items-end justify-between gap-8 md:flex-col md:items-end">
-            <p className="text-[10px] tracking-[0.15em] text-white/50">滇西北 · 2025</p>
+            <p className="text-[10px] tracking-[0.15em] text-white/50">梅里雪山（雪达湖）· 2025</p>
             <Link href="/series" className="group flex items-center gap-5 border-b border-white/35 pb-2 text-xs tracking-[0.14em] transition-colors hover:border-white hover:text-white">
               浏览作品 <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
             </Link>
