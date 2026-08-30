@@ -11,7 +11,7 @@ export default function Home() {
         <img src="/hero-zbz-2714.jpg" alt="暮色中的雪山群峰与湖面倒影" width="3000" height="1717" fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full scale-[1.01] object-cover opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/70" aria-hidden="true" />
         <div className="relative z-10 grid w-full gap-6 px-5 pb-7 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:pb-10">
-          <div><p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-white/70">建筑 · 风景 · 2023—2026</p><h1 className="max-w-4xl text-[clamp(2.6rem,5.8vw,5.8rem)] font-medium leading-[0.95] tracking-[-0.045em]">静默叙事</h1></div>
+          <div><p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-white/70">建筑 · 风景 · 2023—2026</p><h1 className="max-w-4xl text-[clamp(2.6rem,5.8vw,5.8rem)] font-medium leading-[0.95] tracking-[-0.045em]">风从群山来</h1></div>
           <Link href="/series" className="mb-1 flex items-center gap-4 text-xs tracking-[0.14em] text-white/85 transition-colors hover:text-white">浏览作品 <span aria-hidden="true" className="text-lg">↘</span></Link>
         </div>
       </section>
