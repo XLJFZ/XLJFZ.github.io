@@ -75,8 +75,8 @@ export const series: Series[] = [
       { src: '/portfolio/distant-weather/pingtan-dsc-5328.jpg', alt: '蓝色荧光海浪的俯视画面', caption: '平潭 · 2025' },
       { src: '/portfolio/distant-weather/pingtan-zbz-2955.jpg', alt: '蓝色荧光海浪与礁石', caption: '平潭 · 2025' },
       { src: '/portfolio/distant-weather/gannan-dji-0934.jpg', alt: '双彩虹落在甘南山间湖泊与草地之间', caption: '甘南 · 2025' },
-      { src: '/portfolio/distant-weather/ninghai-zbz-6273.jpg', alt: '金色云海中的宁海风力发电机与近景花朵', caption: '宁海' },
-      { src: '/portfolio/distant-weather/ninghai-zbz-6289.jpg', alt: '晨光穿过宁海云海、山脊与茶园', caption: '宁海', layout: 'portrait' },
+      { src: '/portfolio/distant-weather/ninghai-zbz-6273.jpg', alt: '金色云海中的宁海风力发电机与近景花朵', caption: '宁海 · 2024' },
+      { src: '/portfolio/distant-weather/ninghai-zbz-6289.jpg', alt: '晨光穿过宁海云海、山脊与茶园', caption: '宁海 · 2024', layout: 'portrait' },
     ],
   },
   {

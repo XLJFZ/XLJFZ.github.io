@@ -43,7 +43,7 @@ test('every portfolio asset is referenced once and no photographs are duplicated
   assert.equal(new Set(hashes).size, hashes.length, 'duplicate image files in public/portfolio');
 });
 
-test('user-confirmed dates are retained for the five identified photographs', async () => {
+test('user-confirmed dates are retained for the identified photographs', async () => {
   const source = await readFile('lib/portfolio.ts', 'utf8');
   const confirmedCaptions = [
     ["shanghai-img-173301.jpg", "caption: '上海 · 2022'"],
@@ -51,6 +51,8 @@ test('user-confirmed dates are retained for the five identified photographs', as
     ["shanghai-zbz-9081.jpg", "caption: '上海 · 2024'"],
     ["nanchang-zbz-1447.jpg", "caption: '南昌 · 2024'"],
     ["nanchang-zbz-1370.jpg", "caption: '南昌 · 2024'"],
+    ["ninghai-zbz-6273.jpg", "caption: '宁海 · 2024'"],
+    ["ninghai-zbz-6289.jpg", "caption: '宁海 · 2024'"],
   ];
 
   for (const [filename, caption] of confirmedCaptions) {
