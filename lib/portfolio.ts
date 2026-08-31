@@ -1,3 +1,10 @@
+export type PortfolioImage = {
+  src: string;
+  alt: string;
+  caption?: string;
+  layout?: 'portrait' | 'medium';
+};
+
 export type Series = {
   slug: string;
   title: string;
@@ -7,44 +14,63 @@ export type Series = {
   location: string;
   statement: string;
   cover: string;
-  images: { src: string; alt: string; position?: string; caption?: string }[];
+  coverPosition?: string;
+  images: PortfolioImage[];
 };
 
 export const series: Series[] = [
   {
-    slug: 'concrete-silence',
-    title: '混凝土的静默',
-    englishTitle: 'Concrete Silence',
-    category: '建筑',
-    year: '2024—2026',
-    location: '上海 · 苏州 · 杭州',
-    statement: '当人群离开，建筑显露出真正的呼吸。这组作品关注混凝土、光线与留白之间微妙的秩序。',
-    cover: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=2200&q=88',
+    slug: 'urban-pulse',
+    title: '城市脉冲',
+    englishTitle: 'Urban Pulse',
+    category: '城市',
+    year: '2025',
+    location: '重庆 · 东京',
+    statement: '江岸、街巷、轨道与灯光把城市编织成不断变化的截面。镜头沿着人流与交通移动，记录秩序被速度短暂点亮的时刻。',
+    cover: '/portfolio/urban-pulse/chongqing-zbz-9292.jpg',
     images: [
-      { src: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=2200&q=88', alt: '白色现代建筑的几何立面' },
-      { src: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1800&q=88', alt: '粗野主义建筑与天空' },
-      { src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1800&q=88', alt: '现代室内空间与光影' },
-      { src: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1800&q=88', alt: '高层建筑向上视角' },
-      { src: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=2200&q=88', alt: '混凝土立面细节', position: 'center 35%' },
+      { src: '/portfolio/urban-pulse/chongqing-zbz-9292.jpg', alt: '夜色中被船舶光轨环绕的重庆江岸', caption: '重庆 · 2025' },
+      { src: '/portfolio/urban-pulse/chongqing-zbz-9356.jpg', alt: '铁网框景下的重庆高层建筑', caption: '重庆 · 2025', layout: 'portrait' },
+      { src: '/portfolio/urban-pulse/tokyo-zbz-8136.jpg', alt: '电线与街巷之间的东京晴空塔', caption: '东京 · 2025', layout: 'portrait' },
+      { src: '/portfolio/urban-pulse/tokyo-zbz-8295.jpg', alt: '东京夜间街巷与霓虹招牌', caption: '东京 · 2025', layout: 'portrait' },
+      { src: '/portfolio/urban-pulse/tokyo-zbz-8187.jpg', alt: '林荫参道尽头的鸟居', caption: '东京 · 2025' },
+      { src: '/portfolio/urban-pulse/tokyo-zbz-8379.jpg', alt: '东京街道与远处的东京塔', caption: '东京 · 2025', layout: 'portrait' },
+      { src: '/portfolio/urban-pulse/tokyo-ochanomizu-trains.jpg', alt: '御茶之水多列电车交汇的城市景观', caption: '东京 · 御茶之水 · 2025', layout: 'portrait' },
     ],
   },
   {
     slug: 'distant-weather',
     title: '远方的天气',
     englishTitle: 'Distant Weather',
-    category: '风景',
-    year: '2023—2025',
-    location: '香格里拉 · 梅里雪山 · 川西 · 青海',
+    category: '风光',
+    year: '2025',
+    location: '香格里拉 · 梅里雪山 · 平潭 · 甘南',
     statement: '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
     cover: '/portfolio/dsc-2989-shangri-la.jpg',
+    coverPosition: 'center 45%',
     images: [
-      { src: '/portfolio/dsc-2989-shangri-la.jpg', alt: '晨光与薄雾中的香格里拉建筑群', position: 'center 45%', caption: '香格里拉 · 2025' },
-      { src: '/portfolio/zbz-1242-meili.jpg', alt: '星轨下的梅里雪山雪峰', position: 'center 45%', caption: '梅里雪山 · 2025' },
-      { src: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=88', alt: '云雾中的山峰' },
-      { src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=88', alt: '晨雾中的原野' },
-      { src: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1800&q=88', alt: '森林中的光线' },
-      { src: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1800&q=88', alt: '山谷湖泊与远山' },
-      { src: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=2200&q=88', alt: '荒野道路与远方山脉' },
+      { src: '/portfolio/dsc-2989-shangri-la.jpg', alt: '晨光与薄雾中的香格里拉建筑群', caption: '香格里拉 · 2025' },
+      { src: '/portfolio/zbz-1242-meili.jpg', alt: '星轨下的梅里雪山雪峰', caption: '梅里雪山 · 2025', layout: 'medium' },
+      { src: '/portfolio/distant-weather/pingtan-dsc-5082.jpg', alt: '夜色中发出蓝光的平潭海浪', caption: '平潭 · 2025' },
+      { src: '/portfolio/distant-weather/pingtan-dsc-5328.jpg', alt: '蓝色荧光海浪的俯视画面', caption: '平潭 · 2025' },
+      { src: '/portfolio/distant-weather/pingtan-zbz-2955.jpg', alt: '蓝色荧光海浪与礁石', caption: '平潭 · 2025' },
+      { src: '/portfolio/distant-weather/gannan-dji-0934.jpg', alt: '双彩虹落在甘南山间湖泊与草地之间', caption: '甘南 · 2025' },
+    ],
+  },
+  {
+    slug: 'textures-of-time',
+    title: '时间的纹理',
+    englishTitle: 'Textures of Time',
+    category: '人文',
+    year: '2025',
+    location: '大同 · 应县 · 景德镇',
+    statement: '石窟、木构与民艺在时间中留下各自的表面。光线落在雕刻、斗拱与织物上，让历史不再遥远。',
+    cover: '/portfolio/textures-of-time/datong-zbz-3752.jpg',
+    coverPosition: 'center 42%',
+    images: [
+      { src: '/portfolio/textures-of-time/datong-zbz-3752.jpg', alt: '洞窟光线中的大同石刻造像', caption: '大同 · 2025', layout: 'portrait' },
+      { src: '/portfolio/textures-of-time/yingxian-zbz-4640.jpg', alt: '林木环绕的应县木塔', caption: '应县 · 2025', layout: 'portrait' },
+      { src: '/portfolio/textures-of-time/jingdezhen-zbz-9983.jpg', alt: '景德镇街头龙形表演道具的细节', caption: '景德镇 · 2025', layout: 'portrait' },
     ],
   },
 ];
