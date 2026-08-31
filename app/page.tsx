@@ -26,7 +26,7 @@ export default function Home() {
           </div>
           <div className="flex items-end justify-between gap-8 md:flex-col md:items-end">
             <p className="text-[10px] tracking-[0.15em] text-white/50">梅里雪山（雪达湖）· 2025</p>
-            <a href="/series" className="group flex items-center gap-5 border-b border-white/35 pb-2 text-xs tracking-[0.14em] transition-colors hover:border-white hover:text-white">
+            <a href="/series/" className="group flex items-center gap-5 border-b border-white/35 pb-2 text-xs tracking-[0.14em] transition-colors hover:border-white hover:text-white">
               浏览作品 <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
             </a>
           </div>
@@ -41,7 +41,7 @@ export default function Home() {
 
         <div className="space-y-20 md:space-y-28">
           {series.map((item, index) => (
-            <a href={`/series/${item.slug}`} key={item.slug} className={`group grid gap-5 md:grid-cols-[1.45fr_.55fr] md:items-end md:gap-8 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : ''}`}>
+            <a href={`/series/${item.slug}/`} key={item.slug} className={`group grid gap-5 md:grid-cols-[1.45fr_.55fr] md:items-end md:gap-8 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : ''}`}>
               <div className={`overflow-hidden bg-neutral-200 ${index % 2 ? 'md:order-2' : ''}`}>
                 <img src={item.cover} alt={item.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.012]" style={{ objectPosition: item.coverPosition ?? 'center' }} />
               </div>
