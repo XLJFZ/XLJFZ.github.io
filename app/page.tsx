@@ -35,7 +35,7 @@ export default function Home() {
 
       <section className="px-5 py-20 md:px-10 md:py-28">
         <div className="mb-16 grid gap-7 border-t border-black/10 pt-5 md:grid-cols-[1fr_1.2fr] md:items-start">
-          <p className="text-[10px] tracking-[0.24em] text-black/45">精选系列 · 01—02</p>
+          <p className="text-[10px] tracking-[0.24em] text-black/45">精选系列 · 01—{String(series.length).padStart(2, '0')}</p>
           <p className="max-w-xl text-lg font-light leading-8 tracking-[-0.02em] md:justify-self-end md:text-xl md:leading-9">在城市的秩序与自然的偶然之间，寻找安静、准确而有余韵的画面。</p>
         </div>
 
@@ -43,11 +43,11 @@ export default function Home() {
           {series.map((item, index) => (
             <Link href={`/series/${item.slug}`} key={item.slug} className={`group grid gap-5 md:grid-cols-[1.45fr_.55fr] md:items-end md:gap-8 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : ''}`}>
               <div className={`overflow-hidden bg-neutral-200 ${index % 2 ? 'md:order-2' : ''}`}>
-                <img src={item.cover} alt={item.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.012]" />
+                <img src={item.cover} alt={item.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.012]" style={{ objectPosition: item.coverPosition ?? 'center' }} />
               </div>
               <div className={index % 2 ? 'md:order-1' : ''}>
                 <div className="flex items-center justify-between border-t border-black/10 pt-3 text-[10px] tracking-[.18em] text-black/40">
-                  <span>{String(index + 1).padStart(2, '0')} · {item.category === '风景' ? '风光' : item.category}</span>
+                  <span>{String(index + 1).padStart(2, '0')} · {item.category}</span>
                   <span>{item.year}</span>
                 </div>
                 <h2 className="mt-5 text-4xl font-medium leading-none tracking-[-.05em] md:text-5xl">{item.title}</h2>

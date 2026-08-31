@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 
-type ImageItem = { src: string; alt: string; position?: string; caption?: string };
+type ImageItem = { src: string; alt: string; caption?: string; layout?: 'portrait' | 'medium' };
 
 export function LightboxGallery({ images }: { images: ImageItem[] }) {
   const [active, setActive] = useState<number | null>(null);
@@ -25,9 +25,9 @@ export function LightboxGallery({ images }: { images: ImageItem[] }) {
     <>
       <div className="space-y-3 md:space-y-5">
         {images.map((image, index) => (
-          <figure key={`${image.src}-${index}`} className={index % 3 === 1 ? 'md:mx-auto md:w-[72%]' : ''}>
+          <figure key={`${image.src}-${index}`} className={image.layout === 'portrait' ? 'md:mx-auto md:w-[60%]' : image.layout === 'medium' ? 'md:mx-auto md:w-[72%]' : ''}>
             <button onClick={() => setActive(index)} className="group block w-full overflow-hidden bg-neutral-200" aria-label={`放大查看：${image.alt}`}>
-              <img src={image.src} alt={image.alt} loading={index > 1 ? 'lazy' : 'eager'} className={`w-full object-cover transition-transform duration-700 group-hover:scale-[1.015] ${index % 3 === 1 ? 'aspect-[4/5]' : 'aspect-[16/10]'}`} style={{ objectPosition: image.position ?? 'center' }} />
+              <img src={image.src} alt={image.alt} loading={index > 1 ? 'lazy' : 'eager'} className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008]" />
             </button>
             {image.caption && <figcaption className="px-5 pb-2 pt-3 text-[10px] tracking-[0.16em] text-black/45 md:px-0">{image.caption}</figcaption>}
           </figure>
