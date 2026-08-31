@@ -7,6 +7,7 @@ import test from 'node:test';
 test('site metadata can target the GitHub Pages domain at build time', async () => {
   const layout = await readFile('app/layout.tsx', 'utf8');
   assert.match(layout, /process\.env\.NEXT_PUBLIC_SITE_URL/);
+  assert.match(layout, /https:\/\/xljfz\.github\.io/);
 });
 
 test('exports every public route as GitHub Pages HTML', async () => {

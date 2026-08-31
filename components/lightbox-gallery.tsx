@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import type { PortfolioImage } from '@/lib/portfolio';
+import { cn } from '@/lib/utils';
 
-type ImageItem = { src: string; alt: string; caption?: string; layout?: 'portrait' | 'medium' };
-
-export function LightboxGallery({ images }: { images: ImageItem[] }) {
+export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [active, setActive] = useState<number | null>(null);
   const prev = () => setActive((value) => value === null ? null : (value - 1 + images.length) % images.length);
   const next = () => setActive((value) => value === null ? null : (value + 1) % images.length);
@@ -23,13 +23,22 @@ export function LightboxGallery({ images }: { images: ImageItem[] }) {
 
   return (
     <>
-      <div className="space-y-3 md:space-y-5">
+      <div className="grid grid-cols-1 gap-y-10 md:grid-cols-2 md:items-start md:gap-x-[clamp(1.5rem,3vw,3.75rem)] md:gap-y-[clamp(3.5rem,7vw,8rem)]">
         {images.map((image, index) => (
-          <figure key={`${image.src}-${index}`} className={image.layout === 'portrait' ? 'md:mx-auto md:w-[60%]' : image.layout === 'medium' ? 'md:mx-auto md:w-[72%]' : ''}>
-            <button onClick={() => setActive(index)} className="group block w-full overflow-hidden bg-neutral-200" aria-label={`放大查看：${image.alt}`}>
+          <figure
+            key={`${image.src}-${index}`}
+            className={cn(
+              'w-full min-w-0',
+              image.layout === 'wide' && 'md:col-span-2',
+              image.layout === 'portrait' && 'md:w-[84%]',
+              image.layout === 'medium' && 'md:w-[88%]',
+              image.layout !== 'wide' && index % 2 === 1 && 'md:mt-[clamp(2rem,5vw,6rem)] md:justify-self-end',
+            )}
+          >
+            <button onClick={() => setActive(index)} className="group block w-full overflow-hidden bg-neutral-200 shadow-[0_18px_55px_rgba(38,34,27,.06)]" aria-label={`放大查看：${image.alt}`}>
               <img src={image.src} alt={image.alt} loading={index > 1 ? 'lazy' : 'eager'} className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008]" />
             </button>
-            {image.caption && <figcaption className="px-5 pb-2 pt-3 text-[10px] tracking-[0.16em] text-black/45 md:px-0">{image.caption}</figcaption>}
+            {image.caption && <figcaption className="pt-3 text-[10px] tracking-[0.16em] text-black/45 md:pt-4">{image.caption}</figcaption>}
           </figure>
         ))}
       </div>

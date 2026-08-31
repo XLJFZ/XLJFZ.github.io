@@ -23,12 +23,12 @@ export default async function SeriesPage({ params }: Props) {
   return (
     <main>
       <SiteHeader />
-      <section className="grid gap-10 px-5 pb-14 pt-12 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24">
+      <section className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16">
         <div><p className="text-[10px] uppercase tracking-[0.24em] text-black/45">{item.category} · {item.englishTitle}</p><h1 className="mt-4 text-[clamp(2.8rem,6.5vw,6.2rem)] font-medium leading-[.94] tracking-[-0.055em]">{item.title}</h1></div>
         <div className="max-w-lg md:self-end"><p className="text-sm font-light leading-7 text-black/65">{item.statement}</p><dl className="mt-8 grid grid-cols-2 gap-4 border-t border-black/10 pt-4 text-xs"><div><dt className="text-black/40">地点</dt><dd className="mt-1">{item.location}</dd></div><div><dt className="text-black/40">年份</dt><dd className="mt-1">{item.year}</dd></div></dl></div>
       </section>
-      <section className="px-0 md:px-5"><LightboxGallery images={item.images} /></section>
-      <a href={`/series/${next.slug}/`} className="group my-20 grid gap-4 border-y border-black/10 px-5 py-10 md:mx-10 md:grid-cols-[1fr_auto] md:items-end md:px-0 md:py-14"><div><p className="text-[10px] uppercase tracking-[.22em] text-black/40">下一组作品</p><h2 className="mt-3 text-4xl font-medium tracking-[-.05em] md:text-6xl">{next.title}</h2></div><span className="text-2xl transition-transform group-hover:translate-x-2">→</span></a>
+      <section className="mx-auto max-w-[1480px] px-5 sm:px-8 md:px-10 lg:px-14 xl:px-16"><LightboxGallery images={item.images} /></section>
+      <a href={`/series/${next.slug}/`} className="group mx-auto my-20 grid max-w-[1480px] gap-4 border-y border-black/10 px-5 py-10 sm:px-8 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:py-14 lg:px-14 xl:px-16"><div><p className="text-[10px] uppercase tracking-[.22em] text-black/40">下一组作品</p><h2 className="mt-3 text-4xl font-medium tracking-[-.05em] md:text-6xl">{next.title}</h2></div><span className="text-2xl transition-transform group-hover:translate-x-2">→</span></a>
       <SiteFooter />
     </main>
   );
