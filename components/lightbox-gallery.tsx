@@ -35,10 +35,10 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
               image.layout !== 'wide' && index % 2 === 1 && 'md:mt-[clamp(2rem,5vw,6rem)] md:justify-self-end',
             )}
           >
-            <button onClick={() => setActive(index)} className="group block w-full overflow-hidden bg-neutral-200 shadow-[0_18px_55px_rgba(38,34,27,.06)]" aria-label={`放大查看：${image.alt}`}>
+            <button onClick={() => setActive(index)} className="group block w-full overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.26)]" aria-label={`放大查看：${image.alt}`}>
               <img src={image.src} alt={image.alt} loading={index > 1 ? 'lazy' : 'eager'} className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008]" />
             </button>
-            {image.caption && <figcaption className="pt-3 text-[10px] tracking-[0.16em] text-black/45 md:pt-4">{image.caption}</figcaption>}
+            {image.caption && <figcaption className="pt-3 text-[10px] tracking-[0.16em] text-foreground/45 md:pt-4">{image.caption}</figcaption>}
           </figure>
         ))}
       </div>
