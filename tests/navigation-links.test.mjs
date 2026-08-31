@@ -18,6 +18,6 @@ test('internal navigation uses native links in the deployed site', async () => {
     assert.doesNotMatch(source, /from ['"]next\/link['"]/, 'next/link breaks clicks in the deployed runtime');
   }
 
-  assert.match(sources[0], /<a[^>]+href="\/series"[^>]*>作品<\/a>/s);
-  assert.match(sources[0], /<a[^>]+href="\/about"[^>]*>关于<\/a>/s);
+  assert.match(sources[0], /<a[^>]+href="\/series\/"[^>]*>作品<\/a>/s);
+  assert.match(sources[0], /<a[^>]+href="\/about\/"[^>]*>关于<\/a>/s);
 });
