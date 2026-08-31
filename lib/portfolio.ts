@@ -53,9 +53,9 @@ export const series: Series[] = [
       { src: '/portfolio/urban-pulse/shanghai-img-150903.jpg', alt: '晴天下的上海武康大楼与街口车流', caption: '上海 · 2024', layout: 'portrait' },
       { src: '/portfolio/urban-pulse/shanghai-img-173301.jpg', alt: '黑白画面中的上海行人与建筑光影', caption: '上海 · 2022', layout: 'wide' },
       { src: '/portfolio/urban-pulse/shanghai-zbz-0216.jpg', alt: '上海街角阳光下的咖啡馆与自行车', caption: '上海 · 2025', layout: 'portrait' },
-      { src: '/portfolio/urban-pulse/shanghai-zbz-9081.jpg', alt: '上海老街通向陆家嘴高楼的红色车轨', caption: '上海', layout: 'portrait' },
-      { src: '/portfolio/urban-pulse/nanchang-zbz-1447.jpg', alt: '低角度仰望南昌摩天轮座舱', caption: '南昌' },
-      { src: '/portfolio/urban-pulse/nanchang-zbz-1370.jpg', alt: '南昌红谷滩商务区与城市道路', caption: '南昌', layout: 'portrait' },
+      { src: '/portfolio/urban-pulse/shanghai-zbz-9081.jpg', alt: '上海老街通向陆家嘴高楼的红色车轨', caption: '上海 · 2024', layout: 'portrait' },
+      { src: '/portfolio/urban-pulse/nanchang-zbz-1447.jpg', alt: '低角度仰望南昌摩天轮座舱', caption: '南昌 · 2024' },
+      { src: '/portfolio/urban-pulse/nanchang-zbz-1370.jpg', alt: '南昌红谷滩商务区与城市道路', caption: '南昌 · 2024', layout: 'portrait' },
     ],
   },
   {
