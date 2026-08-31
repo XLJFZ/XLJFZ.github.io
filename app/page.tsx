@@ -15,6 +15,7 @@ export default function Home() {
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 h-full w-full scale-[1.01] object-cover opacity-95"
+          style={{ filter: 'saturate(1.12)' }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,18,.15)_0%,transparent_42%,rgba(8,10,18,.76)_100%)]" aria-hidden="true" />
         <div className="relative z-10 grid w-full gap-8 px-5 pb-8 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:pb-11">
