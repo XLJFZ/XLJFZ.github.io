@@ -35,28 +35,28 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-32">
-        <div className="mb-16 grid gap-7 border-t border-black/10 pt-5 md:grid-cols-[1fr_1.2fr] md:items-start">
-          <p className="text-[10px] tracking-[0.24em] text-black/45">精选系列 · 01—{String(series.length).padStart(2, '0')}</p>
+        <div className="mb-16 grid gap-7 border-t border-foreground/10 pt-5 md:grid-cols-[1fr_1.2fr] md:items-start">
+          <p className="text-[10px] tracking-[0.24em] text-foreground/45">精选系列 · 01—{String(series.length).padStart(2, '0')}</p>
           <p className="max-w-xl text-lg font-light leading-8 tracking-[-0.02em] md:justify-self-end md:text-xl md:leading-9">在城市的秩序与自然的偶然之间，寻找安静、准确而有余韵的画面。</p>
         </div>
 
         <div className="space-y-20 md:space-y-28">
           {series.map((item, index) => (
             <a href={`/series/${item.slug}/`} key={item.slug} className={`group grid gap-5 md:grid-cols-[1.45fr_.55fr] md:items-end md:gap-10 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : ''}`}>
-              <div className={`relative overflow-hidden bg-neutral-200 shadow-[0_22px_70px_rgba(38,34,27,.08)] ${index % 2 ? 'md:order-2' : ''}`}>
+              <div className={`relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}>
                 <img src={item.cover} alt={item.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.025]" style={{ objectPosition: item.coverPosition ?? 'center' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" aria-hidden="true" />
                 <span className="absolute left-4 top-4 border border-white/30 bg-black/15 px-2.5 py-1 text-[9px] tracking-[.2em] text-white backdrop-blur-sm md:left-5 md:top-5">{String(index + 1).padStart(2, '0')}</span>
               </div>
               <div className={index % 2 ? 'md:order-1' : ''}>
-                <div className="flex items-center justify-between border-t border-black/10 pt-3 text-[10px] tracking-[.18em] text-black/40">
+                <div className="flex items-center justify-between border-t border-foreground/10 pt-3 text-[10px] tracking-[.18em] text-foreground/40">
                   <span>{String(index + 1).padStart(2, '0')} · {item.category}</span>
                   <span>{item.year}</span>
                 </div>
                 <h2 className="mt-5 text-4xl font-medium leading-none tracking-[-.05em] md:text-5xl">{item.title}</h2>
-                <p className="mt-3 text-xs tracking-[.1em] text-black/45">{item.englishTitle}</p>
-                <p className="mt-6 max-w-sm text-sm font-light leading-7 text-black/55">{item.statement}</p>
-                <p className="mt-4 text-[10px] tracking-[.14em] text-black/35">{item.location}</p>
+                <p className="mt-3 text-xs tracking-[.1em] text-foreground/45">{item.englishTitle}</p>
+                <p className="mt-6 max-w-sm text-sm font-light leading-7 text-foreground/55">{item.statement}</p>
+                <p className="mt-4 text-[10px] tracking-[.14em] text-foreground/35">{item.location}</p>
                 <span className="mt-7 inline-flex items-center gap-4 text-xs tracking-[.1em]">进入系列 <span className="transition-transform group-hover:translate-x-1">→</span></span>
               </div>
             </a>
