@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 test('alternating home series rows keep the image in the wider column', async () => {
-  const source = await readFile('app/page.tsx', 'utf8');
+  const source = await readFile('src/app/page.tsx', 'utf8');
 
   assert.match(
     source,

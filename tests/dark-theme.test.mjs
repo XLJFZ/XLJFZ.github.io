@@ -3,17 +3,17 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const themedFiles = [
-  'app/page.tsx',
-  'app/about/page.tsx',
-  'app/series/page.tsx',
-  'app/series/[slug]/page.tsx',
-  'components/site-header.tsx',
-  'components/site-footer.tsx',
-  'components/lightbox-gallery.tsx',
+  'src/app/page.tsx',
+  'src/app/about/page.tsx',
+  'src/app/series/page.tsx',
+  'src/app/series/[slug]/page.tsx',
+  'src/components/site-header.tsx',
+  'src/components/site-footer.tsx',
+  'src/components/lightbox-gallery.tsx',
 ];
 
 test('portfolio uses a warm dark-gray theme with matching content colors', async () => {
-  const globals = await readFile('app/globals.css', 'utf8');
+  const globals = await readFile('src/app/globals.css', 'utf8');
   const sources = await Promise.all(themedFiles.map((file) => readFile(file, 'utf8')));
 
   assert.match(globals, /color-scheme:\s*dark/);

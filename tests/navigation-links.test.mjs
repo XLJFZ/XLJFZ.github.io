@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const navigationFiles = [
-  'components/site-header.tsx',
-  'app/page.tsx',
-  'app/series/page.tsx',
-  'app/series/[slug]/page.tsx',
+  'src/components/site-header.tsx',
+  'src/app/page.tsx',
+  'src/app/series/page.tsx',
+  'src/app/series/[slug]/page.tsx',
 ];
 
 test('internal navigation uses native links in the deployed site', async () => {
