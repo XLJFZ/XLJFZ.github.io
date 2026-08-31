@@ -7,7 +7,7 @@ export type Series = {
   location: string;
   statement: string;
   cover: string;
-  images: { src: string; alt: string; position?: string }[];
+  images: { src: string; alt: string; position?: string; caption?: string }[];
 };
 
 export const series: Series[] = [
@@ -34,10 +34,12 @@ export const series: Series[] = [
     englishTitle: 'Distant Weather',
     category: '风景',
     year: '2023—2025',
-    location: '川西 · 云南 · 青海',
+    location: '香格里拉 · 梅里雪山 · 川西 · 青海',
     statement: '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
-    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=88',
+    cover: '/portfolio/dsc-2989-shangri-la.jpg',
     images: [
+      { src: '/portfolio/dsc-2989-shangri-la.jpg', alt: '晨光与薄雾中的香格里拉建筑群', position: 'center 45%', caption: '香格里拉 · 2025' },
+      { src: '/portfolio/zbz-1242-meili.jpg', alt: '星轨下的梅里雪山雪峰', position: 'center 45%', caption: '梅里雪山 · 2025' },
       { src: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=88', alt: '云雾中的山峰' },
       { src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=88', alt: '晨雾中的原野' },
       { src: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1800&q=88', alt: '森林中的光线' },
