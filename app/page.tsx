@@ -42,7 +42,7 @@ export default function Home() {
 
         <div className="space-y-20 md:space-y-28">
           {series.map((item, index) => (
-            <a href={`/series/${item.slug}/`} key={item.slug} className={`group grid gap-5 md:grid-cols-[1.45fr_.55fr] md:items-end md:gap-10 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : ''}`}>
+            <a href={`/series/${item.slug}/`} key={item.slug} className={`group grid gap-5 md:items-end md:gap-10 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : 'md:grid-cols-[1.45fr_.55fr]'}`}>
               <div className={`relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}>
                 <img src={item.cover} alt={item.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.025]" style={{ objectPosition: item.coverPosition ?? 'center' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" aria-hidden="true" />

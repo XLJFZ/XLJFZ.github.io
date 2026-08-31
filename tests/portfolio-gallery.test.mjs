@@ -21,6 +21,7 @@ test('series gallery is two-column on desktop and one-column on mobile', async (
   assert.match(gallery, /grid-cols-1/);
   assert.match(gallery, /md:grid-cols-2/);
   assert.match(gallery, /md:col-span-2/);
+  assert.doesNotMatch(gallery, /md:mt-\[/, 'images sharing a desktop row should align at the top');
   assert.match(page, /max-w-\[1480px\]/);
 });
 

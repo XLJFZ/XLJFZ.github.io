@@ -32,7 +32,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
               image.layout === 'wide' && 'md:col-span-2',
               image.layout === 'portrait' && 'md:w-[84%]',
               image.layout === 'medium' && 'md:w-[88%]',
-              image.layout !== 'wide' && index % 2 === 1 && 'md:mt-[clamp(2rem,5vw,6rem)] md:justify-self-end',
+              image.layout !== 'wide' && index % 2 === 1 && 'md:justify-self-end',
             )}
           >
             <button onClick={() => setActive(index)} className="group block w-full overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.26)]" aria-label={`放大查看：${image.alt}`}>
