@@ -15,3 +15,10 @@ test('alternating home series rows keep the image in the wider column', async ()
     'the base and alternating desktop grids must not conflict',
   );
 });
+
+test('the homepage hero uses the user-confirmed Deqin location label', async () => {
+  const source = await readFile('src/app/page.tsx', 'utf8');
+
+  assert.match(source, /德钦 · 雪达湖 · 2025/);
+  assert.doesNotMatch(source, /梅里雪山（雪达湖）/);
+});
