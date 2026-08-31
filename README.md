@@ -83,11 +83,13 @@ git push origin main
 ## 项目结构 / Structure
 
 ```text
-app/                         页面与路由 / Pages and routes
-components/                  可复用组件 / Reusable components
-lib/portfolio.ts             作品集数据 / Portfolio data
+src/app/                     页面与路由 / Pages and routes
+src/components/              网站组件 / Site components
+src/components/ui/           实际使用的基础组件 / Used UI primitives
+src/lib/portfolio.ts         作品集数据 / Portfolio data
 public/portfolio/            摄影作品 / Photography assets
 scripts/                     GitHub Pages 导出脚本 / Export scripts
+tests/                       自动检查 / Automated checks
 .github/workflows/pages.yml  自动部署流程 / Deployment workflow
 ```
 

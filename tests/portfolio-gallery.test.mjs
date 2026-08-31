@@ -15,8 +15,8 @@ async function listImages(directory) {
 }
 
 test('series gallery is two-column on desktop and one-column on mobile', async () => {
-  const gallery = await readFile('components/lightbox-gallery.tsx', 'utf8');
-  const page = await readFile('app/series/[slug]/page.tsx', 'utf8');
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+  const page = await readFile('src/app/series/[slug]/page.tsx', 'utf8');
 
   assert.match(gallery, /grid-cols-1/);
   assert.match(gallery, /md:grid-cols-2/);
@@ -28,12 +28,12 @@ test('series gallery is two-column on desktop and one-column on mobile', async (
 });
 
 test('every portfolio asset is referenced once and no photographs are duplicated', async () => {
-  const source = await readFile('lib/portfolio.ts', 'utf8');
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const references = [...source.matchAll(/\bsrc: '([^']+)'/g)].map((match) => match[1]);
   const files = await listImages('public/portfolio');
   const publicPaths = files.map((file) => `/${file.replaceAll('\\', '/').replace(/^public\//, '')}`);
 
-  assert.equal(new Set(references).size, references.length, 'duplicate entries in lib/portfolio.ts');
+  assert.equal(new Set(references).size, references.length, 'duplicate entries in src/lib/portfolio.ts');
   assert.deepEqual(
     [...references].sort((left, right) => left.localeCompare(right)),
     [...publicPaths].sort((left, right) => left.localeCompare(right)),
@@ -47,7 +47,7 @@ test('every portfolio asset is referenced once and no photographs are duplicated
 });
 
 test('user-confirmed dates are retained for the identified photographs', async () => {
-  const source = await readFile('lib/portfolio.ts', 'utf8');
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const confirmedCaptions = [
     ["shanghai-img-173301.jpg", "caption: '上海 · 2022'"],
     ["shanghai-zbz-0216.jpg", "caption: '上海 · 2025'"],
@@ -65,7 +65,7 @@ test('user-confirmed dates are retained for the identified photographs', async (
 });
 
 test('the Meili photograph uses Deqin as its location label', async () => {
-  const source = await readFile('lib/portfolio.ts', 'utf8');
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const record = source.split('\n').find((line) => line.includes('zbz-1242-meili.jpg'));
 
   assert.ok(record?.includes("caption: '德钦 · 2025'"));
@@ -73,7 +73,7 @@ test('the Meili photograph uses Deqin as its location label', async () => {
 });
 
 test('series photographs retain the editorial sequence', async () => {
-  const source = await readFile('lib/portfolio.ts', 'utf8');
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const assertOrdered = (filenames) => {
     const positions = filenames.map((filename) => source.indexOf(`src: '${filename}'`));
     assert.ok(positions.every((position) => position >= 0));
