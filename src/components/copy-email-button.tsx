@@ -10,33 +10,40 @@ const EMAIL = 'zbzzzzzzz@qq.com';
 async function copyEmail() {
   try {
     await navigator.clipboard.writeText(EMAIL);
+    toast.add({
+      id: 'email-copied',
+      title: '复制成功',
+      description: EMAIL,
+      type: 'success',
+      timeout: 2200,
+    });
   } catch {
-    const textarea = document.createElement('textarea');
-    textarea.value = EMAIL;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    textarea.remove();
+    toast.add({
+      id: 'email-copy-failed',
+      title: '复制失败',
+      description: `请手动复制：${EMAIL}`,
+      type: 'error',
+      timeout: 4000,
+    });
   }
-
-  toast.add({
-    id: 'email-copied',
-    title: '复制成功',
-    description: EMAIL,
-    type: 'success',
-    timeout: 2200,
-  });
 }
 
-export function CopyEmailButton({ children = 'Email', className }: { children?: ReactNode; className?: string }) {
+export function CopyEmailButton({
+  children = 'Email',
+  className,
+}: {
+  children?: ReactNode;
+  className?: string;
+}) {
   return (
     <Button
       type="button"
       variant="link"
       onClick={copyEmail}
-      className={cn('h-auto p-0 text-inherit underline-offset-4 hover:no-underline', className)}
+      className={cn(
+        'h-auto p-0 text-inherit underline-offset-4 hover:no-underline',
+        className,
+      )}
       aria-label={`复制邮箱 ${EMAIL}`}
     >
       {children}
