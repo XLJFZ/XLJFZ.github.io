@@ -60,3 +60,44 @@ test('user-confirmed dates are retained for the identified photographs', async (
     assert.ok(record?.includes(caption), `${filename} must keep ${caption}`);
   }
 });
+
+test('the Meili photograph uses Deqin as its location label', async () => {
+  const source = await readFile('lib/portfolio.ts', 'utf8');
+  const record = source.split('\n').find((line) => line.includes('zbz-1242-meili.jpg'));
+
+  assert.ok(record?.includes("caption: '德钦 · 2025'"));
+  assert.match(source, /location: '香格里拉 · 德钦 · 甘南 · 平潭 · 宁海'/);
+});
+
+test('series photographs retain the editorial sequence', async () => {
+  const source = await readFile('lib/portfolio.ts', 'utf8');
+  const assertOrdered = (filenames) => {
+    const positions = filenames.map((filename) => source.indexOf(`src: '${filename}'`));
+    assert.ok(positions.every((position) => position >= 0));
+    assert.deepEqual(positions, [...positions].sort((left, right) => left - right));
+  };
+
+  assertOrdered([
+    '/portfolio/urban-pulse/chongqing-zbz-9292.jpg',
+    '/portfolio/urban-pulse/tokyo-zbz-8136.jpg',
+    '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
+    '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
+    '/portfolio/urban-pulse/shenzhen-zbz-7358.jpg',
+    '/portfolio/urban-pulse/nanchang-zbz-1447.jpg',
+    '/portfolio/urban-pulse/hong-kong-zbz-7859.jpg',
+  ]);
+  assertOrdered([
+    '/portfolio/dsc-2989-shangri-la.jpg',
+    '/portfolio/zbz-1242-meili.jpg',
+    '/portfolio/distant-weather/gannan-dji-0934.jpg',
+    '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
+    '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
+  ]);
+  assertOrdered([
+    '/portfolio/textures-of-time/datong-zbz-3752.jpg',
+    '/portfolio/textures-of-time/yingxian-zbz-4640.jpg',
+    '/portfolio/textures-of-time/jingdezhen-zbz-9983.jpg',
+    '/portfolio/textures-of-time/xian-zbz-0868.jpg',
+    '/portfolio/textures-of-time/xian-zbz-0861.jpg',
+  ]);
+});
