@@ -50,9 +50,19 @@
 
 html { scroll-behavior: smooth; }
 body { margin: 0; overflow-x: hidden; font-family: var(--font-cjk), var(--font-sans), Arial, sans-serif; text-rendering: optimizeLegibility; }
+img { display: block; }
 a { color: inherit; text-decoration: none; }
 ::selection { background: rgba(35, 35, 32, .92); color: #fff; }
 :focus-visible { outline: 1px solid currentColor; outline-offset: 5px; }
+
+@keyframes hero-enter {
+  from { transform: scale(1.055); opacity: .72; }
+  to { transform: scale(1.02); opacity: .95; }
+}
+
+.hero-image {
+  animation: hero-enter 1.8s cubic-bezier(.2,.7,.2,1) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
