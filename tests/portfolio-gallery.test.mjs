@@ -227,7 +227,7 @@ test('series year labels cover the confirmed years of their photographs', async 
 
   assert.match(source, /slug: 'urban-pulse',[\s\S]*?year: '2022—2026'/);
   assert.match(source, /slug: 'distant-weather',[\s\S]*?year: '2024—2025'/);
-  assert.match(source, /slug: 'textures-of-time',[\s\S]*?year: '2025'/);
+  assert.match(source, /slug: 'textures-of-time',[\s\S]*?year: '2025—2026'/);
   assert.match(source, /slug: 'nearby-moments',[\s\S]*?year: '2023—2024'/);
 });
 
@@ -257,6 +257,7 @@ test('series photographs retain the editorial sequence', async () => {
     '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
     '/portfolio/urban-pulse/tokyo-zbz-8136.jpg',
     '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
+    '/portfolio/urban-pulse/shanghai-zbz-7974.jpg',
     '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
     '/portfolio/urban-pulse/shenzhen-zbz-7358.jpg',
     '/portfolio/urban-pulse/nanchang-zbz-1447.jpg',
@@ -273,7 +274,9 @@ test('series photographs retain the editorial sequence', async () => {
     '/portfolio/textures-of-time/datong-zbz-3752.jpg',
     '/portfolio/textures-of-time/yingxian-zbz-4640.jpg',
     '/portfolio/textures-of-time/jingdezhen-zbz-9983.jpg',
+    '/portfolio/textures-of-time/huizhou-zbz-6156.jpg',
     '/portfolio/textures-of-time/xian-zbz-0868.jpg',
     '/portfolio/textures-of-time/xian-zbz-0861.jpg',
+    '/portfolio/textures-of-time/huizhou-zbz-5682.jpg',
   ]);
 });
