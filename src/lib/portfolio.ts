@@ -30,12 +30,12 @@ export const series: Series[] = [
     location: '重庆 · 东京 · 上海 · 广州 · 深圳 · 南昌 · 香港',
     statement:
       '江岸、街巷、轨道与灯光把城市编织成不断变化的截面。镜头沿着人流与交通移动，记录秩序被速度短暂点亮的时刻。',
-    cover: '/portfolio/urban-pulse/chongqing-zbz-9292.jpg',
+    cover: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
     images: [
       {
-        src: '/portfolio/urban-pulse/chongqing-zbz-9292.jpg',
-        width: 2800,
-        height: 1709,
+        src: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+        width: 3200,
+        height: 1953,
         alt: '夜色中被船舶光轨环绕的重庆江岸',
         caption: '重庆 · 2025',
         layout: 'wide',
