@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 
@@ -55,6 +55,20 @@ test('every portfolio record includes its real pixel dimensions', async () => {
       `missing dimensions: ${reference}`,
     );
   }
+});
+
+test('the Chongqing hero uses the high-quality web export', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+  const record = portfolioRecord(
+    source,
+    '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+  );
+  const asset = await stat(
+    'public/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+  );
+
+  assert.match(record, /width:\s*3200,\s*height:\s*1953/);
+  assert.ok(asset.size > 1_000_000, 'the low-quality compressed copy returned');
 });
 
 test('every portfolio asset is referenced once and no photographs are duplicated', async () => {
@@ -147,7 +161,7 @@ test('series photographs retain the editorial sequence', async () => {
   };
 
   assertOrdered([
-    '/portfolio/urban-pulse/chongqing-zbz-9292.jpg',
+    '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
     '/portfolio/urban-pulse/tokyo-zbz-8136.jpg',
     '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
     '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
