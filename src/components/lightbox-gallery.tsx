@@ -63,10 +63,13 @@ function buildGalleryRows(items: GalleryItem[]) {
     }
 
     const orientation = imageOrientation(first.image);
-    const partnerIndex = pending.findIndex(
+    let partnerIndex = pending.findIndex(
       ({ image }) =>
         image.layout !== 'wide' && imageOrientation(image) === orientation,
     );
+    if (partnerIndex < 0) {
+      partnerIndex = pending.findIndex(({ image }) => image.layout !== 'wide');
+    }
     const row = [first];
     if (partnerIndex >= 0) row.push(pending.splice(partnerIndex, 1)[0]);
     rows.push(row);
