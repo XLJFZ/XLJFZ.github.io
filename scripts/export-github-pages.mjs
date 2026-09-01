@@ -10,6 +10,7 @@ export const routes = [
   '/series/urban-pulse',
   '/series/distant-weather',
   '/series/textures-of-time',
+  '/series/nearby-moments',
   '/404',
 ];
 
