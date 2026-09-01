@@ -46,6 +46,9 @@ test('long galleries expose editorial chapters without breaking orientation pair
 
   assert.match(gallery, /function buildGallerySections/);
   assert.match(gallery, /section\.label/);
+  assert.match(gallery, /aria-label="专题章节"/);
+  assert.match(gallery, /href={`#chapter-\${sectionIndex \+ 1}`}/);
+  assert.match(gallery, /overflow-x-auto/);
   for (const chapter of [
     '重庆',
     '东京',
@@ -66,6 +69,16 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /onTouchEnd/);
   assert.match(gallery, /new window\.Image\(\)/);
   assert.match(gallery, /左右滑动/);
+});
+
+test('gallery captions expose a quiet visual sequence counter', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(
+    gallery,
+    /第 \${displayIndex \+ 1} 幅，共 \${displayedItems\.length} 幅/,
+  );
+  assert.match(gallery, /String\(displayIndex \+ 1\)\.padStart\(2, '0'\)/);
 });
 
 test('series pages show work counts and a visual next-series preview', async () => {
@@ -103,7 +116,7 @@ test('the Chongqing hero uses the high-quality web export', async () => {
     'public/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
   );
 
-  assert.match(record, /width:\s*3200,\s*height:\s*1953/);
+  assert.match(record, /width:\s*3600,\s*height:\s*2197/);
   assert.ok(asset.size > 1_000_000, 'the low-quality compressed copy returned');
 });
 
