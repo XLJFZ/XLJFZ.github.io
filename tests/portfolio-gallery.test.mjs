@@ -125,6 +125,14 @@ test('the Meili photograph uses Deqin as its location label', async () => {
   assert.match(source, /location: '香格里拉 · 德钦 · 甘南 · 平潭 · 宁海'/);
 });
 
+test('series year labels cover the confirmed years of their photographs', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+
+  assert.match(source, /slug: 'urban-pulse',[\s\S]*?year: '2022—2026'/);
+  assert.match(source, /slug: 'distant-weather',[\s\S]*?year: '2024—2025'/);
+  assert.match(source, /slug: 'textures-of-time',[\s\S]*?year: '2025'/);
+});
+
 test('series photographs retain the editorial sequence', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const assertOrdered = (filenames) => {
