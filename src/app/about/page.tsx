@@ -1,12 +1,22 @@
+import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { CopyEmailButton } from '@/components/copy-email-button';
+
+export const metadata: Metadata = {
+  title: '关于｜迅雷疾风',
+  description: '关于迅雷疾风，以及建筑、城市、旅行与自然地景摄影实践。',
+  alternates: { canonical: '/about/' },
+};
 
 export default function About() {
   return (
     <main id="top">
       <SiteHeader active="about" />
-      <section className="grid min-h-[calc(100svh-70px)] gap-12 px-5 py-14 md:grid-cols-[1.15fr_.85fr] md:gap-24 md:px-10 md:py-24">
+      <section
+        id="content"
+        className="grid min-h-[calc(100svh-70px)] gap-12 px-5 py-14 md:grid-cols-[1.15fr_.85fr] md:gap-24 md:px-10 md:py-24"
+      >
         <div>
           <p className="text-[10px] uppercase tracking-[.24em] text-foreground/45">
             About

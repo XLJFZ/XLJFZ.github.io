@@ -29,11 +29,16 @@ test('exports every public route as GitHub Pages HTML', async () => {
     '/series/urban-pulse',
     '/series/distant-weather',
     '/series/textures-of-time',
+    '/404',
   ]);
 
   for (const route of routes) {
     const relativePath =
-      route === '/' ? 'index.html' : `${route.slice(1)}/index.html`;
+      route === '/404'
+        ? '404.html'
+        : route === '/'
+          ? 'index.html'
+          : `${route.slice(1)}/index.html`;
     assert.match(
       await readFile(path.join(outputDir, relativePath), 'utf8'),
       /<!doctype html>/,

@@ -18,9 +18,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description: item.statement,
+    alternates: { canonical: `/series/${item.slug}/` },
     openGraph: {
       title,
       description: item.statement,
+      url: `/series/${item.slug}/`,
       images: [{ url: item.cover, alt: item.title }],
     },
     twitter: {
@@ -44,7 +46,10 @@ export default async function SeriesPage({ params }: Props) {
   return (
     <main id="top">
       <SiteHeader active="series" />
-      <section className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16">
+      <section
+        id="content"
+        className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16"
+      >
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-foreground/45">
             {item.category} · {item.englishTitle}
