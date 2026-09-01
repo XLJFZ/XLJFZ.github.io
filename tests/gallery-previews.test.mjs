@@ -16,7 +16,7 @@ test('every gallery photograph has responsive high-quality previews', async () =
     ),
   ];
 
-  assert.equal(sources.length, 42);
+  assert.equal(sources.length, 45);
   assert.match(gallery, /srcSet=/);
   assert.match(gallery, /galleryPreviewSrc\(image\.src\)\} 1200w/);
   assert.match(gallery, /\$\{image\.src\} \$\{image\.width\}w/);
