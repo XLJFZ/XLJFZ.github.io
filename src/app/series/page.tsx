@@ -17,7 +17,6 @@ export default function SeriesIndex() {
         </div>
         <div className="space-y-16 md:space-y-24">
           {series.map((item, index) => {
-            const cover = item.images.find((image) => image.src === item.cover);
             return (
               <a
                 href={`/series/${item.slug}/`}
@@ -26,11 +25,12 @@ export default function SeriesIndex() {
               >
                 <div className="relative overflow-hidden bg-[#292824] shadow-[0_24px_80px_rgba(0,0,0,.28)]">
                   <img
-                    src={item.cover}
-                    width={cover?.width}
-                    height={cover?.height}
+                    src={item.preview.path}
+                    width={item.preview.width}
+                    height={item.preview.height}
                     alt={item.title}
-                    loading="lazy"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
                     decoding="async"
                     className="aspect-[16/10] w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.025]"
                     style={{ objectPosition: item.coverPosition ?? 'center' }}

@@ -70,7 +70,6 @@ export default function Home() {
 
         <div className="space-y-20 md:space-y-28">
           {series.map((item, index) => {
-            const cover = item.images.find((image) => image.src === item.cover);
             return (
               <a
                 href={`/series/${item.slug}/`}
@@ -81,9 +80,9 @@ export default function Home() {
                   className={`relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}
                 >
                   <img
-                    src={item.cover}
-                    width={cover?.width}
-                    height={cover?.height}
+                    src={item.preview.path}
+                    width={item.preview.width}
+                    height={item.preview.height}
                     alt={item.title}
                     loading="lazy"
                     decoding="async"

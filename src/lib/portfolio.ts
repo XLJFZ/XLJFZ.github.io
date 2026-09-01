@@ -17,6 +17,7 @@ export type Series = {
   location: string;
   statement: string;
   cover: string;
+  preview: { path: string; width: number; height: number };
   coverPosition?: string;
   images: PortfolioImage[];
 };
@@ -32,6 +33,11 @@ export const series: Series[] = [
     statement:
       '江岸、街巷、轨道与灯光把城市编织成不断变化的截面。镜头沿着人流与交通移动，记录秩序被速度短暂点亮的时刻。',
     cover: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+    preview: {
+      path: '/covers/urban-pulse.jpg',
+      width: 2400,
+      height: 1500,
+    },
     images: [
       {
         src: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
@@ -263,6 +269,11 @@ export const series: Series[] = [
     statement:
       '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
     cover: '/portfolio/dsc-2989-shangri-la.jpg',
+    preview: {
+      path: '/portfolio/dsc-2989-shangri-la.jpg',
+      width: 2800,
+      height: 1034,
+    },
     coverPosition: 'center 45%',
     images: [
       {
@@ -336,6 +347,11 @@ export const series: Series[] = [
     statement:
       '石窟、木构、室内与民艺在时间中留下各自的表面。光线落在雕刻、斗拱、织物与日常器物上，让历史不再遥远。',
     cover: '/portfolio/textures-of-time/xian-zbz-0868.jpg',
+    preview: {
+      path: '/covers/textures-of-time.jpg',
+      width: 2400,
+      height: 1500,
+    },
     coverPosition: 'center 38%',
     images: [
       {

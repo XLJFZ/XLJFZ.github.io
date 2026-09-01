@@ -40,7 +40,7 @@ export default async function SeriesPage({ params }: Props) {
       (series.findIndex((entry) => entry.slug === item.slug) + 1) %
         series.length
     ];
-  const nextCover = next.images.find((image) => image.src === next.cover);
+  const nextCover = next.preview;
   return (
     <main id="top">
       <SiteHeader active="series" />
@@ -96,9 +96,9 @@ export default async function SeriesPage({ params }: Props) {
         </div>
         <div className="overflow-hidden bg-[#292824]">
           <img
-            src={next.cover}
-            width={nextCover?.width}
-            height={nextCover?.height}
+            src={nextCover.path}
+            width={nextCover.width}
+            height={nextCover.height}
             alt={`${next.title}专题封面`}
             loading="lazy"
             decoding="async"
