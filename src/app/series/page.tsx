@@ -1,12 +1,22 @@
+import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { series } from '@/lib/portfolio';
+
+export const metadata: Metadata = {
+  title: '作品系列｜迅雷疾风',
+  description: '浏览迅雷疾风的城市、风光与人文摄影专题。',
+  alternates: { canonical: '/series/' },
+};
 
 export default function SeriesIndex() {
   return (
     <main id="top">
       <SiteHeader active="series" />
-      <section className="mx-auto max-w-[1600px] px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-24">
+      <section
+        id="content"
+        className="mx-auto max-w-[1600px] px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-24"
+      >
         <div className="mb-14 grid gap-6 md:grid-cols-2 md:items-end">
           <h1 className="text-[clamp(2.8rem,6.5vw,5.8rem)] font-medium leading-none tracking-[-0.055em]">
             作品系列

@@ -10,22 +10,36 @@ export const routes = [
   '/series/urban-pulse',
   '/series/distant-weather',
   '/series/textures-of-time',
+  '/404',
 ];
 
-export async function exportPages({ clientDir, outputDir, fetchPage, copyClient = true }) {
+export async function exportPages({
+  clientDir,
+  outputDir,
+  fetchPage,
+  copyClient = true,
+}) {
   await rm(outputDir, { recursive: true, force: true });
   await mkdir(outputDir, { recursive: true });
   if (copyClient) await cp(clientDir, outputDir, { recursive: true });
 
   for (const route of routes) {
-    const relativePath = route === '/' ? 'index.html' : path.join(route.slice(1), 'index.html');
+    const relativePath =
+      route === '/404'
+        ? '404.html'
+        : route === '/'
+          ? 'index.html'
+          : path.join(route.slice(1), 'index.html');
     const destination = path.join(outputDir, relativePath);
     await mkdir(path.dirname(destination), { recursive: true });
     await writeFile(destination, await fetchPage(route), 'utf8');
   }
 
   await writeFile(path.join(outputDir, '.nojekyll'), '', 'utf8');
-  await copyFile('public/favicon.ico', path.join(outputDir, 'favicon.ico')).catch(() => {});
+  await copyFile(
+    'public/favicon.ico',
+    path.join(outputDir, 'favicon.ico'),
+  ).catch(() => {});
 }
 
 async function waitUntilReady(origin, attempts = 60) {
@@ -40,14 +54,27 @@ async function waitUntilReady(origin, attempts = 60) {
 }
 
 async function main() {
-  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const projectRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+  );
   const port = process.env.PAGES_EXPORT_PORT ?? '4173';
   const origin = `http://127.0.0.1:${port}`;
-  const wrangler = path.join(projectRoot, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
-  const server = spawn(process.execPath, [wrangler, 'dev', '--config', 'dist/server/wrangler.json', '--port', port], {
-    cwd: projectRoot,
-    stdio: 'inherit',
-  });
+  const wrangler = path.join(
+    projectRoot,
+    'node_modules',
+    'wrangler',
+    'bin',
+    'wrangler.js',
+  );
+  const server = spawn(
+    process.execPath,
+    [wrangler, 'dev', '--config', 'dist/server/wrangler.json', '--port', port],
+    {
+      cwd: projectRoot,
+      stdio: 'inherit',
+    },
+  );
 
   try {
     await waitUntilReady(origin);
@@ -56,7 +83,9 @@ async function main() {
       outputDir: path.join(projectRoot, '_site'),
       fetchPage: async (route) => {
         const response = await fetch(`${origin}${route}`);
-        if (!response.ok) throw new Error(`${route} returned ${response.status}`);
+        if (!response.ok && !(route === '/404' && response.status === 404)) {
+          throw new Error(`${route} returned ${response.status}`);
+        }
         return response.text();
       },
     });
@@ -66,6 +95,9 @@ async function main() {
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   await main();
 }

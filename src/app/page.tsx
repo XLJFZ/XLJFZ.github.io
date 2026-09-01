@@ -5,7 +5,10 @@ import { series } from '@/lib/portfolio';
 export default function Home() {
   return (
     <main id="top">
-      <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white">
+      <section
+        id="content"
+        className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white"
+      >
         <SiteHeader inverse />
         <img
           src="/hero-zbz-2714.jpg"
