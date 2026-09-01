@@ -32,6 +32,8 @@ test('series gallery is two-column on desktop and one-column on mobile', async (
   assert.match(gallery, /function buildGalleryRows/);
   assert.match(gallery, /imageOrientation\(image\) === orientation/);
   assert.match(gallery, /image\.height >= image\.width/);
+  assert.match(gallery, /if \(partnerIndex < 0\)/);
+  assert.match(gallery, /pending\.findIndex\([\s\S]*?image\.layout !== 'wide'/);
   assert.match(gallery, /function pairedWidth/);
   assert.match(gallery, /--gallery-paired-width/);
   assert.match(gallery, /md:w-\[var\(--gallery-paired-width\)\]/);
