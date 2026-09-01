@@ -402,7 +402,7 @@ export const series: Series[] = [
     englishTitle: 'Close at Hand',
     category: '日常',
     year: '2023—2024',
-    location: '地点未标注',
+    location: '上海 · 西安',
     statement:
       '一场球赛中的转身，与动物近距离的凝视，都是日常里短暂而完整的动作。镜头靠近，让熟悉的人与生命重新显出重量。',
     cover: '/portfolio/nearby-moments/football-zbz-8440.jpg',
@@ -417,7 +417,7 @@ export const series: Series[] = [
         width: 5504,
         height: 8256,
         alt: '球场上手持足球准备发球的球员背影',
-        caption: '2023',
+        caption: '上海 · 2023',
         layout: 'portrait',
       },
       {
@@ -425,7 +425,7 @@ export const series: Series[] = [
         width: 2732,
         height: 4096,
         alt: '柔和光线中凝视远处的灰猫特写',
-        caption: '2024',
+        caption: '西安 · 2024',
         layout: 'portrait',
       },
     ],

@@ -236,7 +236,7 @@ test('nearby moments pairs the two confirmed portrait photographs', async () => 
 
   assert.match(
     source,
-    /slug: 'nearby-moments',[\s\S]*?football-zbz-8440\.jpg[\s\S]*?caption: '2023'[\s\S]*?cat-img-20240724\.jpg[\s\S]*?caption: '2024'/,
+    /slug: 'nearby-moments',[\s\S]*?location: '上海 · 西安'[\s\S]*?football-zbz-8440\.jpg[\s\S]*?caption: '上海 · 2023'[\s\S]*?cat-img-20240724\.jpg[\s\S]*?caption: '西安 · 2024'/,
   );
 });
 
