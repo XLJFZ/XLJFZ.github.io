@@ -49,6 +49,13 @@ test('long galleries expose editorial chapters without breaking orientation pair
   assert.match(gallery, /aria-label="专题章节"/);
   assert.match(gallery, /href={`#chapter-\${sectionIndex \+ 1}`}/);
   assert.match(gallery, /overflow-x-auto/);
+  assert.match(gallery, /getBoundingClientRect\(\)\.top/);
+  assert.match(gallery, /requestAnimationFrame/);
+  assert.match(gallery, /aria-current=/);
+  assert.match(
+    gallery,
+    /scrollIntoView\({ block: 'nearest', inline: 'center' }\)/,
+  );
   for (const chapter of [
     '重庆',
     '东京',
@@ -79,6 +86,16 @@ test('gallery captions expose a quiet visual sequence counter', async () => {
     /第 \${displayIndex \+ 1} 幅，共 \${displayedItems\.length} 幅/,
   );
   assert.match(gallery, /String\(displayIndex \+ 1\)\.padStart\(2, '0'\)/);
+});
+
+test('only the first gallery image receives eager high-priority loading', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(gallery, /loading={displayIndex === 0 \? 'eager' : 'lazy'}/);
+  assert.match(
+    gallery,
+    /fetchPriority={displayIndex === 0 \? 'high' : 'auto'}/,
+  );
 });
 
 test('series pages show work counts and a visual next-series preview', async () => {

@@ -65,6 +65,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     () => sections.flatMap(({ rows }) => rows.flat()),
     [sections],
   );
+  const [activeChapter, setActiveChapter] = useState(0);
   const [active, setActive] = useState<number | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -105,6 +106,49 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     }
   }, [active, displayedItems]);
 
+  useEffect(() => {
+    if (!hasChapters) return;
+    const chapterElements = sections
+      .map((section, sectionIndex) =>
+        section.label
+          ? document.getElementById(`chapter-${sectionIndex + 1}`)
+          : null,
+      )
+      .filter((element): element is HTMLElement => element !== null);
+    let frame = 0;
+    const updateActiveChapter = () => {
+      const marker = Math.min(240, window.innerHeight * 0.3);
+      let current = chapterElements[0];
+      for (const element of chapterElements) {
+        if (element.getBoundingClientRect().top > marker) break;
+        current = element;
+      }
+      setActiveChapter(Number(current.dataset.chapterIndex));
+    };
+    const scheduleUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updateActiveChapter();
+      });
+    };
+    updateActiveChapter();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+    };
+  }, [hasChapters, sections]);
+
+  useEffect(() => {
+    const currentLink = document.querySelector(
+      'nav[aria-label="专题章节"] [aria-current="location"]',
+    );
+    currentLink?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [activeChapter]);
+
   return (
     <>
       {hasChapters && (
@@ -123,9 +167,25 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                     <a
                       key={section.label}
                       href={`#chapter-${sectionIndex + 1}`}
-                      className="group flex shrink-0 items-baseline gap-2 py-1 text-[10px] tracking-[0.14em] text-foreground/45 transition-colors hover:text-foreground"
+                      aria-current={
+                        activeChapter === sectionIndex ? 'location' : undefined
+                      }
+                      onClick={() => setActiveChapter(sectionIndex)}
+                      className={cn(
+                        'group flex shrink-0 items-baseline gap-2 py-1 text-[10px] tracking-[0.14em] transition-colors hover:text-foreground',
+                        activeChapter === sectionIndex
+                          ? 'text-foreground'
+                          : 'text-foreground/45',
+                      )}
                     >
-                      <span className="text-[8px] text-foreground/25 transition-colors group-hover:text-foreground/45">
+                      <span
+                        className={cn(
+                          'text-[8px] transition-colors group-hover:text-foreground/45',
+                          activeChapter === sectionIndex
+                            ? 'text-foreground/55'
+                            : 'text-foreground/25',
+                        )}
+                      >
                         {String(sectionIndex + 1).padStart(2, '0')}
                       </span>
                       {section.label}
@@ -141,6 +201,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           <section
             key={section.label ?? `gallery-${sectionIndex}`}
             id={section.label ? `chapter-${sectionIndex + 1}` : undefined}
+            data-chapter-index={section.label ? sectionIndex : undefined}
             className="scroll-mt-20"
           >
             {section.label && (
@@ -197,7 +258,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                         <button
                           type="button"
                           onClick={() => setActive(displayIndex)}
-                          className="group block w-full overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.22)]"
+                          className="group block w-full cursor-zoom-in overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.22)]"
                           aria-label={`放大查看：${image.alt}`}
                         >
                           <img
@@ -205,7 +266,8 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                             width={image.width}
                             height={image.height}
                             alt={image.alt}
-                            loading={displayIndex > 1 ? 'lazy' : 'eager'}
+                            loading={displayIndex === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={displayIndex === 0 ? 'high' : 'auto'}
                             decoding="async"
                             className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008]"
                           />
