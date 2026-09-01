@@ -35,8 +35,8 @@ export const series: Series[] = [
     images: [
       {
         src: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
-        width: 3200,
-        height: 1953,
+        width: 3600,
+        height: 2197,
         alt: '夜色中被船舶光轨环绕的重庆江岸',
         caption: '重庆 · 2025',
         layout: 'wide',

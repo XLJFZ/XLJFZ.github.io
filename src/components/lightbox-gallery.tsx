@@ -60,6 +60,7 @@ function buildGallerySections(images: PortfolioImage[]): GallerySection[] {
 
 export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const sections = useMemo(() => buildGallerySections(images), [images]);
+  const hasChapters = sections.some((section) => section.label);
   const displayedItems = useMemo(
     () => sections.flatMap(({ rows }) => rows.flat()),
     [sections],
@@ -106,9 +107,42 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   return (
     <>
+      {hasChapters && (
+        <nav
+          aria-label="专题章节"
+          className="sticky top-0 z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
+        >
+          <div className="mx-auto flex max-w-[1480px] items-center gap-6">
+            <span className="shrink-0 text-[9px] tracking-[0.22em] text-foreground/32">
+              章节
+            </span>
+            <div className="flex min-w-0 gap-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:gap-8">
+              {sections.map(
+                (section, sectionIndex) =>
+                  section.label && (
+                    <a
+                      key={section.label}
+                      href={`#chapter-${sectionIndex + 1}`}
+                      className="group flex shrink-0 items-baseline gap-2 py-1 text-[10px] tracking-[0.14em] text-foreground/45 transition-colors hover:text-foreground"
+                    >
+                      <span className="text-[8px] text-foreground/25 transition-colors group-hover:text-foreground/45">
+                        {String(sectionIndex + 1).padStart(2, '0')}
+                      </span>
+                      {section.label}
+                    </a>
+                  ),
+              )}
+            </div>
+          </div>
+        </nav>
+      )}
       <div className="space-y-20 md:space-y-32">
         {sections.map((section, sectionIndex) => (
-          <section key={section.label ?? `gallery-${sectionIndex}`}>
+          <section
+            key={section.label ?? `gallery-${sectionIndex}`}
+            id={section.label ? `chapter-${sectionIndex + 1}` : undefined}
+            className="scroll-mt-20"
+          >
             {section.label && (
               <div className="mb-8 flex items-center gap-4 border-t border-foreground/10 pt-4 md:mb-12">
                 <span className="text-[10px] tracking-[0.2em] text-foreground/35">
@@ -177,8 +211,15 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                           />
                         </button>
                         {image.caption && (
-                          <figcaption className="pt-3 text-[11px] leading-5 tracking-[0.13em] text-foreground/58 md:pt-4">
-                            {image.caption}
+                          <figcaption className="flex items-baseline justify-between gap-4 pt-3 text-[11px] leading-5 tracking-[0.13em] text-foreground/58 md:pt-4">
+                            <span>{image.caption}</span>
+                            <span
+                              aria-label={`第 ${displayIndex + 1} 幅，共 ${displayedItems.length} 幅`}
+                              className="shrink-0 text-[9px] tracking-[0.18em] text-foreground/28"
+                            >
+                              {String(displayIndex + 1).padStart(2, '0')} /{' '}
+                              {String(displayedItems.length).padStart(2, '0')}
+                            </span>
                           </figcaption>
                         )}
                       </figure>
