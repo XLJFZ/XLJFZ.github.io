@@ -396,6 +396,40 @@ export const series: Series[] = [
       },
     ],
   },
+  {
+    slug: 'nearby-moments',
+    title: '近处发生',
+    englishTitle: 'Close at Hand',
+    category: '日常',
+    year: '2023—2024',
+    location: '地点未标注',
+    statement:
+      '一场球赛中的转身，与动物近距离的凝视，都是日常里短暂而完整的动作。镜头靠近，让熟悉的人与生命重新显出重量。',
+    cover: '/portfolio/nearby-moments/football-zbz-8440.jpg',
+    preview: {
+      path: '/covers/nearby-moments.jpg',
+      width: 2400,
+      height: 1500,
+    },
+    images: [
+      {
+        src: '/portfolio/nearby-moments/football-zbz-8440.jpg',
+        width: 5504,
+        height: 8256,
+        alt: '球场上手持足球准备发球的球员背影',
+        caption: '2023',
+        layout: 'portrait',
+      },
+      {
+        src: '/portfolio/nearby-moments/cat-img-20240724.jpg',
+        width: 2732,
+        height: 4096,
+        alt: '柔和光线中凝视远处的灰猫特写',
+        caption: '2024',
+        layout: 'portrait',
+      },
+    ],
+  },
 ];
 
 export function getSeries(slug: string) {

@@ -36,8 +36,13 @@ test('series listing pages use dedicated lightweight cover previews', async () =
   assert.match(detail, /next\.preview/);
   assert.match(portfolio, /path: '\/covers\/urban-pulse\.jpg'/);
   assert.match(portfolio, /path: '\/covers\/textures-of-time\.jpg'/);
+  assert.match(portfolio, /path: '\/covers\/nearby-moments\.jpg'/);
 
-  for (const filename of ['urban-pulse.jpg', 'textures-of-time.jpg']) {
+  for (const filename of [
+    'urban-pulse.jpg',
+    'textures-of-time.jpg',
+    'nearby-moments.jpg',
+  ]) {
     const asset = await stat(`public/covers/${filename}`);
     assert.ok(asset.size < 1_000_000, `${filename} should stay below 1 MB`);
   }

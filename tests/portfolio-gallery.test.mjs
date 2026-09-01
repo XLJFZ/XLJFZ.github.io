@@ -78,6 +78,23 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /左右滑动/);
 });
 
+test('lightbox image URLs are shareable and browser back closes the viewer', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(gallery, /url\.searchParams\.set\('image', imageKey/);
+  assert.match(gallery, /window\.history\.pushState/);
+  assert.match(gallery, /window\.history\.replaceState/);
+  assert.match(gallery, /window\.history\.back\(\)/);
+  assert.match(gallery, /window\.addEventListener\('popstate', syncFromUrl\)/);
+});
+
+test('lightbox caption and sequence share one collision-free footer row', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(gallery, /flex items-end justify-between gap-5 md:inset-x-7/);
+  assert.match(gallery, /className="shrink-0 text-\[10px\]/);
+});
+
 test('gallery captions expose a quiet visual sequence counter', async () => {
   const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
 
@@ -211,6 +228,16 @@ test('series year labels cover the confirmed years of their photographs', async 
   assert.match(source, /slug: 'urban-pulse',[\s\S]*?year: '2022—2026'/);
   assert.match(source, /slug: 'distant-weather',[\s\S]*?year: '2024—2025'/);
   assert.match(source, /slug: 'textures-of-time',[\s\S]*?year: '2025'/);
+  assert.match(source, /slug: 'nearby-moments',[\s\S]*?year: '2023—2024'/);
+});
+
+test('nearby moments pairs the two confirmed portrait photographs', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+
+  assert.match(
+    source,
+    /slug: 'nearby-moments',[\s\S]*?football-zbz-8440\.jpg[\s\S]*?caption: '2023'[\s\S]*?cat-img-20240724\.jpg[\s\S]*?caption: '2024'/,
+  );
 });
 
 test('series photographs retain the editorial sequence', async () => {

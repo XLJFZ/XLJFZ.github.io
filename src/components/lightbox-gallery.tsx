@@ -25,6 +25,15 @@ function galleryPreviewSrc(src: string) {
     .replace(/\.[^.]+$/, '-1200.jpg');
 }
 
+function imageKey(src: string) {
+  return (
+    src
+      .split('/')
+      .pop()
+      ?.replace(/\.[^.]+$/, '') ?? src
+  );
+}
+
 function buildGalleryRows(items: GalleryItem[]) {
   const pending = [...items];
   const rows: GalleryItem[][] = [];
@@ -76,22 +85,61 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [active, setActive] = useState<number | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  const prev = useCallback(
-    () =>
-      setActive((value) =>
-        value === null
-          ? null
-          : (value - 1 + displayedItems.length) % displayedItems.length,
-      ),
-    [displayedItems.length],
+  const showImage = useCallback(
+    (index: number, historyMode: 'push' | 'replace' = 'replace') => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('image', imageKey(displayedItems[index].image.src));
+      const currentState =
+        window.history.state && typeof window.history.state === 'object'
+          ? window.history.state
+          : {};
+      const nextState = { ...currentState, portfolioLightbox: true };
+      if (historyMode === 'push') {
+        window.history.pushState(nextState, '', url);
+      } else {
+        window.history.replaceState(nextState, '', url);
+      }
+      setActive(index);
+    },
+    [displayedItems],
   );
-  const next = useCallback(
-    () =>
-      setActive((value) =>
-        value === null ? null : (value + 1) % displayedItems.length,
-      ),
-    [displayedItems.length],
-  );
+
+  const closeLightbox = useCallback(() => {
+    if (window.history.state?.portfolioLightbox) {
+      window.history.back();
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete('image');
+    window.history.replaceState(window.history.state, '', url);
+    setActive(null);
+  }, []);
+
+  const prev = useCallback(() => {
+    if (active === null) return;
+    showImage((active - 1 + displayedItems.length) % displayedItems.length);
+  }, [active, displayedItems.length, showImage]);
+  const next = useCallback(() => {
+    if (active === null) return;
+    showImage((active + 1) % displayedItems.length);
+  }, [active, displayedItems.length, showImage]);
+
+  useEffect(() => {
+    const syncFromUrl = () => {
+      const key = new URL(window.location.href).searchParams.get('image');
+      if (!key) {
+        setActive(null);
+        return;
+      }
+      const index = displayedItems.findIndex(
+        ({ image }) => imageKey(image.src) === key,
+      );
+      setActive(index >= 0 ? index : null);
+    };
+    syncFromUrl();
+    window.addEventListener('popstate', syncFromUrl);
+    return () => window.removeEventListener('popstate', syncFromUrl);
+  }, [displayedItems]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -264,7 +312,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                       >
                         <button
                           type="button"
-                          onClick={() => setActive(displayIndex)}
+                          onClick={() => showImage(displayIndex, 'push')}
                           className="group block w-full cursor-zoom-in overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.22)]"
                           aria-label={`放大查看：${image.alt}`}
                         >
@@ -308,7 +356,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       </div>
       <Dialog
         open={active !== null}
-        onOpenChange={(open) => !open && setActive(null)}
+        onOpenChange={(open) => !open && closeLightbox()}
       >
         <DialogContent
           showCloseButton={false}
@@ -346,7 +394,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           )}
           <button
             type="button"
-            onClick={() => setActive(null)}
+            onClick={closeLightbox}
             aria-label="关闭"
             className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur md:right-7 md:top-7"
           >
@@ -368,19 +416,19 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           >
             <ChevronRight />
           </button>
-          {active !== null && displayedItems[active].image.caption && (
-            <p className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 text-[11px] tracking-[0.13em] text-white/70 md:left-7">
-              {displayedItems[active].image.caption}
-            </p>
-          )}
           {active !== null && (
-            <p
-              aria-live="polite"
-              className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 text-[10px] tracking-[0.2em] text-white/65"
-            >
-              {String(active + 1).padStart(2, '0')} /{' '}
-              {String(displayedItems.length).padStart(2, '0')}
-            </p>
+            <div className="pointer-events-none absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end justify-between gap-5 md:inset-x-7">
+              <p className="min-w-0 text-[11px] leading-5 tracking-[0.13em] text-white/70">
+                {displayedItems[active].image.caption}
+              </p>
+              <p
+                aria-live="polite"
+                className="shrink-0 text-[10px] tracking-[0.2em] text-white/65"
+              >
+                {String(active + 1).padStart(2, '0')} /{' '}
+                {String(displayedItems.length).padStart(2, '0')}
+              </p>
+            </div>
           )}
         </DialogContent>
       </Dialog>

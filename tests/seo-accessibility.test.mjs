@@ -34,6 +34,7 @@ test('the site publishes discovery files for every exported route', async () => 
     '/series/urban-pulse/',
     '/series/distant-weather/',
     '/series/textures-of-time/',
+    '/series/nearby-moments/',
   ]) {
     assert.ok(sitemap.includes(`<loc>https://xljfz.github.io${route}</loc>`));
   }

@@ -29,6 +29,7 @@ test('exports every public route as GitHub Pages HTML', async () => {
     '/series/urban-pulse',
     '/series/distant-weather',
     '/series/textures-of-time',
+    '/series/nearby-moments',
     '/404',
   ]);
 
