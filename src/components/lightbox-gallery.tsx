@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import {
@@ -16,6 +17,22 @@ type GallerySection = { label?: string; rows: GalleryItem[][] };
 
 function imageOrientation(image: PortfolioImage) {
   return image.height >= image.width ? 'portrait' : 'landscape';
+}
+
+function preferredPairedWidth(image: PortfolioImage) {
+  if (image.layout === 'portrait') return 0.84;
+  if (image.layout === 'medium') return 0.88;
+  return 1;
+}
+
+function pairedWidth(row: GalleryItem[], itemIndex: number) {
+  const equalHeight = Math.min(
+    ...row.map(
+      ({ image }) => (preferredPairedWidth(image) * image.height) / image.width,
+    ),
+  );
+  const image = row[itemIndex].image;
+  return `${((equalHeight * image.width * 100) / image.height).toFixed(4)}%`;
 }
 
 function galleryPreviewSrc(src: string) {
@@ -288,14 +305,20 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                     return (
                       <figure
                         key={`${image.src}-${sourceIndex}`}
+                        style={
+                          row.length === 2
+                            ? ({
+                                '--gallery-paired-width': pairedWidth(
+                                  row,
+                                  columnIndex,
+                                ),
+                              } as CSSProperties)
+                            : undefined
+                        }
                         className={cn(
                           'w-full min-w-0',
-                          image.layout === 'portrait' &&
-                            !isUnpaired &&
-                            'md:w-[84%]',
-                          image.layout === 'medium' &&
-                            !isUnpaired &&
-                            'md:w-[88%]',
+                          row.length === 2 &&
+                            'md:w-[var(--gallery-paired-width)]',
                           row.length === 2 &&
                             columnIndex === 1 &&
                             'md:justify-self-end',
