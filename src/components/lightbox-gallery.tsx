@@ -18,6 +18,13 @@ function imageOrientation(image: PortfolioImage) {
   return image.height >= image.width ? 'portrait' : 'landscape';
 }
 
+function galleryPreviewSrc(src: string) {
+  if (!src.startsWith('/portfolio/')) return src;
+  return src
+    .replace('/portfolio/', '/portfolio-previews/')
+    .replace(/\.[^.]+$/, '-1200.jpg');
+}
+
 function buildGalleryRows(items: GalleryItem[]) {
   const pending = [...items];
   const rows: GalleryItem[][] = [];
@@ -263,6 +270,12 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                         >
                           <img
                             src={image.src}
+                            srcSet={`${galleryPreviewSrc(image.src)} 1200w, ${image.src} ${image.width}w`}
+                            sizes={
+                              image.layout === 'wide'
+                                ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
+                                : '(min-width: 1536px) 620px, (min-width: 768px) 44vw, calc(100vw - 40px)'
+                            }
                             width={image.width}
                             height={image.height}
                             alt={image.alt}

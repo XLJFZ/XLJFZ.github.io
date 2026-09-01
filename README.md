@@ -56,8 +56,13 @@ Requires Node.js `22.13.0` or later.
 
 ```bash
 npm ci
+npm run previews
 npm run dev
 ```
+
+新增或替换作品后，先运行 `npm run previews` 生成画廊响应式预览；灯箱仍使用原始照片。
+
+After adding or replacing photographs, run `npm run previews` to regenerate responsive gallery previews. The lightbox continues to use the original files.
 
 构建项目：
 
@@ -88,7 +93,8 @@ src/components/              网站组件 / Site components
 src/components/ui/           实际使用的基础组件 / Used UI primitives
 src/lib/portfolio.ts         作品集数据 / Portfolio data
 public/portfolio/            摄影作品 / Photography assets
-scripts/                     GitHub Pages 导出脚本 / Export scripts
+public/portfolio-previews/   响应式画廊预览 / Responsive gallery previews
+scripts/                     预览生成与 Pages 导出 / Preview generation and Pages export
 tests/                       自动检查 / Automated checks
 .github/workflows/pages.yml  自动部署流程 / Deployment workflow
 ```
