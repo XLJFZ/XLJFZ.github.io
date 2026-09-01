@@ -33,11 +33,21 @@ A collection exploring how mist, wind, clouds, and fleeting light transform the 
 
 A study of the surfaces left by time in grottoes, timber structures, interiors, and folk art.
 
+### 近处发生 / Close at Hand
+
+记录人物、动物与日常生活中短暂而完整的动作。
+
+A close look at people, animals, and complete yet fleeting gestures in everyday life.
+
 ## 项目简介 / Project
 
 这是一个以摄影作品展示为核心的个人作品集网站，包含作品分类、系列介绍、图片浏览和个人简介页面。
 
 This is a personal photography portfolio website centered on photo series, image browsing, project statements, and an artist biography.
+
+后续添加照片或修改页面前，请先阅读[网站维护规范](docs/SITE-GUIDELINES.md)。其中记录了专题分类、EXIF、图片配对、响应式布局和发布流程等不可随意破坏的规则。
+
+Before adding photographs or changing the site, read the [site maintenance guidelines](docs/SITE-GUIDELINES.md). They define the series taxonomy, EXIF rules, gallery pairing, responsive layout, and release workflow.
 
 ## 技术栈 / Tech Stack
 
@@ -96,6 +106,7 @@ public/portfolio/            摄影作品 / Photography assets
 public/portfolio-previews/   响应式画廊预览 / Responsive gallery previews
 scripts/                     预览生成与 Pages 导出 / Preview generation and Pages export
 tests/                       自动检查 / Automated checks
+docs/SITE-GUIDELINES.md      网站维护规范 / Site maintenance guidelines
 .github/workflows/pages.yml  自动部署流程 / Deployment workflow
 ```
 
