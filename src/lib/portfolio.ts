@@ -5,6 +5,7 @@ export type PortfolioImage = {
   alt: string;
   caption?: string;
   layout?: 'portrait' | 'medium' | 'wide';
+  chapter?: string;
 };
 
 export type Series = {
@@ -39,6 +40,7 @@ export const series: Series[] = [
         alt: '夜色中被船舶光轨环绕的重庆江岸',
         caption: '重庆 · 2025',
         layout: 'wide',
+        chapter: '重庆',
       },
       {
         src: '/portfolio/urban-pulse/chongqing-zbz-9356.jpg',
@@ -55,6 +57,7 @@ export const series: Series[] = [
         alt: '电线与街巷之间的东京晴空塔',
         caption: '东京 · 2025',
         layout: 'portrait',
+        chapter: '东京',
       },
       {
         src: '/portfolio/urban-pulse/tokyo-zbz-8295.jpg',
@@ -94,6 +97,7 @@ export const series: Series[] = [
         height: 2041,
         alt: '蓝调夜色中的上海城市天际线与黄浦江',
         caption: '上海 · 2025',
+        chapter: '上海',
       },
       {
         src: '/portfolio/urban-pulse/shanghai-zbz-8285.jpg',
@@ -172,6 +176,7 @@ export const series: Series[] = [
         alt: '广州石室圣心大教堂与街道人群',
         caption: '广州 · 2025',
         layout: 'portrait',
+        chapter: '广州',
       },
       {
         src: '/portfolio/urban-pulse/guangzhou-rpx-00040.jpg',
@@ -188,6 +193,7 @@ export const series: Series[] = [
         alt: '长曝光云层下的深圳城市天际线',
         caption: '深圳 · 2025',
         layout: 'portrait',
+        chapter: '深圳',
       },
       {
         src: '/portfolio/urban-pulse/nanchang-zbz-1447.jpg',
@@ -195,6 +201,7 @@ export const series: Series[] = [
         height: 1867,
         alt: '低角度仰望南昌摩天轮座舱',
         caption: '南昌 · 2024',
+        chapter: '南昌',
       },
       {
         src: '/portfolio/urban-pulse/nanchang-zbz-1370.jpg',
@@ -211,6 +218,7 @@ export const series: Series[] = [
         alt: '香港现代主义白色建筑立面与红色出租车',
         caption: '香港 · 2025',
         layout: 'portrait',
+        chapter: '香港',
       },
       {
         src: '/portfolio/urban-pulse/hong-kong-zbz-8030.jpg',

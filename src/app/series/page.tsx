@@ -4,8 +4,8 @@ import { series } from '@/lib/portfolio';
 
 export default function SeriesIndex() {
   return (
-    <main>
-      <SiteHeader />
+    <main id="top">
+      <SiteHeader active="series" />
       <section className="mx-auto max-w-[1600px] px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-24">
         <div className="mb-14 grid gap-6 md:grid-cols-2 md:items-end">
           <h1 className="text-[clamp(2.8rem,6.5vw,5.8rem)] font-medium leading-none tracking-[-0.055em]">
@@ -46,7 +46,7 @@ export default function SeriesIndex() {
                 <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto] md:items-start">
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.22em] text-foreground/45">
-                      {item.category} · {item.year}
+                      {item.category} · {item.year} · {item.images.length} 幅
                     </p>
                     <h2 className="mt-2 text-3xl font-medium tracking-[-0.04em] md:text-5xl">
                       {item.title}

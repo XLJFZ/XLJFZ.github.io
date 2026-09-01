@@ -11,7 +11,8 @@ test('site metadata can target the GitHub Pages domain at build time', async () 
 });
 
 test('exports every public route as GitHub Pages HTML', async () => {
-  const { exportPages, routes } = await import('../scripts/export-github-pages.mjs');
+  const { exportPages, routes } =
+    await import('../scripts/export-github-pages.mjs');
   const outputDir = await mkdtemp(path.join(os.tmpdir(), 'portfolio-pages-'));
 
   await exportPages({
@@ -31,8 +32,12 @@ test('exports every public route as GitHub Pages HTML', async () => {
   ]);
 
   for (const route of routes) {
-    const relativePath = route === '/' ? 'index.html' : `${route.slice(1)}/index.html`;
-    assert.match(await readFile(path.join(outputDir, relativePath), 'utf8'), /<!doctype html>/);
+    const relativePath =
+      route === '/' ? 'index.html' : `${route.slice(1)}/index.html`;
+    assert.match(
+      await readFile(path.join(outputDir, relativePath), 'utf8'),
+      /<!doctype html>/,
+    );
   }
 
   await stat(path.join(outputDir, '.nojekyll'));

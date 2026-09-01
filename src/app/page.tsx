@@ -4,7 +4,7 @@ import { series } from '@/lib/portfolio';
 
 export default function Home() {
   return (
-    <main>
+    <main id="top">
       <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white">
         <SiteHeader inverse />
         <img
@@ -102,6 +102,8 @@ export default function Home() {
                   <div className="flex items-center justify-between border-t border-foreground/10 pt-3 text-[10px] tracking-[.18em] text-foreground/40">
                     <span>
                       {String(index + 1).padStart(2, '0')} · {item.category}
+                      {' · '}
+                      {item.images.length} 幅
                     </span>
                     <span>{item.year}</span>
                   </div>

@@ -40,6 +40,42 @@ test('series gallery is two-column on desktop and one-column on mobile', async (
   assert.match(page, /max-w-\[1480px\]/);
 });
 
+test('long galleries expose editorial chapters without breaking orientation pairing', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+  const portfolio = await readFile('src/lib/portfolio.ts', 'utf8');
+
+  assert.match(gallery, /function buildGallerySections/);
+  assert.match(gallery, /section\.label/);
+  for (const chapter of [
+    '重庆',
+    '东京',
+    '上海',
+    '广州',
+    '深圳',
+    '南昌',
+    '香港',
+  ]) {
+    assert.match(portfolio, new RegExp(`chapter: '${chapter}'`));
+  }
+});
+
+test('the lightbox supports touch navigation and adjacent-image preloading', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(gallery, /onTouchStart/);
+  assert.match(gallery, /onTouchEnd/);
+  assert.match(gallery, /new window\.Image\(\)/);
+  assert.match(gallery, /左右滑动/);
+});
+
+test('series pages show work counts and a visual next-series preview', async () => {
+  const page = await readFile('src/app/series/[slug]/page.tsx', 'utf8');
+
+  assert.match(page, /item\.images\.length/);
+  assert.match(page, /next\.cover/);
+  assert.match(page, /下一组作品/);
+});
+
 test('every portfolio record includes its real pixel dimensions', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const references = [...source.matchAll(/\bsrc: '([^']+)'/g)].map(
