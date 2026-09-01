@@ -26,7 +26,7 @@ export const series: Series[] = [
     title: '城市脉冲',
     englishTitle: 'Urban Pulse',
     category: '城市',
-    year: '2024—2026',
+    year: '2022—2026',
     location: '重庆 · 东京 · 上海 · 广州 · 深圳 · 南昌 · 香港',
     statement:
       '江岸、街巷、轨道与灯光把城市编织成不断变化的截面。镜头沿着人流与交通移动，记录秩序被速度短暂点亮的时刻。',
@@ -250,7 +250,7 @@ export const series: Series[] = [
     title: '远方的天气',
     englishTitle: 'Distant Weather',
     category: '风光',
-    year: '2025',
+    year: '2024—2025',
     location: '香格里拉 · 德钦 · 甘南 · 平潭 · 宁海',
     statement:
       '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
