@@ -112,6 +112,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
   const { message: copyStatus, showStatus } = useTemporaryStatus();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressBackdropClick = useRef(false);
 
   const showImage = useCallback(
     (index: number, historyMode: 'push' | 'replace' = 'replace') => {
@@ -438,16 +439,32 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       >
         <DialogContent
           showCloseButton={false}
+          overlayClassName="bg-black backdrop-blur-none"
           style={{
             display: 'block',
-            width: 'calc(100vw - 1.5rem)',
+            width: '100vw',
             maxWidth: 'none',
-            height: 'calc(100svh - 1.5rem)',
+            height: '100svh',
             maxHeight: 'none',
+          }}
+          onClick={(event) => {
+            const target = event.target;
+            if (
+              target instanceof Element &&
+              target.closest('[data-lightbox-interactive]')
+            ) {
+              return;
+            }
+            if (suppressBackdropClick.current) {
+              suppressBackdropClick.current = false;
+              return;
+            }
+            closeLightbox();
           }}
           onTouchStart={(event) => {
             const touch = event.changedTouches[0];
             touchStart.current = { x: touch.clientX, y: touch.clientY };
+            suppressBackdropClick.current = false;
           }}
           onTouchEnd={(event) => {
             if (!touchStart.current) return;
@@ -458,10 +475,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) {
               return;
             }
+            suppressBackdropClick.current = true;
             if (deltaX > 0) prev();
             else next();
           }}
-          className="touch-pan-y gap-0 overflow-hidden border-0 bg-black p-0 text-white ring-0 sm:max-w-none"
+          className="touch-pan-y gap-0 overflow-hidden rounded-none border-0 bg-black p-0 text-white ring-0 sm:max-w-none"
         >
           <DialogTitle className="sr-only">大图浏览</DialogTitle>
           <DialogDescription className="sr-only">
@@ -488,7 +506,8 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 height={displayedItems[active].image.height}
                 alt=""
                 aria-hidden="true"
-                className="h-full w-full object-contain p-3 md:p-10"
+                data-lightbox-interactive
+                className="absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]"
               />
               <img
                 key={displayedItems[active].image.src}
@@ -504,8 +523,9 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 onError={() =>
                   setFailedOriginal(displayedItems[active].image.src)
                 }
+                data-lightbox-interactive
                 className={cn(
-                  'absolute inset-0 h-full w-full object-contain p-3 transition-opacity duration-300 md:p-10',
+                  'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
                   loadedOriginal === displayedItems[active].image.src
                     ? 'opacity-100'
                     : 'opacity-0',
@@ -515,6 +535,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           )}
           <button
             type="button"
+            data-lightbox-interactive
             onClick={closeLightbox}
             aria-label="关闭"
             className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7 md:top-7"
@@ -523,6 +544,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           </button>
           <button
             type="button"
+            data-lightbox-interactive
             onClick={copyCurrentImageLink}
             aria-label="复制当前作品链接"
             className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
@@ -531,6 +553,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           </button>
           <button
             type="button"
+            data-lightbox-interactive
             onClick={prev}
             aria-label="上一张"
             aria-keyshortcuts="ArrowLeft"
@@ -540,6 +563,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           </button>
           <button
             type="button"
+            data-lightbox-interactive
             onClick={next}
             aria-label="下一张"
             aria-keyshortcuts="ArrowRight"
