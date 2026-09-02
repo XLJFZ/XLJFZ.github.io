@@ -55,6 +55,18 @@ function imageKey(src: string) {
   );
 }
 
+function exifSummary(image: PortfolioImage) {
+  if (!image.exif) return null;
+  const values = [
+    image.exif.camera,
+    image.exif.focalLength,
+    image.exif.aperture,
+    image.exif.shutterSpeed,
+    image.exif.iso,
+  ].filter(Boolean);
+  return values.length > 0 ? values.join(' · ') : null;
+}
+
 function buildGalleryRows(items: GalleryItem[]) {
   const pending = [...items];
   const rows: GalleryItem[][] = [];
@@ -573,9 +585,16 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           </button>
           {active !== null && (
             <div className="pointer-events-none absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end justify-between gap-5 md:inset-x-7">
-              <p className="min-w-0 text-[11px] leading-5 tracking-[0.13em] text-white/70">
-                {displayedItems[active].image.caption}
-              </p>
+              <div className="min-w-0">
+                <p className="text-[11px] leading-5 tracking-[0.13em] text-white/70">
+                  {displayedItems[active].image.caption}
+                </p>
+                {exifSummary(displayedItems[active].image) && (
+                  <p className="mt-0.5 truncate text-[9px] leading-4 tracking-[0.08em] text-white/38 md:text-[10px]">
+                    {exifSummary(displayedItems[active].image)}
+                  </p>
+                )}
+              </div>
               <p
                 aria-live="polite"
                 className="shrink-0 text-[10px] tracking-[0.2em] text-white/65"
