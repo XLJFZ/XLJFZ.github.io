@@ -9,7 +9,7 @@ const projectRoot = path.resolve(
 );
 const sourceRoot = path.join(projectRoot, 'public', 'portfolio');
 const outputRoot = path.join(projectRoot, 'public', 'portfolio-previews');
-const widths = [1200];
+const widths = [1200, 1800];
 
 async function findImages(directory) {
   const entries = await readdir(directory, { withFileTypes: true });

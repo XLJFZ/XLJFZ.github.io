@@ -91,6 +91,8 @@ test('lightbox image URLs are shareable and browser back closes the viewer', asy
   assert.match(gallery, /window\.history\.replaceState/);
   assert.match(gallery, /window\.history\.back\(\)/);
   assert.match(gallery, /window\.addEventListener\('popstate', syncFromUrl\)/);
+  assert.match(gallery, /navigator\.clipboard\.writeText\(url\.toString\(\)\)/);
+  assert.match(gallery, /aria-label="复制当前作品链接"/);
 });
 
 test('lightbox caption and sequence share one collision-free footer row', async () => {

@@ -78,7 +78,7 @@ public/covers/                       首页和专题索引使用的轻量封面
 ```
 
 - 新增或替换原图后必须运行 `npm run previews`。
-- 预览图由 [`scripts/generate-gallery-previews.mjs`](../scripts/generate-gallery-previews.mjs) 生成：宽度 `1200px`、JPEG 质量 `90`、`4:4:4` 色度采样。
+- 预览图由 [`scripts/generate-gallery-previews.mjs`](../scripts/generate-gallery-previews.mjs) 生成：宽度 `1200px` 与 `1800px` 两档、JPEG 质量 `90`、`4:4:4` 色度采样；列表优先使用预览图，灯箱才加载原图。
 - 不要手工修改生成的预览图，也不要让画廊首屏直接下载全部原图。
 - 灯箱继续加载原始展示照片，以保留放大观看质量。
 - 专题封面建议为 `2400 × 1500`，并保持在 `1MB` 以内。
@@ -114,7 +114,7 @@ git diff --check
 
 检查重点：
 
-- 所有照片都有对应的 `1200px` 预览图。
+- 所有照片都有对应的 `1200px` 与 `1800px` 预览图。
 - 所有作品只被引用一次，没有重复照片。
 - 专题年份覆盖真实照片年份。
 - 首页、专题索引、详情页和 404 页面均能导出。

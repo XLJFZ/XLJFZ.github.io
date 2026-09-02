@@ -2,13 +2,14 @@
 
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Link2, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { toast } from '@/components/ui/toast';
 import type { PortfolioImage } from '@/lib/portfolio';
 import { cn } from '@/lib/utils';
 
@@ -35,11 +36,11 @@ function pairedWidth(row: GalleryItem[], itemIndex: number) {
   return `${((equalHeight * image.width * 100) / image.height).toFixed(4)}%`;
 }
 
-function galleryPreviewSrc(src: string) {
+function galleryPreviewSrc(src: string, width = 1200) {
   if (!src.startsWith('/portfolio/')) return src;
   return src
     .replace('/portfolio/', '/portfolio-previews/')
-    .replace(/\.[^.]+$/, '-1200.jpg');
+    .replace(/\.[^.]+$/, `-${width}.jpg`);
 }
 
 function imageKey(src: string) {
@@ -143,6 +144,30 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     if (active === null) return;
     showImage((active + 1) % displayedItems.length);
   }, [active, displayedItems.length, showImage]);
+
+  const copyCurrentImageLink = useCallback(async () => {
+    if (active === null) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('image', imageKey(displayedItems[active].image.src));
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      toast.add({
+        id: 'image-link-copied',
+        title: '作品链接已复制',
+        description: displayedItems[active].image.caption,
+        type: 'success',
+        timeout: 2200,
+      });
+    } catch {
+      toast.add({
+        id: 'image-link-copy-failed',
+        title: '复制失败',
+        description: '请从浏览器地址栏复制当前链接。',
+        type: 'error',
+        timeout: 4000,
+      });
+    }
+  }, [active, displayedItems]);
 
   useEffect(() => {
     const syncFromUrl = () => {
@@ -343,8 +368,8 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                           aria-label={`放大查看：${image.alt}`}
                         >
                           <img
-                            src={image.src}
-                            srcSet={`${galleryPreviewSrc(image.src)} 1200w, ${image.src} ${image.width}w`}
+                            src={galleryPreviewSrc(image.src)}
+                            srcSet={`${galleryPreviewSrc(image.src)} 1200w, ${galleryPreviewSrc(image.src, 1800)} 1800w, ${image.src} ${image.width}w`}
                             sizes={
                               image.layout === 'wide'
                                 ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
@@ -425,6 +450,14 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur md:right-7 md:top-7"
           >
             <X />
+          </button>
+          <button
+            type="button"
+            onClick={copyCurrentImageLink}
+            aria-label="复制当前作品链接"
+            className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
+          >
+            <Link2 />
           </button>
           <button
             type="button"
