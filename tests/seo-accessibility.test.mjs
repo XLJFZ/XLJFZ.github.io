@@ -14,6 +14,7 @@ test('public pages expose canonical metadata and structured site identity', asyn
   assert.match(layout, /application\/ld\+json/);
   assert.match(layout, /'@type': 'WebSite'/);
   assert.match(layout, /portfolio\/dsc-2989-shangri-la\.jpg/);
+  assert.match(layout, /viewportFit: 'cover'/);
   assert.doesNotMatch(layout, /og\.png/);
   assert.match(about, /canonical: '\/about\/'/);
   assert.match(index, /canonical: '\/series\/'/);

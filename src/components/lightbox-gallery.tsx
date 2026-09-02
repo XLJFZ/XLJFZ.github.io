@@ -105,6 +105,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [activeChapter, setActiveChapter] = useState(0);
   const [active, setActive] = useState<number | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
+  const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const showImage = useCallback(
@@ -435,7 +436,20 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接
           </DialogDescription>
           {active !== null && (
-            <div className="relative h-full w-full">
+            <div
+              className="relative h-full w-full"
+              aria-busy={
+                loadedOriginal !== displayedItems[active].image.src &&
+                failedOriginal !== displayedItems[active].image.src
+              }
+            >
+              <p className="sr-only" aria-live="polite">
+                {failedOriginal === displayedItems[active].image.src
+                  ? '原图加载失败，当前显示高清预览'
+                  : loadedOriginal === displayedItems[active].image.src
+                    ? '原图加载完成'
+                    : '正在加载原图'}
+              </p>
               <img
                 src={galleryPreviewSrc(displayedItems[active].image.src, 1800)}
                 width={displayedItems[active].image.width}
@@ -451,8 +465,12 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 height={displayedItems[active].image.height}
                 alt={displayedItems[active].image.alt}
                 decoding="async"
+                fetchPriority="high"
                 onLoad={() =>
                   setLoadedOriginal(displayedItems[active].image.src)
+                }
+                onError={() =>
+                  setFailedOriginal(displayedItems[active].image.src)
                 }
                 className={cn(
                   'absolute inset-0 h-full w-full object-contain p-3 transition-opacity duration-300 md:p-10',
