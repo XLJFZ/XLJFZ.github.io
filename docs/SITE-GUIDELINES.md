@@ -74,11 +74,13 @@
 public/portfolio/                    原始展示照片；灯箱读取这里
 public/portfolio/<series-slug>/      按专题保存原图
 public/portfolio-previews/           画廊响应式预览，脚本生成
+public/hero-previews/                首页主视觉响应式预览，脚本生成
 public/covers/                       首页和专题索引使用的轻量封面
 ```
 
 - 新增或替换原图后必须运行 `npm run previews`。
 - 预览图由 [`scripts/generate-gallery-previews.mjs`](../scripts/generate-gallery-previews.mjs) 生成：宽度 `1200px` 与 `1800px` 两档、JPEG 质量 `90`、`4:4:4` 色度采样；列表优先使用预览图，灯箱才加载原图。
+- 首页主视觉同时生成 `1280px` 与 `2200px` 两档预览，浏览器按屏幕宽度选择；移动端禁止直接下载 `3000px` 原图。
 - 不要手工修改生成的预览图，也不要让画廊首屏直接下载全部原图。
 - 灯箱继续加载原始展示照片，以保留放大观看质量。
 - 灯箱先显示已缓存的 `1800px` 预览，再平滑切换到原图，避免黑屏闪烁；移动端控制按钮必须避开设备安全区域。

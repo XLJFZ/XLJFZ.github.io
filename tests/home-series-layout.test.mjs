@@ -23,6 +23,22 @@ test('the homepage hero uses the user-confirmed Deqin location label', async () 
   assert.doesNotMatch(source, /梅里雪山（雪达湖）/);
 });
 
+test('the homepage hero serves responsive high-quality renditions', async () => {
+  const source = await readFile('src/app/page.tsx', 'utf8');
+
+  assert.match(source, /hero-zbz-2714-1280\.jpg 1280w/);
+  assert.match(source, /hero-zbz-2714-2200\.jpg 2200w/);
+  assert.match(source, /hero-zbz-2714\.jpg 3000w/);
+  assert.match(source, /sizes="100vw"/);
+  assert.match(source, /loading="eager"/);
+
+  for (const width of [1280, 2200]) {
+    const asset = await stat(`public/hero-previews/hero-zbz-2714-${width}.jpg`);
+    assert.ok(asset.size > 0);
+    assert.ok(asset.size < 1_000_000);
+  }
+});
+
 test('series listing pages use dedicated lightweight cover previews', async () => {
   const [home, index, detail, portfolio] = await Promise.all([
     readFile('src/app/page.tsx', 'utf8'),

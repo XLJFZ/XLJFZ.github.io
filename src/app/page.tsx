@@ -11,10 +11,13 @@ export default function Home() {
       >
         <SiteHeader inverse />
         <img
-          src="/hero-zbz-2714.jpg"
+          src="/hero-previews/hero-zbz-2714-1280.jpg"
+          srcSet="/hero-previews/hero-zbz-2714-1280.jpg 1280w, /hero-previews/hero-zbz-2714-2200.jpg 2200w, /hero-zbz-2714.jpg 3000w"
+          sizes="100vw"
           alt="暮色中的雪山群峰与湖面倒影"
           width="3000"
           height="1717"
+          loading="eager"
           fetchPriority="high"
           decoding="async"
           className="hero-image absolute inset-0 h-full w-full scale-[1.02] object-cover opacity-95"
