@@ -296,7 +296,10 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             key={section.label ?? `gallery-${sectionIndex}`}
             id={section.label ? `chapter-${sectionIndex + 1}` : undefined}
             data-chapter-index={section.label ? sectionIndex : undefined}
-            className="scroll-mt-20"
+            className={cn(
+              'scroll-mt-20',
+              sectionIndex > 0 && 'gallery-chapter-deferred',
+            )}
           >
             {section.label && (
               <div className="mb-8 flex items-center gap-4 border-t border-foreground/10 pt-4 md:mb-12">

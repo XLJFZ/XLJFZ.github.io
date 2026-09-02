@@ -47,6 +47,7 @@ test('series gallery is two-column on desktop and one-column on mobile', async (
 
 test('long galleries expose editorial chapters without breaking orientation pairing', async () => {
   const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+  const globals = await readFile('src/app/globals.css', 'utf8');
   const portfolio = await readFile('src/lib/portfolio.ts', 'utf8');
 
   assert.match(gallery, /function buildGallerySections/);
@@ -61,6 +62,11 @@ test('long galleries expose editorial chapters without breaking orientation pair
     gallery,
     /scrollIntoView\({ block: 'nearest', inline: 'center' }\)/,
   );
+  assert.match(gallery, /sectionIndex > 0 && 'gallery-chapter-deferred'/);
+  assert.match(globals, /@supports \(content-visibility: auto\)/);
+  assert.match(globals, /content-visibility:\s*auto/);
+  assert.match(globals, /contain-intrinsic-size:\s*auto 1200px/);
+  assert.match(globals, /contain-intrinsic-size:\s*auto 1800px/);
   for (const chapter of [
     '重庆',
     '东京',
