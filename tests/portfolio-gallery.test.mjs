@@ -162,7 +162,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/38/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 12);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 14);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -198,6 +198,21 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(
     gannan,
     /camera: 'DJI Air 3S',[\s\S]*?focalLength: '9mm（等效 24mm）',[\s\S]*?aperture: 'f\/1\.8',[\s\S]*?shutterSpeed: '1\/500s',[\s\S]*?iso: 'ISO 100'/,
+  );
+
+  const shangriLa = portfolioRecord(
+    source,
+    '/portfolio/dsc-2989-shangri-la.jpg',
+  );
+  assert.match(
+    shangriLa,
+    /camera: 'Nikon Z8',[\s\S]*?focalLength: '180mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/160s',[\s\S]*?iso: 'ISO 64'/,
+  );
+
+  const deqin = portfolioRecord(source, '/portfolio/zbz-1242-meili.jpg');
+  assert.match(
+    deqin,
+    /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '68mm',[\s\S]*?aperture: 'f\/4',[\s\S]*?shutterSpeed: '60s',[\s\S]*?iso: 'ISO 64'/,
   );
 });
 
