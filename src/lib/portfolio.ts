@@ -60,6 +60,13 @@ export const series: Series[] = [
         height: 2197,
         alt: '夜色中被船舶光轨环绕的重庆江岸',
         caption: '重庆 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '15mm',
+          aperture: 'f/11',
+          shutterSpeed: '900s',
+          iso: 'ISO 64',
+        },
         layout: 'wide',
         chapter: '重庆',
       },
@@ -69,6 +76,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '铁网框景下的重庆高层建筑',
         caption: '重庆 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '20mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/640s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -343,6 +357,13 @@ export const series: Series[] = [
         height: 1866,
         alt: '双彩虹落在甘南山间湖泊与草地之间',
         caption: '甘南 · 2025',
+        exif: {
+          camera: 'DJI Air 3S',
+          focalLength: '9mm（等效 24mm）',
+          aperture: 'f/1.8',
+          shutterSpeed: '1/500s',
+          iso: 'ISO 100',
+        },
       },
       {
         src: '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
