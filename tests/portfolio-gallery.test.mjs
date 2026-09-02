@@ -162,7 +162,25 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/38/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 9);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 12);
+
+  const chongqingNight = portfolioRecord(
+    source,
+    '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+  );
+  assert.match(
+    chongqingNight,
+    /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '15mm',[\s\S]*?aperture: 'f\/11',[\s\S]*?shutterSpeed: '900s',[\s\S]*?iso: 'ISO 64'/,
+  );
+
+  const chongqingPortrait = portfolioRecord(
+    source,
+    '/portfolio/urban-pulse/chongqing-zbz-9356.jpg',
+  );
+  assert.match(
+    chongqingPortrait,
+    /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '20mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/640s',[\s\S]*?iso: 'ISO 64'/,
+  );
 
   const cat = portfolioRecord(
     source,
@@ -171,6 +189,15 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(
     cat,
     /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '70mm',[\s\S]*?aperture: 'f\/2\.8',[\s\S]*?shutterSpeed: '1\/320s',[\s\S]*?iso: 'ISO 9000'/,
+  );
+
+  const gannan = portfolioRecord(
+    source,
+    '/portfolio/distant-weather/gannan-dji-0934.jpg',
+  );
+  assert.match(
+    gannan,
+    /camera: 'DJI Air 3S',[\s\S]*?focalLength: '9mm（等效 24mm）',[\s\S]*?aperture: 'f\/1\.8',[\s\S]*?shutterSpeed: '1\/500s',[\s\S]*?iso: 'ISO 100'/,
   );
 });
 
