@@ -341,6 +341,13 @@ export const series: Series[] = [
         height: 1034,
         alt: '晨光与薄雾中的香格里拉建筑群',
         caption: '香格里拉 · 2025',
+        exif: {
+          camera: 'Nikon Z8',
+          focalLength: '180mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/160s',
+          iso: 'ISO 64',
+        },
         layout: 'wide',
       },
       {
@@ -349,6 +356,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '星轨下的梅里雪山雪峰',
         caption: '德钦 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '68mm',
+          aperture: 'f/4',
+          shutterSpeed: '60s',
+          iso: 'ISO 64',
+        },
         layout: 'medium',
       },
       {
