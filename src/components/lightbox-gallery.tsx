@@ -104,6 +104,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   );
   const [activeChapter, setActiveChapter] = useState(0);
   const [active, setActive] = useState<number | null>(null);
+  const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const showImage = useCallback(
@@ -431,23 +432,42 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
         >
           <DialogTitle className="sr-only">大图浏览</DialogTitle>
           <DialogDescription className="sr-only">
-            使用左右箭头或左右滑动切换照片
+            使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接
           </DialogDescription>
           {active !== null && (
-            <img
-              src={displayedItems[active].image.src}
-              width={displayedItems[active].image.width}
-              height={displayedItems[active].image.height}
-              alt={displayedItems[active].image.alt}
-              decoding="async"
-              className="h-full w-full object-contain p-3 md:p-10"
-            />
+            <div className="relative h-full w-full">
+              <img
+                src={galleryPreviewSrc(displayedItems[active].image.src, 1800)}
+                width={displayedItems[active].image.width}
+                height={displayedItems[active].image.height}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-contain p-3 md:p-10"
+              />
+              <img
+                key={displayedItems[active].image.src}
+                src={displayedItems[active].image.src}
+                width={displayedItems[active].image.width}
+                height={displayedItems[active].image.height}
+                alt={displayedItems[active].image.alt}
+                decoding="async"
+                onLoad={() =>
+                  setLoadedOriginal(displayedItems[active].image.src)
+                }
+                className={cn(
+                  'absolute inset-0 h-full w-full object-contain p-3 transition-opacity duration-300 md:p-10',
+                  loadedOriginal === displayedItems[active].image.src
+                    ? 'opacity-100'
+                    : 'opacity-0',
+                )}
+              />
+            </div>
           )}
           <button
             type="button"
             onClick={closeLightbox}
             aria-label="关闭"
-            className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur md:right-7 md:top-7"
+            className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7 md:top-7"
           >
             <X />
           </button>
@@ -455,7 +475,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             type="button"
             onClick={copyCurrentImageLink}
             aria-label="复制当前作品链接"
-            className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
+            className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
           >
             <Link2 />
           </button>
@@ -463,7 +483,8 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             type="button"
             onClick={prev}
             aria-label="上一张"
-            className="absolute left-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur md:left-7"
+            aria-keyshortcuts="ArrowLeft"
+            className="absolute left-[max(.75rem,env(safe-area-inset-left))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7"
           >
             <ChevronLeft />
           </button>
@@ -471,7 +492,8 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             type="button"
             onClick={next}
             aria-label="下一张"
-            className="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur md:right-7"
+            aria-keyshortcuts="ArrowRight"
+            className="absolute right-[max(.75rem,env(safe-area-inset-right))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7"
           >
             <ChevronRight />
           </button>
