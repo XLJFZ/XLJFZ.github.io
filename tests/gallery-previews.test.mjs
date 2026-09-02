@@ -19,6 +19,7 @@ test('every gallery photograph has responsive high-quality previews', async () =
   assert.equal(sources.length, 45);
   assert.match(gallery, /srcSet=/);
   assert.match(gallery, /galleryPreviewSrc\(image\.src\)\} 1200w/);
+  assert.match(gallery, /galleryPreviewSrc\(image\.src, 1800\)\} 1800w/);
   assert.match(gallery, /\$\{image\.src\} \$\{image\.width\}w/);
   assert.match(gallery, /sizes=/);
 
@@ -26,7 +27,9 @@ test('every gallery photograph has responsive high-quality previews', async () =
     const previewBase = source
       .replace('/portfolio/', 'public/portfolio-previews/')
       .replace(/\.[^.]+$/, '');
-    const preview = `${previewBase}-1200.jpg`;
-    assert.ok((await stat(path.normalize(preview))).size > 0, preview);
+    for (const width of [1200, 1800]) {
+      const preview = `${previewBase}-${width}.jpg`;
+      assert.ok((await stat(path.normalize(preview))).size > 0, preview);
+    }
   }
 });
