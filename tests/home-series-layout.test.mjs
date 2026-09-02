@@ -48,8 +48,14 @@ test('series listing pages use dedicated lightweight cover previews', async () =
   ]);
 
   assert.match(home, /item\.preview\.path/);
+  assert.match(home, /item\.preview\.mobilePath/);
+  assert.match(home, /srcSet=/);
+  assert.match(home, /sizes=/);
   assert.match(index, /item\.preview\.path/);
+  assert.match(index, /item\.preview\.mobilePath/);
+  assert.match(index, /srcSet=/);
   assert.match(detail, /next\.preview/);
+  assert.match(detail, /nextCover\.mobilePath/);
   assert.match(portfolio, /path: '\/covers\/urban-pulse\.jpg'/);
   assert.match(portfolio, /path: '\/covers\/textures-of-time\.jpg'/);
   assert.match(portfolio, /path: '\/covers\/nearby-moments\.jpg'/);
@@ -61,5 +67,16 @@ test('series listing pages use dedicated lightweight cover previews', async () =
   ]) {
     const asset = await stat(`public/covers/${filename}`);
     assert.ok(asset.size < 1_000_000, `${filename} should stay below 1 MB`);
+  }
+
+  for (const filename of [
+    'urban-pulse-1200.jpg',
+    'distant-weather-1200.jpg',
+    'textures-of-time-1200.jpg',
+    'nearby-moments-1200.jpg',
+  ]) {
+    const asset = await stat(`public/covers/${filename}`);
+    assert.ok(asset.size > 0, `${filename} should not be empty`);
+    assert.ok(asset.size < 400_000, `${filename} should stay below 400 KB`);
   }
 });

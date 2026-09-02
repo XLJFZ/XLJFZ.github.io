@@ -101,7 +101,9 @@ export default async function SeriesPage({ params }: Props) {
         </div>
         <div className="overflow-hidden bg-[#292824]">
           <img
-            src={nextCover.path}
+            src={nextCover.mobilePath}
+            srcSet={`${nextCover.mobilePath} ${nextCover.mobileWidth}w, ${nextCover.path} ${nextCover.width}w`}
+            sizes="(min-width: 1480px) 850px, (min-width: 768px) 58vw, calc(100vw - 40px)"
             width={nextCover.width}
             height={nextCover.height}
             alt={`${next.title}专题封面`}

@@ -35,7 +35,9 @@ export default function SeriesIndex() {
               >
                 <div className="relative overflow-hidden bg-[#292824] shadow-[0_24px_80px_rgba(0,0,0,.28)]">
                   <img
-                    src={item.preview.path}
+                    src={item.preview.mobilePath}
+                    srcSet={`${item.preview.mobilePath} ${item.preview.mobileWidth}w, ${item.preview.path} ${item.preview.width}w`}
+                    sizes="(min-width: 1600px) 1328px, (min-width: 768px) 83vw, calc(100vw - 40px)"
                     width={item.preview.width}
                     height={item.preview.height}
                     alt={item.title}

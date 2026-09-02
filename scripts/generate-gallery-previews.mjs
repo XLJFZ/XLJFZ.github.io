@@ -13,6 +13,29 @@ const widths = [1200, 1800];
 const heroSource = path.join(projectRoot, 'public', 'hero-zbz-2714.jpg');
 const heroOutputRoot = path.join(projectRoot, 'public', 'hero-previews');
 const heroWidths = [1280, 2200];
+const responsiveCovers = [
+  {
+    source: path.join(projectRoot, 'public', 'covers', 'urban-pulse.jpg'),
+    output: 'urban-pulse-1200.jpg',
+  },
+  {
+    source: path.join(
+      projectRoot,
+      'public',
+      'portfolio',
+      'dsc-2989-shangri-la.jpg',
+    ),
+    output: 'distant-weather-1200.jpg',
+  },
+  {
+    source: path.join(projectRoot, 'public', 'covers', 'textures-of-time.jpg'),
+    output: 'textures-of-time-1200.jpg',
+  },
+  {
+    source: path.join(projectRoot, 'public', 'covers', 'nearby-moments.jpg'),
+    output: 'nearby-moments-1200.jpg',
+  },
+];
 
 async function findImages(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -81,8 +104,29 @@ async function main() {
     previewBytes += result.size;
   }
 
+  for (const cover of responsiveCovers) {
+    const destination = path.join(
+      projectRoot,
+      'public',
+      'covers',
+      cover.output,
+    );
+    const result = await sharp(cover.source)
+      .rotate()
+      .resize({ width: 1200, withoutEnlargement: true })
+      .jpeg({
+        quality: 90,
+        chromaSubsampling: '4:4:4',
+        progressive: true,
+        mozjpeg: true,
+      })
+      .toFile(destination);
+    previewBytes += result.size;
+  }
+
   console.log(
-    `Generated ${images.length * widths.length} gallery previews and ${heroWidths.length} hero previews ` +
+    `Generated ${images.length * widths.length} gallery previews, ${heroWidths.length} hero previews, ` +
+      `and ${responsiveCovers.length} responsive covers ` +
       `(${(sourceBytes / 1024 / 1024).toFixed(1)} MB originals, ${(previewBytes / 1024 / 1024).toFixed(1)} MB previews).`,
   );
 }

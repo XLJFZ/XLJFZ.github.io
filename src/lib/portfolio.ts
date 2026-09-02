@@ -17,7 +17,13 @@ export type Series = {
   location: string;
   statement: string;
   cover: string;
-  preview: { path: string; width: number; height: number };
+  preview: {
+    path: string;
+    width: number;
+    height: number;
+    mobilePath: string;
+    mobileWidth: number;
+  };
   coverPosition?: string;
   images: PortfolioImage[];
 };
@@ -37,6 +43,8 @@ export const series: Series[] = [
       path: '/covers/urban-pulse.jpg',
       width: 2400,
       height: 1500,
+      mobilePath: '/covers/urban-pulse-1200.jpg',
+      mobileWidth: 1200,
     },
     images: [
       {
@@ -280,6 +288,8 @@ export const series: Series[] = [
       path: '/portfolio/dsc-2989-shangri-la.jpg',
       width: 2800,
       height: 1034,
+      mobilePath: '/covers/distant-weather-1200.jpg',
+      mobileWidth: 1200,
     },
     coverPosition: 'center 45%',
     images: [
@@ -358,6 +368,8 @@ export const series: Series[] = [
       path: '/covers/textures-of-time.jpg',
       width: 2400,
       height: 1500,
+      mobilePath: '/covers/textures-of-time-1200.jpg',
+      mobileWidth: 1200,
     },
     coverPosition: 'center 38%',
     images: [
@@ -433,6 +445,8 @@ export const series: Series[] = [
       path: '/covers/nearby-moments.jpg',
       width: 2400,
       height: 1500,
+      mobilePath: '/covers/nearby-moments-1200.jpg',
+      mobileWidth: 1200,
     },
     images: [
       {
