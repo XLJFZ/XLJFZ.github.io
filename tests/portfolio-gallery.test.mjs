@@ -82,6 +82,10 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /new window\.Image\(\)/);
   assert.match(gallery, /左右滑动/);
   assert.match(gallery, /loadedOriginal/);
+  assert.match(gallery, /failedOriginal/);
+  assert.match(gallery, /aria-busy=/);
+  assert.match(gallery, /原图加载失败，当前显示高清预览/);
+  assert.match(gallery, /fetchPriority="high"/);
   assert.match(gallery, /galleryPreviewSrc\([\s\S]*?1800/);
   assert.match(gallery, /transition-opacity duration-300/);
   assert.match(gallery, /env\(safe-area-inset-top\)/);
