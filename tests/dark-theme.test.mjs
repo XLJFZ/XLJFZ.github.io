@@ -35,3 +35,16 @@ test('portfolio uses a warm dark-gray theme with matching content colors', async
     );
   }
 });
+
+test('same-origin navigation uses restrained progressive page transitions', async () => {
+  const globals = await readFile('src/app/globals.css', 'utf8');
+
+  assert.match(globals, /@view-transition\s*{\s*navigation:\s*auto/);
+  assert.match(globals, /::view-transition-old\(root\)/);
+  assert.match(globals, /::view-transition-new\(root\)/);
+  assert.match(globals, /prefers-reduced-motion:\s*reduce/);
+  assert.match(
+    globals,
+    /::view-transition-new\(root\)[\s\S]*?animation:\s*none !important/,
+  );
+});
