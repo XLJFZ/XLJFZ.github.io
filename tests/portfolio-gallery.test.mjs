@@ -122,6 +122,11 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /env\(safe-area-inset-top\)/);
   assert.match(gallery, /aria-keyshortcuts="ArrowLeft"/);
   assert.match(gallery, /aria-keyshortcuts="ArrowRight"/);
+  assert.match(gallery, /width: 'calc\(100vw - 1\.5rem\)'/);
+  assert.match(gallery, /height: 'calc\(100svh - 1\.5rem\)'/);
+  assert.match(gallery, /display: 'block'/);
+  assert.match(gallery, /maxWidth: 'none'/);
+  assert.match(gallery, /sm:max-w-none/);
 });
 
 test('lightbox image URLs are shareable and browser back closes the viewer', async () => {
