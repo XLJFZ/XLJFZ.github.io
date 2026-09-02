@@ -438,6 +438,13 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       >
         <DialogContent
           showCloseButton={false}
+          style={{
+            display: 'block',
+            width: 'calc(100vw - 1.5rem)',
+            maxWidth: 'none',
+            height: 'calc(100svh - 1.5rem)',
+            maxHeight: 'none',
+          }}
           onTouchStart={(event) => {
             const touch = event.changedTouches[0];
             touchStart.current = { x: touch.clientX, y: touch.clientY };
@@ -454,7 +461,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             if (deltaX > 0) prev();
             else next();
           }}
-          className="h-[100svh] max-h-none w-screen max-w-none touch-pan-y border-0 bg-black p-0 text-white ring-0"
+          className="touch-pan-y gap-0 overflow-hidden border-0 bg-black p-0 text-white ring-0 sm:max-w-none"
         >
           <DialogTitle className="sr-only">大图浏览</DialogTitle>
           <DialogDescription className="sr-only">
