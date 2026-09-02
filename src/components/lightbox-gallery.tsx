@@ -202,39 +202,20 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   useEffect(() => {
     if (!hasChapters) return;
-    const chapterElements = sections
-      .map((section, sectionIndex) =>
-        section.label
-          ? document.getElementById(`chapter-${sectionIndex + 1}`)
-          : null,
-      )
-      .filter((element): element is HTMLElement => element !== null);
-    let frame = 0;
-    const updateActiveChapter = () => {
-      const marker = Math.min(240, window.innerHeight * 0.3);
-      let current = chapterElements[0];
-      for (const element of chapterElements) {
-        if (element.getBoundingClientRect().top > marker) break;
-        current = element;
-      }
-      setActiveChapter(Number(current.dataset.chapterIndex));
-    };
-    const scheduleUpdate = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        updateActiveChapter();
-      });
-    };
-    updateActiveChapter();
-    window.addEventListener('scroll', scheduleUpdate, { passive: true });
-    window.addEventListener('resize', scheduleUpdate);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', scheduleUpdate);
-      window.removeEventListener('resize', scheduleUpdate);
-    };
-  }, [hasChapters, sections]);
+    const chapterMarkers = document.querySelectorAll<HTMLElement>(
+      '[data-chapter-marker]',
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const current = entries.find((entry) => entry.isIntersecting);
+        if (!(current?.target instanceof HTMLElement)) return;
+        setActiveChapter(Number(current.target.dataset.chapterIndex));
+      },
+      { rootMargin: '-20% 0px -75% 0px' },
+    );
+    chapterMarkers.forEach((marker) => observer.observe(marker));
+    return () => observer.disconnect();
+  }, [hasChapters]);
 
   useEffect(() => {
     const currentLink = document.querySelector(
@@ -302,7 +283,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             )}
           >
             {section.label && (
-              <div className="mb-8 flex items-center gap-4 border-t border-foreground/10 pt-4 md:mb-12">
+              <div
+                data-chapter-marker
+                data-chapter-index={sectionIndex}
+                className="mb-8 flex items-center gap-4 border-t border-foreground/10 pt-4 md:mb-12"
+              >
                 <span className="text-[10px] tracking-[0.2em] text-foreground/35">
                   {String(sectionIndex + 1).padStart(2, '0')}
                 </span>

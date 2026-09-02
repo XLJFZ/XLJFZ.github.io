@@ -55,8 +55,11 @@ test('long galleries expose editorial chapters without breaking orientation pair
   assert.match(gallery, /aria-label="专题章节"/);
   assert.match(gallery, /href={`#chapter-\${sectionIndex \+ 1}`}/);
   assert.match(gallery, /overflow-x-auto/);
-  assert.match(gallery, /getBoundingClientRect\(\)\.top/);
-  assert.match(gallery, /requestAnimationFrame/);
+  assert.match(gallery, /new IntersectionObserver/);
+  assert.match(gallery, /data-chapter-marker/);
+  assert.match(gallery, /rootMargin: '-20% 0px -75% 0px'/);
+  assert.match(gallery, /observer\.disconnect\(\)/);
+  assert.doesNotMatch(gallery, /window\.addEventListener\('scroll'/);
   assert.match(gallery, /aria-current=/);
   assert.match(
     gallery,
