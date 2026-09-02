@@ -155,6 +155,25 @@ test('lightbox caption and sequence share one collision-free footer row', async 
   assert.match(gallery, /className="shrink-0 text-\[10px\]/);
 });
 
+test('lightbox shows only verified EXIF metadata when it is available', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+
+  assert.match(gallery, /function exifSummary/);
+  assert.match(gallery, /values\.join\(' · '\)/);
+  assert.match(gallery, /text-white\/38/);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 9);
+
+  const cat = portfolioRecord(
+    source,
+    '/portfolio/nearby-moments/cat-img-20240724.jpg',
+  );
+  assert.match(
+    cat,
+    /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '70mm',[\s\S]*?aperture: 'f\/2\.8',[\s\S]*?shutterSpeed: '1\/320s',[\s\S]*?iso: 'ISO 9000'/,
+  );
+});
+
 test('gallery captions expose a quiet visual sequence counter', async () => {
   const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
 

@@ -6,6 +6,13 @@ export type PortfolioImage = {
   caption?: string;
   layout?: 'portrait' | 'medium' | 'wide';
   chapter?: string;
+  exif?: {
+    camera?: string;
+    focalLength?: string;
+    aperture?: string;
+    shutterSpeed?: string;
+    iso?: string;
+  };
 };
 
 export type Series = {
@@ -135,6 +142,13 @@ export const series: Series[] = [
         height: 5504,
         alt: '街口信号灯与红砖建筑构成的上海仰视街景',
         caption: '上海 · 2026',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '24mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/160s',
+          iso: 'ISO 64',
+        },
       },
       {
         src: '/portfolio/urban-pulse/shanghai-zbz-8705.jpg',
@@ -172,6 +186,13 @@ export const series: Series[] = [
         height: 1680,
         alt: '黑白画面中的上海行人与建筑光影',
         caption: '上海 · 2022',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '24mm',
+          aperture: 'f/2.8',
+          shutterSpeed: '1/25s',
+          iso: 'ISO 64',
+        },
         layout: 'wide',
       },
       {
@@ -180,6 +201,13 @@ export const series: Series[] = [
         height: 6369,
         alt: '上海街角阳光下的咖啡馆与自行车',
         caption: '上海 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '48mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/125s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -403,6 +431,13 @@ export const series: Series[] = [
         height: 8256,
         alt: '徽州夜色中鱼灯、烟花与水面倒影',
         caption: '徽州 · 2026',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '24mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '3s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -411,6 +446,13 @@ export const series: Series[] = [
         height: 6336,
         alt: '涂满文字的鲸鱼装置与窗前人物',
         caption: '西安 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '55mm',
+          aperture: 'f/3.2',
+          shutterSpeed: '1/8s',
+          iso: 'ISO 400',
+        },
         layout: 'portrait',
       },
       {
@@ -419,6 +461,13 @@ export const series: Series[] = [
         height: 6880,
         alt: '窗帘与室内陈设交叠的午后光线',
         caption: '西安 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '67mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/50s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -427,6 +476,13 @@ export const series: Series[] = [
         height: 5504,
         alt: '徽州街巷人群托举鱼灯巡游的瞬间',
         caption: '徽州 · 2026',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '16.5mm',
+          aperture: 'f/5',
+          shutterSpeed: '1/250s',
+          iso: 'ISO 5600',
+        },
         layout: 'wide',
       },
     ],
@@ -455,6 +511,13 @@ export const series: Series[] = [
         height: 8256,
         alt: '球场上手持足球准备发球的球员背影',
         caption: '上海 · 2023',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '165mm',
+          aperture: 'f/5.6',
+          shutterSpeed: '1/640s',
+          iso: 'ISO 400',
+        },
         layout: 'portrait',
       },
       {
@@ -463,6 +526,13 @@ export const series: Series[] = [
         height: 4096,
         alt: '柔和光线中凝视远处的灰猫特写',
         caption: '西安 · 2024',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '70mm',
+          aperture: 'f/2.8',
+          shutterSpeed: '1/320s',
+          iso: 'ISO 9000',
+        },
         layout: 'portrait',
       },
     ],
