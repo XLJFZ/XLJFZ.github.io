@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Noto_Sans_SC } from 'next/font/google';
-import { Toaster } from '@/components/ui/toast';
 import './globals.css';
 
 const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });
@@ -66,7 +65,6 @@ export default function RootLayout({
           跳至正文
         </a>
         {children}
-        <Toaster />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

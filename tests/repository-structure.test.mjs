@@ -8,5 +8,5 @@ test('source code is consolidated under src and unused UI scaffolding is absent'
   }
 
   const uiFiles = await readdir('src/components/ui');
-  assert.deepEqual(uiFiles.sort(), ['button.tsx', 'dialog.tsx', 'toast.tsx']);
+  assert.deepEqual(uiFiles.sort(), ['button.tsx', 'dialog.tsx']);
 });

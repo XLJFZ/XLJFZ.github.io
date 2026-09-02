@@ -9,7 +9,10 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { toast } from '@/components/ui/toast';
+import {
+  TemporaryStatus,
+  useTemporaryStatus,
+} from '@/components/temporary-status';
 import type { PortfolioImage } from '@/lib/portfolio';
 import { cn } from '@/lib/utils';
 
@@ -106,6 +109,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [active, setActive] = useState<number | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
+  const { message: copyStatus, showStatus } = useTemporaryStatus();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const showImage = useCallback(
@@ -153,23 +157,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     url.searchParams.set('image', imageKey(displayedItems[active].image.src));
     try {
       await navigator.clipboard.writeText(url.toString());
-      toast.add({
-        id: 'image-link-copied',
-        title: '作品链接已复制',
-        description: displayedItems[active].image.caption,
-        type: 'success',
-        timeout: 2200,
-      });
+      showStatus(`作品链接已复制 · ${displayedItems[active].image.caption}`);
     } catch {
-      toast.add({
-        id: 'image-link-copy-failed',
-        title: '复制失败',
-        description: '请从浏览器地址栏复制当前链接。',
-        type: 'error',
-        timeout: 4000,
-      });
+      showStatus('复制失败，请从浏览器地址栏复制当前链接。', 'error', 4000);
     }
-  }, [active, displayedItems]);
+  }, [active, displayedItems, showStatus]);
 
   useEffect(() => {
     const syncFromUrl = () => {
@@ -531,6 +523,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           )}
         </DialogContent>
       </Dialog>
+      <TemporaryStatus message={copyStatus} />
     </>
   );
 }
