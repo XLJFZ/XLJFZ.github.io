@@ -10,6 +10,9 @@ const projectRoot = path.resolve(
 const sourceRoot = path.join(projectRoot, 'public', 'portfolio');
 const outputRoot = path.join(projectRoot, 'public', 'portfolio-previews');
 const widths = [1200, 1800];
+const heroSource = path.join(projectRoot, 'public', 'hero-zbz-2714.jpg');
+const heroOutputRoot = path.join(projectRoot, 'public', 'hero-previews');
+const heroWidths = [1280, 2200];
 
 async function findImages(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -26,11 +29,16 @@ async function findImages(directory) {
 
 async function main() {
   const expectedOutput = path.join(projectRoot, 'public', 'portfolio-previews');
+  const expectedHeroOutput = path.join(projectRoot, 'public', 'hero-previews');
   if (path.resolve(outputRoot) !== path.resolve(expectedOutput)) {
     throw new Error(`Unexpected preview output path: ${outputRoot}`);
   }
+  if (path.resolve(heroOutputRoot) !== path.resolve(expectedHeroOutput)) {
+    throw new Error(`Unexpected hero output path: ${heroOutputRoot}`);
+  }
 
   await rm(outputRoot, { recursive: true, force: true });
+  await rm(heroOutputRoot, { recursive: true, force: true });
   const images = await findImages(sourceRoot);
   let sourceBytes = 0;
   let previewBytes = 0;
@@ -57,8 +65,24 @@ async function main() {
     }
   }
 
+  for (const width of heroWidths) {
+    const destination = path.join(heroOutputRoot, `hero-zbz-2714-${width}.jpg`);
+    await mkdir(heroOutputRoot, { recursive: true });
+    const result = await sharp(heroSource)
+      .rotate()
+      .resize({ width, withoutEnlargement: true })
+      .jpeg({
+        quality: 90,
+        chromaSubsampling: '4:4:4',
+        progressive: true,
+        mozjpeg: true,
+      })
+      .toFile(destination);
+    previewBytes += result.size;
+  }
+
   console.log(
-    `Generated ${images.length * widths.length} previews from ${images.length} photographs ` +
+    `Generated ${images.length * widths.length} gallery previews and ${heroWidths.length} hero previews ` +
       `(${(sourceBytes / 1024 / 1024).toFixed(1)} MB originals, ${(previewBytes / 1024 / 1024).toFixed(1)} MB previews).`,
   );
 }
