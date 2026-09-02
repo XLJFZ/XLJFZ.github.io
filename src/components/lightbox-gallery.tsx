@@ -106,6 +106,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     [sections],
   );
   const [activeChapter, setActiveChapter] = useState(0);
+  const [hasUsedChapterAnchor, setHasUsedChapterAnchor] = useState(false);
   const [active, setActive] = useState<number | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
@@ -202,6 +203,39 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   useEffect(() => {
     if (!hasChapters) return;
+    let settleTimer: number | undefined;
+    let finalSettleTimer: number | undefined;
+    const syncChapterFromHash = () => {
+      const match = window.location.hash.match(/^#chapter-(\d+)$/);
+      if (!match) return;
+      const chapterIndex = Number(match[1]) - 1;
+      if (chapterIndex >= 0 && chapterIndex < sections.length) {
+        setHasUsedChapterAnchor(true);
+        setActiveChapter(chapterIndex);
+        const alignChapter = () => {
+          setActiveChapter(chapterIndex);
+          document
+            .getElementById(`chapter-${chapterIndex + 1}`)
+            ?.scrollIntoView({ block: 'start' });
+        };
+        window.requestAnimationFrame(alignChapter);
+        window.clearTimeout(settleTimer);
+        window.clearTimeout(finalSettleTimer);
+        settleTimer = window.setTimeout(alignChapter, 350);
+        finalSettleTimer = window.setTimeout(alignChapter, 1000);
+      }
+    };
+    syncChapterFromHash();
+    window.addEventListener('hashchange', syncChapterFromHash);
+    return () => {
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(finalSettleTimer);
+      window.removeEventListener('hashchange', syncChapterFromHash);
+    };
+  }, [hasChapters, sections.length]);
+
+  useEffect(() => {
+    if (!hasChapters) return;
     const chapterMarkers = document.querySelectorAll<HTMLElement>(
       '[data-chapter-marker]',
     );
@@ -231,17 +265,19 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           aria-label="专题章节"
           className="sticky top-0 z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
         >
-          <div className="mx-auto flex max-w-[1480px] items-center gap-6">
-            <span className="shrink-0 text-[9px] tracking-[0.22em] text-foreground/32">
-              章节
+          <div className="mx-auto flex max-w-[1480px] items-center gap-4 sm:gap-6">
+            <span className="shrink-0 text-[9px] tracking-[0.18em] text-foreground/38 tabular-nums">
+              章节 {String(activeChapter + 1).padStart(2, '0')}/
+              {String(sections.length).padStart(2, '0')}
             </span>
-            <div className="flex min-w-0 gap-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:gap-8">
+            <div className="flex min-w-0 gap-4 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6 md:gap-8">
               {sections.map(
                 (section, sectionIndex) =>
                   section.label && (
                     <a
                       key={section.label}
                       href={`#chapter-${sectionIndex + 1}`}
+                      aria-label={`第 ${sectionIndex + 1} 章，共 ${sections.length} 章：${section.label}`}
                       aria-current={
                         activeChapter === sectionIndex ? 'location' : undefined
                       }
@@ -269,6 +305,13 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
               )}
             </div>
           </div>
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-px origin-left bg-foreground/35 transition-transform duration-500 ease-out"
+            style={{
+              transform: `scaleX(${(activeChapter + 1) / sections.length})`,
+            }}
+          />
         </nav>
       )}
       <div className="space-y-20 md:space-y-32">
@@ -279,7 +322,9 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             data-chapter-index={section.label ? sectionIndex : undefined}
             className={cn(
               'scroll-mt-20',
-              sectionIndex > 0 && 'gallery-chapter-deferred',
+              sectionIndex > 0 &&
+                !hasUsedChapterAnchor &&
+                'gallery-chapter-deferred',
             )}
           >
             {section.label && (
@@ -346,7 +391,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                         <button
                           type="button"
                           onClick={() => showImage(displayIndex, 'push')}
-                          className="group block w-full cursor-zoom-in overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.22)]"
+                          className="group block w-full cursor-zoom-in overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.22)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground/70"
                           aria-label={`放大查看：${image.alt}`}
                         >
                           <img
@@ -363,7 +408,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                             loading={displayIndex === 0 ? 'eager' : 'lazy'}
                             fetchPriority={displayIndex === 0 ? 'high' : 'auto'}
                             decoding="async"
-                            className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008]"
+                            className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008] group-focus-visible:scale-[1.008]"
                           />
                         </button>
                         {image.caption && (

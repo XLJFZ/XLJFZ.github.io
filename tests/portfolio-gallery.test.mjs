@@ -63,9 +63,31 @@ test('long galleries expose editorial chapters without breaking orientation pair
   assert.match(gallery, /aria-current=/);
   assert.match(
     gallery,
+    /window\.addEventListener\('hashchange', syncChapterFromHash\)/,
+  );
+  assert.match(gallery, /window\.setTimeout\(alignChapter, 350\)/);
+  assert.match(gallery, /window\.setTimeout\(alignChapter, 1000\)/);
+  assert.match(gallery, /scrollIntoView\(\{ block: 'start' \}\)/);
+  assert.match(
+    gallery,
+    /章节 \{String\(activeChapter \+ 1\)\.padStart\(2, '0'\)\}/,
+  );
+  assert.match(
+    gallery,
+    /transform: `scaleX\(\$\{\(activeChapter \+ 1\) \/ sections\.length\}\)`/,
+  );
+  assert.match(
+    gallery,
+    /第 \$\{sectionIndex \+ 1\} 章，共 \$\{sections\.length\} 章/,
+  );
+  assert.match(
+    gallery,
     /scrollIntoView\({ block: 'nearest', inline: 'center' }\)/,
   );
-  assert.match(gallery, /sectionIndex > 0 && 'gallery-chapter-deferred'/);
+  assert.match(
+    gallery,
+    /sectionIndex > 0 &&[\s\S]*?!hasUsedChapterAnchor &&[\s\S]*?'gallery-chapter-deferred'/,
+  );
   assert.match(globals, /@supports \(content-visibility: auto\)/);
   assert.match(globals, /content-visibility:\s*auto/);
   assert.match(globals, /contain-intrinsic-size:\s*auto 1200px/);
@@ -131,6 +153,13 @@ test('gallery captions expose a quiet visual sequence counter', async () => {
     /第 \${displayIndex \+ 1} 幅，共 \${displayedItems\.length} 幅/,
   );
   assert.match(gallery, /String\(displayIndex \+ 1\)\.padStart\(2, '0'\)/);
+});
+
+test('gallery thumbnails expose a strong keyboard focus state', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(gallery, /focus-visible:outline-2/);
+  assert.match(gallery, /group-focus-visible:scale-\[1\.008\]/);
 });
 
 test('only the first gallery image receives eager high-priority loading', async () => {
