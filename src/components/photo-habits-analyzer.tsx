@@ -33,6 +33,34 @@ const lensPresets = [
 
 type LensRange = { label: string; min: number; max: number };
 
+export type SitePhoto = {
+  name: string;
+  url: string;
+  verified?: {
+    focalLength?: string;
+    aperture?: string;
+    shutterSpeed?: string;
+    iso?: string;
+  };
+};
+
+function parseVerifiedMetadata(photo: SitePhoto) {
+  const focalLength = Number(
+    photo.verified?.focalLength?.replace(/[^\d.]/g, ''),
+  );
+  const aperture = Number(photo.verified?.aperture?.replace(/[^\d.]/g, ''));
+  const iso = Number(photo.verified?.iso?.replace(/[^\d.]/g, ''));
+  const shutter = photo.verified?.shutterSpeed?.replace(/s$/i, '');
+  const [numerator, denominator] = shutter?.split('/').map(Number) ?? [];
+  const exposureTime = denominator ? numerator / denominator : Number(shutter);
+  return {
+    ...(focalLength ? { focalLength, focalLength35mm: focalLength } : {}),
+    ...(aperture ? { aperture } : {}),
+    ...(iso ? { iso } : {}),
+    ...(exposureTime ? { exposureTime } : {}),
+  };
+}
+
 function Distribution({ items }: { items: DistributionItem[] }) {
   const maximum = Math.max(...items.map((item) => item.count), 1);
   return (
@@ -91,13 +119,19 @@ function StatCard({
   );
 }
 
-export function PhotoHabitsAnalyzer() {
+export function PhotoHabitsAnalyzer({
+  sitePhotos,
+}: {
+  sitePhotos: SitePhoto[];
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [records, setRecords] = useState<PhotoRecord[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [workingTotal, setWorkingTotal] = useState(0);
+  const [sourceLabel, setSourceLabel] = useState('');
   const [error, setError] = useState('');
   const [lens, setLens] = useState<LensRange>(lensPresets[2]);
 
@@ -128,6 +162,7 @@ export function PhotoHabitsAnalyzer() {
     });
     setRecords([]);
     setProgress(0);
+    setSourceLabel('');
     setError(
       supported.length < all.length
         ? `已忽略 ${all.length - supported.length} 个不支持的文件。`
@@ -139,6 +174,8 @@ export function PhotoHabitsAnalyzer() {
     setFiles([]);
     setRecords([]);
     setProgress(0);
+    setWorkingTotal(0);
+    setSourceLabel('');
     setError('');
     if (inputRef.current) inputRef.current.value = '';
   };
@@ -147,6 +184,8 @@ export function PhotoHabitsAnalyzer() {
     setIsWorking(true);
     setRecords([]);
     setProgress(0);
+    setWorkingTotal(files.length);
+    setSourceLabel('本地照片');
     setError('');
     const completed: PhotoRecord[] = [];
     try {
@@ -164,6 +203,42 @@ export function PhotoHabitsAnalyzer() {
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : '读取照片时出现错误。',
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  };
+
+  const analyzeSitePhotos = async () => {
+    setIsWorking(true);
+    setFiles([]);
+    setRecords([]);
+    setProgress(0);
+    setWorkingTotal(sitePhotos.length);
+    setSourceLabel('本站作品');
+    setError('');
+    const completed: PhotoRecord[] = [];
+    try {
+      for (let index = 0; index < sitePhotos.length; index += 1) {
+        const photo = sitePhotos[index];
+        const response = await fetch(photo.url, {
+          headers: { Range: 'bytes=0-16777215' },
+        });
+        if (!response.ok) throw new Error(`无法读取站内照片：${photo.name}`);
+        const parsed = parsePhotoMetadata(await response.arrayBuffer());
+        const verified = parseVerifiedMetadata(photo);
+        const metadata = { ...verified, ...parsed };
+        completed.push({
+          name: photo.name,
+          metadata: Object.keys(metadata).length ? metadata : null,
+        });
+        setProgress(index + 1);
+        if (index % 6 === 0) await new Promise(requestAnimationFrame);
+      }
+      setRecords(completed);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : '读取站内照片时出现错误。',
       );
     } finally {
       setIsWorking(false);
@@ -254,16 +329,16 @@ export function PhotoHabitsAnalyzer() {
             {isWorking && (
               <div className="mb-4" aria-live="polite">
                 <div className="mb-2 flex justify-between text-xs text-white/42">
-                  <span>正在读取 EXIF</span>
+                  <span>正在读取 {sourceLabel || 'EXIF'}</span>
                   <span className="tabular-nums">
-                    {progress}/{files.length}
+                    {progress}/{workingTotal}
                   </span>
                 </div>
                 <div className="h-px bg-white/10">
                   <div
                     className="h-px bg-[#d8c19b] transition-[width]"
                     style={{
-                      width: `${files.length ? (progress / files.length) * 100 : 0}%`,
+                      width: `${workingTotal ? (progress / workingTotal) * 100 : 0}%`,
                     }}
                   />
                 </div>
@@ -281,6 +356,14 @@ export function PhotoHabitsAnalyzer() {
                   ? '重新分析'
                   : `分析${files.length ? ` ${files.length} 张` : ''}`}
             </Button>
+            <button
+              type="button"
+              className="mt-3 w-full border border-white/12 px-4 py-3 text-sm text-white/58 transition-colors hover:border-white/35 hover:text-white disabled:pointer-events-none disabled:opacity-40"
+              onClick={analyzeSitePhotos}
+              disabled={isWorking || !sitePhotos.length}
+            >
+              一键分析本站 {sitePhotos.length} 幅作品
+            </button>
           </div>
         </aside>
       </section>
@@ -292,7 +375,9 @@ export function PhotoHabitsAnalyzer() {
               <div className="flex flex-wrap items-center gap-3 text-xs tracking-[.12em] text-white/38">
                 <span>镜头购买判断</span>
                 <span aria-hidden="true">·</span>
-                <span>{analysis.focalCount} 张焦段样本</span>
+                <span>
+                  {sourceLabel} · {analysis.focalCount} 张焦段样本
+                </span>
               </div>
               <p
                 className={`mt-7 max-w-3xl text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.04] tracking-[-.045em] ${advice.tone === 'strong' ? 'text-[#e2cfaa]' : 'text-white'}`}

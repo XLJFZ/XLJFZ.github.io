@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { PhotoHabitsAnalyzer } from '@/components/photo-habits-analyzer';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { series } from '@/lib/portfolio';
 
 export const metadata: Metadata = {
   title: '我的摄影习惯分析｜迅雷疾风',
@@ -12,6 +13,14 @@ export const metadata: Metadata = {
 };
 
 export default function PhotoHabitsPage() {
+  const sitePhotos = series.flatMap((item) =>
+    item.images.map((photo) => ({
+      name: photo.alt,
+      url: photo.src,
+      verified: photo.exif,
+    })),
+  );
+
   return (
     <main id="top" className="min-h-screen bg-[#151514] text-white">
       <SiteHeader active="tools" />
@@ -40,7 +49,7 @@ export default function PhotoHabitsPage() {
             </a>
           </div>
         </div>
-        <PhotoHabitsAnalyzer />
+        <PhotoHabitsAnalyzer sitePhotos={sitePhotos} />
       </div>
       <SiteFooter />
     </main>

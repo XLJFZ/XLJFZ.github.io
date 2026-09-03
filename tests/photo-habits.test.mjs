@@ -61,12 +61,14 @@ test('lens advice is evidence-bounded by usable focal-length sample size', () =>
   assert.equal(strong.inRange, 10);
 });
 
-test('tool copy promises browser-local analysis and no uploads', async () => {
+test('tool keeps local photos private and can read the published portfolio', async () => {
   const source = await readFile(
     'src/components/photo-habits-analyzer.tsx',
     'utf8',
   );
   assert.match(source, /照片不会上传/);
   assert.match(source, /35mm[\s\S]*等效焦段/);
-  assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|FormData/);
+  assert.match(source, /一键分析本站/);
+  assert.match(source, /fetch\(photo\.url/);
+  assert.doesNotMatch(source, /XMLHttpRequest|FormData|method:\s*['"]POST/);
 });
