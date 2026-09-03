@@ -145,7 +145,9 @@ export function PhotoHabitsAnalyzer({
     const all = Array.from(incoming);
     const supported = all.filter(isSupportedPhotoFile);
     if (!supported.length) {
-      setError('没有找到可读取的 JPEG、TIFF、DNG、NEF、ARW 或 CR2 文件。');
+      setError(
+        '没有找到可读取的 JPEG、TIFF、DNG、NEF、ARW、CR2、RAF、3FR 或 FFF 文件。',
+      );
       return;
     }
     setFiles((current) => {
@@ -276,14 +278,14 @@ export function PhotoHabitsAnalyzer({
           </span>
           <span className="text-xl tracking-[-.02em]">拖入一批原片</span>
           <span className="mt-3 max-w-sm text-sm leading-6 text-white/42">
-            支持 JPEG 及常见 TIFF 类 RAW：DNG、NEF、ARW、CR2
+            支持 JPEG、DNG、NEF、ARW、CR2，以及富士 RAF、哈苏 3FR / FFF
           </span>
         </button>
         <input
           ref={inputRef}
           className="sr-only"
           type="file"
-          accept="image/jpeg,image/tiff,.jpg,.jpeg,.tif,.tiff,.dng,.nef,.arw,.cr2"
+          accept="image/jpeg,image/tiff,.jpg,.jpeg,.tif,.tiff,.dng,.nef,.arw,.cr2,.raf,.3fr,.fff"
           multiple
           onChange={(event) =>
             event.target.files && addFiles(event.target.files)
