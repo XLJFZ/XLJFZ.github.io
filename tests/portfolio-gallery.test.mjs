@@ -162,7 +162,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/38/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 27);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 34);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -278,6 +278,41 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   ];
 
   for (const [path, expectedExif] of verifiedSouthChinaExif) {
+    assert.match(portfolioRecord(source, path), expectedExif);
+  }
+
+  const verifiedShanghaiExif = [
+    [
+      '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '15mm',[\s\S]*?aperture: 'f\/5\.6',[\s\S]*?shutterSpeed: '5s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shanghai-zbz-8285.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '20mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '10s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shanghai-zbz-7973.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '28mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/160s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shanghai-zbz-8705.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '20mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/4s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shanghai-dji-0314.jpg',
+      /camera: 'DJI FC8282',[\s\S]*?focalLength: '7mm（等效 24mm）',[\s\S]*?aperture: 'f\/1\.7',[\s\S]*?shutterSpeed: '1\/10s',[\s\S]*?iso: 'ISO 3200'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shanghai-img-150846.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '30mm',[\s\S]*?aperture: 'f\/8',[\s\S]*?shutterSpeed: '5s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shanghai-img-150903.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '24mm',[\s\S]*?aperture: 'f\/10',[\s\S]*?shutterSpeed: '1\/5s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+  ];
+
+  for (const [path, expectedExif] of verifiedShanghaiExif) {
     assert.match(portfolioRecord(source, path), expectedExif);
   }
 });
