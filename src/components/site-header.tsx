@@ -26,7 +26,7 @@ export function SiteHeader({ inverse = false, active }: SiteHeaderProps) {
             'relative py-1 transition-opacity after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100',
             active === 'tools' && 'after:scale-x-100',
           )}
-          href="/tools/image-compressor/"
+          href="/tools/photo-habits/"
           aria-current={active === 'tools' ? 'page' : undefined}
         >
           工具

@@ -27,7 +27,7 @@ test('internal navigation uses native links in the deployed site', async () => {
   assert.match(sources[0], /<a[^>]+href="\/series\/"[^>]*>\s*作品\s*<\/a>/s);
   assert.match(
     sources[0],
-    /<a[^>]+href="\/tools\/image-compressor\/"[^>]*>\s*工具\s*<\/a>/s,
+    /<a[^>]+href="\/tools\/photo-habits\/"[^>]*>\s*工具\s*<\/a>/s,
   );
   assert.match(sources[0], /<a[^>]+href="\/about\/"[^>]*>\s*关于\s*<\/a>/s);
 });
