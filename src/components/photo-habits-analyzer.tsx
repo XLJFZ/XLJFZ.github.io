@@ -23,12 +23,17 @@ import {
 import { isSupportedPhotoFile, parsePhotoMetadata } from '@/lib/photo-metadata';
 
 const lensPresets = [
+  { label: '10mm', min: 8.5, max: 11.5 },
+  { label: '12mm', min: 10, max: 14 },
   { label: '14–24mm', min: 14, max: 24 },
   { label: '24–70mm', min: 24, max: 70 },
   { label: '70–200mm', min: 70, max: 200 },
+  { label: '100–400mm', min: 100, max: 400 },
+  { label: '400mm+', min: 400, max: 1200 },
   { label: '35mm', min: 30, max: 40 },
   { label: '50mm', min: 43, max: 58 },
   { label: '85mm', min: 72, max: 98 },
+  { label: '135mm', min: 115, max: 155 },
 ] as const;
 
 type LensRange = { label: string; min: number; max: number };
@@ -424,7 +429,10 @@ export function PhotoHabitsAnalyzer({
                   );
                 })}
               </div>
-              <div className="mt-7 grid grid-cols-[1fr_auto_1fr] items-end gap-3">
+              <p className="mt-7 text-xs tracking-[.12em] text-white/38">
+                自定义范围
+              </p>
+              <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-end gap-3">
                 <label className="text-xs text-white/42">
                   起始焦段
                   <input
