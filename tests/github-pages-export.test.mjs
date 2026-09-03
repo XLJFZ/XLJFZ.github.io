@@ -25,6 +25,7 @@ test('exports every public route as GitHub Pages HTML', async () => {
   assert.deepEqual(routes, [
     '/',
     '/about',
+    '/tools/photo-habits',
     '/tools/image-compressor',
     '/series',
     '/series/urban-pulse',
