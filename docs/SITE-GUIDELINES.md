@@ -2,15 +2,17 @@
 
 > 本文档是网站后续修改的约束清单。修改页面、添加照片或调整专题前，应先核对本文档，避免破坏已经确认的分类、排版、元数据和发布流程。
 
-最后核对：2026-09-03
+最后核对：2026-09-04
 
 ## 1. 网站定位与视觉基调
 
 - 网站是 XLJFZ 的个人摄影作品集，不是通用图片瀑布流或社交相册。
 - 视觉风格保持暖深灰、克制、留白充足、编辑式摄影画册感。
 - 同源页面使用短暂、轻微的原生跨页淡入淡出；必须保留渐进增强，并服从系统“减少动态效果”设置。
-- 桌面端内容最大宽度为 `1480px`，必须保留左右页边距，不能贴边。
+- 桌面端内容区按页面用途使用既定最大宽度（当前为 `1400px`—`1600px`），必须保留左右页边距，不能贴边；不要为了统一数字而破坏已有版面比例。
 - 移动端自然退化为单列，不保留桌面端的左右错落。
+- 所有以 `main#top` 为页面根容器并使用公共页脚的页面，必须至少占满一个动态视口高度，并采用纵向布局；短页面把页脚推到视口底部，长页面让页脚自然跟随内容。
+- 公共页脚不得使用 `fixed` 或 `sticky` 定位，不能悬浮覆盖正文或工具操作区。该约束必须同时覆盖首页、关于页、作品页、工具页和 404 页面。
 - 长专题的吸顶章节导航必须保持横向可滚动，并显示当前章节、总章节和克制的进度线；直接访问 `#chapter-N` 时，导航状态必须同步。
 - 图片缩略图必须保留清晰的键盘焦点反馈，不能只依赖鼠标悬停效果。
 - 不使用来源不明、AI 生成或非本人作品作为封面、分享图或装饰图。
@@ -128,16 +130,30 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩和机位与光线规划器。
 
-| 文件                                                                                    | 职责                               |
-| --------------------------------------------------------------------------------------- | ---------------------------------- |
-| [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx) | 页面元数据与工具布局               |
-| [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)         | 文件选择、压缩进度、预设与下载交互 |
-| [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                       | JPEG EXIF 检测与无压缩 ZIP 打包    |
-| [`src/app/tools/light-planner/page.tsx`](../src/app/tools/light-planner/page.tsx)       | 机位与光线规划页及元数据           |
-| [`src/components/light-planner.tsx`](../src/components/light-planner.tsx)               | 地图、光线、焦段与计划卡交互       |
-| [`src/lib/shoot-planner.ts`](../src/lib/shoot-planner.ts)                               | 距离、方向与视角几何计算           |
+| 文件                                                                                      | 职责                               |
+| ----------------------------------------------------------------------------------------- | ---------------------------------- |
+| [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx)   | 页面元数据与工具布局               |
+| [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)           | 文件选择、压缩进度、预设与下载交互 |
+| [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                         | JPEG EXIF 检测与无压缩 ZIP 打包    |
+| [`src/app/tools/photo-habits/page.tsx`](../src/app/tools/photo-habits/page.tsx)           | 摄影习惯分析页面与站内作品输入     |
+| [`src/components/photo-habits-analyzer.tsx`](../src/components/photo-habits-analyzer.tsx) | 文件选择、统计图表与镜头购买建议   |
+| [`src/lib/photo-metadata.ts`](../src/lib/photo-metadata.ts)                               | JPEG、TIFF 与相机 RAW 元数据读取   |
+| [`src/lib/photo-analysis.ts`](../src/lib/photo-analysis.ts)                               | 拍摄参数统计与证据受限的镜头建议   |
+| [`src/app/tools/light-planner/page.tsx`](../src/app/tools/light-planner/page.tsx)         | 机位与光线规划页及元数据           |
+| [`src/components/light-planner.tsx`](../src/components/light-planner.tsx)                 | 地图、光线、焦段与计划卡交互       |
+| [`src/lib/shoot-planner.ts`](../src/lib/shoot-planner.ts)                                 | 距离、方向与视角几何计算           |
 
-### 7.1 照片批量压缩规则
+### 7.1 摄影习惯分析规则
+
+- 工具支持本地拖入 JPEG、TIFF、DNG、NEF、ARW、CR2、富士 RAF 与哈苏 3FR / FFF；不支持的文件必须明确忽略或提示。
+- 所有照片解析与统计都在浏览器本地完成，不上传原片、预览图或 EXIF；界面只能展示统计结果和用户主动选择加载的站内公开照片。
+- 统计焦段、光圈、ISO、快门与拍摄时间时，缺失字段必须排除，不能当作 `0` 计入分布。
+- “你考虑的镜头”至少保留 `10mm`、`12mm`、`135mm`、`100–400mm`、`400mm+` 和自定义范围；调整预设时必须同步更新测试。
+- 镜头购买建议只能基于可用焦段样本数量与落入候选范围的真实比例。样本不足时必须明确说明，不得给出确定性购买结论。
+- 富士 RAF 可从内嵌 JPEG 读取标准 EXIF；哈苏 3FR / FFF 按 TIFF 系列容器尝试读取。解析失败时应报告缺少可读元数据，不能补造参数。
+- 相关隐私、本地处理、格式支持、镜头预设和建议边界由 `tests/photo-habits.test.mjs` 保护。
+
+### 7.2 照片批量压缩规则
 
 - 工具只接受 JPG / JPEG，并允许一次选择或拖入多张照片；非 JPEG 文件必须明确忽略或报错，不能静默转换。
 - 所有读取、压缩和打包都在浏览器本地完成，不把照片发送到网站服务器或第三方服务。
@@ -156,7 +172,7 @@ public/covers/                       首页和专题索引使用的轻量封面
 - 工具不会自动上传或提交输出文件。准备将结果放入公开仓库前，仍需按 5.1 节检查隐私；含 GPS 或序列号的文件不能因为经过压缩就被视为可安全公开。
 - 本节描述的是下载文件内的元数据保留；作品灯箱仍只允许展示 5.1 节规定的五个字段，两者不能混为一谈。
 
-### 7.2 工具路由与回归检查
+### 7.3 工具路由与回归检查
 
 - 新增站内工具时，必须同步更新主导航、`scripts/export-github-pages.mjs`、`public/sitemap.xml` 和对应测试。
 - 照片压缩工具的基础约束由 `tests/image-compressor.test.mjs` 保护：本地处理、EXIF 保留、三档预设和无连续滑杆。
@@ -206,9 +222,12 @@ git diff --check
 - 照片压缩工具仍保留三档预设、EXIF 保留和本地处理约束。
 - 新增专题时必须同步更新 Pages 导出路由、`public/sitemap.xml` 和相关测试。
 - 新增或修改工具时必须同步更新 Pages 导出路由、`public/sitemap.xml` 和相关测试。
+- 使用公共页脚的页面必须保持短页面页脚贴底、长页面自然延伸，并由 `tests/navigation-links.test.mjs` 防止恢复为遮挡内容的固定页脚。
 
 ## 11. GitHub Pages 发布
 
+- 本项目默认只发布到 GitHub；除非用户明确指定其他平台，否则不得同时发布到其他托管服务。
+- GitHub Pages 是默认且唯一的线上发布渠道，公开站点为 `https://xljfz.github.io/`。
 - 发布分支为 `main`。
 - 推送后由 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 自动部署。
 - 不能只看到 `git push` 成功就宣布完成；必须确认对应 GitHub Actions 运行结果为 `success`。
@@ -229,5 +248,6 @@ git diff --check
 - [ ] 是否重新生成预览图？
 - [ ] 若修改站内工具，是否保持本地处理、原文件不覆盖和清晰的 EXIF 隐私提醒？
 - [ ] 若新增工具路由，是否同步更新导航、静态导出、站点地图和测试？
+- [ ] 使用公共页脚的短页面是否贴近视口底部，且长页面没有被页脚遮挡？
 - [ ] 是否通过 lint、测试、构建和 Pages 导出？
 - [ ] 是否确认 GitHub Pages 部署成功？
