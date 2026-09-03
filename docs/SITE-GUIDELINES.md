@@ -126,13 +126,16 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ## 7. 站内照片工具
 
-站内工具入口位于主导航“工具”，当前公开页面为 `/tools/image-compressor/`：
+站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩和机位与光线规划器。
 
 | 文件                                                                                    | 职责                               |
 | --------------------------------------------------------------------------------------- | ---------------------------------- |
 | [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx) | 页面元数据与工具布局               |
 | [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)         | 文件选择、压缩进度、预设与下载交互 |
 | [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                       | JPEG EXIF 检测与无压缩 ZIP 打包    |
+| [`src/app/tools/light-planner/page.tsx`](../src/app/tools/light-planner/page.tsx)       | 机位与光线规划页及元数据           |
+| [`src/components/light-planner.tsx`](../src/components/light-planner.tsx)               | 地图、光线、焦段与计划卡交互       |
+| [`src/lib/shoot-planner.ts`](../src/lib/shoot-planner.ts)                               | 距离、方向与视角几何计算           |
 
 ### 7.1 照片批量压缩规则
 
@@ -159,6 +162,9 @@ public/covers/                       首页和专题索引使用的轻量封面
 - 照片压缩工具的基础约束由 `tests/image-compressor.test.mjs` 保护：本地处理、EXIF 保留、三档预设和无连续滑杆。
 - `tests/navigation-links.test.mjs` 必须继续验证“工具”入口；`tests/github-pages-export.test.mjs` 必须继续验证工具页面被静态导出。
 - 工具属于作品集的辅助能力，视觉上沿用暖深灰与编辑式排版，但首屏必须直接露出可操作区域，不能改成营销落地页。
+- 机位与光线规划器使用 SunCalc 计算太阳、月亮及曙暮光时段，MapLibre GL JS 显示地图；角度统一采用从正北顺时针的方位角。
+- 光线类型按“被摄物朝向机位的一面”判断；山体、天气、地形遮挡与建筑自身凹凸不在计算模型内，界面必须保留相应说明。
+- 计划卡导出为浏览器本地生成的 PNG，不依赖地图截图或上传位置数据。
 
 ## 8. 灯箱与链接行为
 
