@@ -42,3 +42,23 @@ test('tools navigation opens an index containing every public tool', async () =>
   assert.match(source, /照片批量压缩/);
   assert.match(source, /机位与光线规划器/);
 });
+
+test('site pages keep their footer at the viewport bottom without an overlay', async () => {
+  const [styles, footer] = await Promise.all([
+    readFile(new URL('../src/app/globals.css', import.meta.url), 'utf8'),
+    readFile(
+      new URL('../src/components/site-footer.tsx', import.meta.url),
+      'utf8',
+    ),
+  ]);
+
+  assert.match(
+    styles,
+    /main#top\s*{[^}]*display:\s*flex[^}]*min-height:\s*100svh[^}]*flex-direction:\s*column[^}]*}/s,
+  );
+  assert.match(
+    styles,
+    /main#top\s*>\s*footer\s*{[^}]*margin-top:\s*auto[^}]*}/s,
+  );
+  assert.doesNotMatch(footer, /\bfixed\b|\bsticky\b/);
+});

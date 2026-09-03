@@ -57,6 +57,14 @@ body {
   font-family: var(--font-cjk), var(--font-sans), Arial, sans-serif;
   text-rendering: optimizeLegibility;
 }
+main#top {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+}
+main#top > footer {
+  margin-top: auto;
+}
 img {
   display: block;
 }
