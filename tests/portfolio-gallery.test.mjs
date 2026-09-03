@@ -162,7 +162,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/38/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 26);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 27);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -270,6 +270,10 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
     [
       '/portfolio/urban-pulse/hong-kong-zbz-8039.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '25mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\/8s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/hong-kong-zbz-8030.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '25mm',[\s\S]*?aperture: 'f\/4',[\s\S]*?shutterSpeed: '1\/40s',[\s\S]*?iso: 'ISO 800'/,
     ],
   ];
 

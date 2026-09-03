@@ -317,6 +317,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '香港中环夜色中的电车站与行人',
         caption: '香港 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '25mm',
+          aperture: 'f/4',
+          shutterSpeed: '1/40s',
+          iso: 'ISO 800',
+        },
         layout: 'portrait',
       },
       {
