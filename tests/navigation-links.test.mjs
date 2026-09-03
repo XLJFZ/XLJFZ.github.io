@@ -25,9 +25,20 @@ test('internal navigation uses native links in the deployed site', async () => {
   }
 
   assert.match(sources[0], /<a[^>]+href="\/series\/"[^>]*>\s*作品\s*<\/a>/s);
-  assert.match(
-    sources[0],
-    /<a[^>]+href="\/tools\/photo-habits\/"[^>]*>\s*工具\s*<\/a>/s,
-  );
+  assert.match(sources[0], /<a[^>]+href="\/tools\/"[^>]*>\s*工具\s*<\/a>/s);
   assert.match(sources[0], /<a[^>]+href="\/about\/"[^>]*>\s*关于\s*<\/a>/s);
+});
+
+test('tools navigation opens an index containing every public tool', async () => {
+  const source = await readFile(
+    new URL('../src/app/tools/page.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(source, /href:\s*'\/tools\/photo-habits\/'/);
+  assert.match(source, /href:\s*'\/tools\/image-compressor\/'/);
+  assert.match(source, /href:\s*'\/tools\/light-planner\/'/);
+  assert.match(source, /摄影习惯分析/);
+  assert.match(source, /照片批量压缩/);
+  assert.match(source, /机位与光线规划器/);
 });

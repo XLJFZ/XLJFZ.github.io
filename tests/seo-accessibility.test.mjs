@@ -31,6 +31,10 @@ test('the site publishes discovery files for every exported route', async () => 
   for (const route of [
     '/',
     '/about/',
+    '/tools/',
+    '/tools/photo-habits/',
+    '/tools/image-compressor/',
+    '/tools/light-planner/',
     '/series/',
     '/series/urban-pulse/',
     '/series/distant-weather/',
@@ -45,6 +49,7 @@ test('keyboard users can skip repeated navigation and reach page content', async
   const files = [
     'src/app/page.tsx',
     'src/app/about/page.tsx',
+    'src/app/tools/page.tsx',
     'src/app/series/page.tsx',
     'src/app/series/[slug]/page.tsx',
   ];
