@@ -162,7 +162,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/38/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 14);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 19);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -214,6 +214,33 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
     deqin,
     /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '68mm',[\s\S]*?aperture: 'f\/4',[\s\S]*?shutterSpeed: '60s',[\s\S]*?iso: 'ISO 64'/,
   );
+
+  const verifiedDistantWeatherExif = [
+    [
+      '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
+      /camera: 'Sony α7 IV',[\s\S]*?focalLength: '26mm',[\s\S]*?aperture: 'f\/2\.8',[\s\S]*?shutterSpeed: '1\/10s',[\s\S]*?iso: 'ISO 12800'/,
+    ],
+    [
+      '/portfolio/distant-weather/pingtan-dsc-5328.jpg',
+      /camera: 'Sony α7 IV',[\s\S]*?focalLength: '28mm',[\s\S]*?aperture: 'f\/2\.8',[\s\S]*?shutterSpeed: '1\/50s',[\s\S]*?iso: 'ISO 10000'/,
+    ],
+    [
+      '/portfolio/distant-weather/pingtan-zbz-2955.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '50mm',[\s\S]*?aperture: 'f\/1\.8',[\s\S]*?shutterSpeed: '1\/20s',[\s\S]*?iso: 'ISO 20000'/,
+    ],
+    [
+      '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '130mm',[\s\S]*?aperture: 'f\/8',[\s\S]*?shutterSpeed: '1\/500s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/distant-weather/ninghai-zbz-6289.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '70mm',[\s\S]*?aperture: 'f\/8',[\s\S]*?shutterSpeed: '1\/400s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+  ];
+
+  for (const [path, expectedExif] of verifiedDistantWeatherExif) {
+    assert.match(portfolioRecord(source, path), expectedExif);
+  }
 });
 
 test('gallery captions expose a quiet visual sequence counter', async () => {
