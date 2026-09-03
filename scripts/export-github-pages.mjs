@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 export const routes = [
   '/',
   '/about',
+  '/tools/image-compressor',
   '/series',
   '/series/urban-pulse',
   '/series/distant-weather',
