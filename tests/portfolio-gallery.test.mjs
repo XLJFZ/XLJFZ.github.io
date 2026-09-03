@@ -162,7 +162,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/38/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 19);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 26);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -239,6 +239,41 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   ];
 
   for (const [path, expectedExif] of verifiedDistantWeatherExif) {
+    assert.match(portfolioRecord(source, path), expectedExif);
+  }
+
+  const verifiedSouthChinaExif = [
+    [
+      '/portfolio/urban-pulse/guangzhou-rpx-00040.jpg',
+      /camera: 'Sony α6700',[\s\S]*?focalLength: '14mm（等效 21mm）',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\/1000s',[\s\S]*?iso: 'ISO 100'/,
+    ],
+    [
+      '/portfolio/urban-pulse/shenzhen-zbz-7358.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '17mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\.6s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/hong-kong-victoria-harbour.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '33mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '413s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/hong-kong-zbz-7859.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '14mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/250s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/hong-kong-zbz-8171.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '33mm',[\s\S]*?aperture: 'f\/13',[\s\S]*?shutterSpeed: '10s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '49mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/200s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+    [
+      '/portfolio/urban-pulse/hong-kong-zbz-8039.jpg',
+      /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '25mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\/8s',[\s\S]*?iso: 'ISO 64'/,
+    ],
+  ];
+
+  for (const [path, expectedExif] of verifiedSouthChinaExif) {
     assert.match(portfolioRecord(source, path), expectedExif);
   }
 });
