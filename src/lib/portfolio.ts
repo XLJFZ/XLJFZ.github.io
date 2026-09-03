@@ -385,6 +385,13 @@ export const series: Series[] = [
         height: 1750,
         alt: '夜色中发出蓝光的平潭海浪',
         caption: '平潭 · 2025',
+        exif: {
+          camera: 'Sony α7 IV',
+          focalLength: '26mm',
+          aperture: 'f/2.8',
+          shutterSpeed: '1/10s',
+          iso: 'ISO 12800',
+        },
       },
       {
         src: '/portfolio/distant-weather/pingtan-dsc-5328.jpg',
@@ -392,6 +399,13 @@ export const series: Series[] = [
         height: 1750,
         alt: '蓝色荧光海浪的俯视画面',
         caption: '平潭 · 2025',
+        exif: {
+          camera: 'Sony α7 IV',
+          focalLength: '28mm',
+          aperture: 'f/2.8',
+          shutterSpeed: '1/50s',
+          iso: 'ISO 10000',
+        },
       },
       {
         src: '/portfolio/distant-weather/pingtan-zbz-2955.jpg',
@@ -399,6 +413,13 @@ export const series: Series[] = [
         height: 1884,
         alt: '蓝色荧光海浪与礁石',
         caption: '平潭 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '50mm',
+          aperture: 'f/1.8',
+          shutterSpeed: '1/20s',
+          iso: 'ISO 20000',
+        },
       },
       {
         src: '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
@@ -406,6 +427,13 @@ export const series: Series[] = [
         height: 1867,
         alt: '金色云海中的宁海风力发电机与近景花朵',
         caption: '宁海 · 2024',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '130mm',
+          aperture: 'f/8',
+          shutterSpeed: '1/500s',
+          iso: 'ISO 64',
+        },
       },
       {
         src: '/portfolio/distant-weather/ninghai-zbz-6289.jpg',
@@ -413,6 +441,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '晨光穿过宁海云海、山脊与茶园',
         caption: '宁海 · 2024',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '70mm',
+          aperture: 'f/8',
+          shutterSpeed: '1/400s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
     ],
