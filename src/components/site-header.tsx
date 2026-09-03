@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 
 type SiteHeaderProps = {
   inverse?: boolean;
-  active?: 'series' | 'about';
+  active?: 'series' | 'tools' | 'about';
 };
 
 export function SiteHeader({ inverse = false, active }: SiteHeaderProps) {
@@ -21,6 +21,16 @@ export function SiteHeader({ inverse = false, active }: SiteHeaderProps) {
         aria-label="主导航"
         className="flex items-center gap-5 text-xs tracking-[0.14em] md:gap-8"
       >
+        <a
+          className={cn(
+            'relative py-1 transition-opacity after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100',
+            active === 'tools' && 'after:scale-x-100',
+          )}
+          href="/tools/image-compressor/"
+          aria-current={active === 'tools' ? 'page' : undefined}
+        >
+          工具
+        </a>
         <a
           className={cn(
             'relative py-1 transition-opacity after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100',
