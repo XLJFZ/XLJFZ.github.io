@@ -3,7 +3,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { analyzePhotos, evaluateLensNeed } from '../src/lib/photo-analysis.ts';
-import { parsePhotoMetadata } from '../src/lib/photo-metadata.ts';
+import {
+  isSupportedPhotoFile,
+  parsePhotoMetadata,
+} from '../src/lib/photo-metadata.ts';
 
 test('reads focal length and exposure fields from a real portfolio JPEG', async () => {
   const file = await readFile(
@@ -43,6 +46,29 @@ test('builds distributions without counting missing EXIF as zero', () => {
     result.time.find((item) => item.label === '傍晚 18–21')?.count,
     1,
   );
+});
+
+test('reads EXIF from a Fujifilm RAF embedded JPEG and accepts Hasselblad RAW', async () => {
+  const jpeg = await readFile(
+    'public/portfolio/urban-pulse/shanghai-zbz-0216.jpg',
+  );
+  const raf = Buffer.alloc(128 + jpeg.length);
+  raf.write('FUJIFILMCCD-RAW ', 0, 'ascii');
+  raf.writeUInt32BE(128, 84);
+  raf.writeUInt32BE(jpeg.length, 88);
+  jpeg.copy(raf, 128);
+  const source = raf.buffer.slice(
+    raf.byteOffset,
+    raf.byteOffset + raf.byteLength,
+  );
+
+  assert.equal(parsePhotoMetadata(source)?.focalLength, 48);
+  assert.equal(isSupportedPhotoFile({ name: 'fuji.raf', type: '' }), true);
+  assert.equal(
+    isSupportedPhotoFile({ name: 'hasselblad.3fr', type: '' }),
+    true,
+  );
+  assert.equal(isSupportedPhotoFile({ name: 'phocus.fff', type: '' }), true);
 });
 
 test('lens advice is evidence-bounded by usable focal-length sample size', () => {

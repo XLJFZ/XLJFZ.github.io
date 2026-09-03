@@ -84,19 +84,16 @@ function readValue(
   return values.length === 1 ? values[0] : values;
 }
 
-function findTiffStart(view: DataView) {
-  if (view.byteLength < 8) return null;
-  const first = view.getUint8(0);
-  const second = view.getUint8(1);
+function findJpegTiffStart(view: DataView, jpegStart: number) {
   if (
-    (first === 0x49 && second === 0x49) ||
-    (first === 0x4d && second === 0x4d)
+    jpegStart < 0 ||
+    jpegStart + 12 > view.byteLength ||
+    view.getUint8(jpegStart) !== 0xff ||
+    view.getUint8(jpegStart + 1) !== 0xd8
   ) {
-    return 0;
+    return null;
   }
-
-  if (first !== 0xff || second !== 0xd8) return null;
-  let offset = 2;
+  let offset = jpegStart + 2;
   while (offset + 12 <= view.byteLength) {
     if (view.getUint8(offset) !== 0xff) break;
     const marker = view.getUint8(offset + 1);
@@ -115,6 +112,31 @@ function findTiffStart(view: DataView) {
     offset += length + 2;
   }
   return null;
+}
+
+function findTiffStart(view: DataView) {
+  if (view.byteLength < 8) return null;
+  const first = view.getUint8(0);
+  const second = view.getUint8(1);
+  if (
+    (first === 0x49 && second === 0x49) ||
+    (first === 0x4d && second === 0x4d)
+  ) {
+    return 0;
+  }
+
+  const rafSignature = 'FUJIFILMCCD-RAW ';
+  if (view.byteLength >= 92) {
+    const signature = new TextDecoder('ascii').decode(
+      new Uint8Array(view.buffer, view.byteOffset, rafSignature.length),
+    );
+    if (signature === rafSignature) {
+      const jpegOffset = view.getUint32(84, false);
+      return findJpegTiffStart(view, jpegOffset);
+    }
+  }
+
+  return findJpegTiffStart(view, 0);
 }
 
 export function parsePhotoMetadata(source: ArrayBuffer): PhotoMetadata | null {
@@ -187,6 +209,6 @@ export function effectiveFocalLength(metadata: PhotoMetadata) {
 export function isSupportedPhotoFile(file: Pick<File, 'name' | 'type'>) {
   return (
     /image\/(jpeg|tiff)/i.test(file.type) ||
-    /\.(jpe?g|tiff?|dng|nef|arw|cr2)$/i.test(file.name)
+    /\.(jpe?g|tiff?|dng|nef|arw|cr2|raf|3fr|fff)$/i.test(file.name)
   );
 }
