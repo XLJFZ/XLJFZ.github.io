@@ -98,3 +98,21 @@ test('tool keeps local photos private and can read the published portfolio', asy
   assert.match(source, /fetch\(photo\.url/);
   assert.doesNotMatch(source, /XMLHttpRequest|FormData|method:\s*['"]POST/);
 });
+
+test('lens picker includes ultra-wide, telephoto and custom choices', async () => {
+  const source = await readFile(
+    'src/components/photo-habits-analyzer.tsx',
+    'utf8',
+  );
+
+  for (const label of [
+    '10mm',
+    '12mm',
+    '135mm',
+    '100–400mm',
+    '400mm+',
+    '自定义范围',
+  ]) {
+    assert.match(source, new RegExp(label));
+  }
+});
