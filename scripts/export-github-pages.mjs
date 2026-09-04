@@ -10,6 +10,7 @@ export const routes = [
   '/tools/photo-habits',
   '/tools/image-compressor',
   '/tools/exif-privacy',
+  '/tools/color-sampler',
   '/tools/print-size',
   '/tools/social-crop',
   '/tools/light-planner',

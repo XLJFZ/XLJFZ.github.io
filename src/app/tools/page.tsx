@@ -14,6 +14,7 @@ const tools = [
     index: '01',
     eyebrow: '本地 EXIF 分析',
     title: '摄影习惯分析',
+    titleLines: ['摄影习惯', '分析'],
     description:
       '统计常用焦段、光圈、ISO、快门和拍摄时间，用真实拍摄频率判断一支镜头是不是刚需。',
     detail: '支持 JPEG、TIFF 与多种相机 RAW 格式',
@@ -23,6 +24,7 @@ const tools = [
     index: '02',
     eyebrow: '发布前隐私检查',
     title: '照片隐私检查器',
+    titleLines: ['照片隐私', '检查器'],
     description:
       '检查 GPS、设备序列号、所有者、拍摄时间等 EXIF，并按勾选项生成清理副本。',
     detail: '本地检查，可选择要清理的信息',
@@ -32,6 +34,7 @@ const tools = [
     index: '03',
     eyebrow: '网站图片准备',
     title: '照片批量压缩',
+    titleLines: ['照片批量', '压缩'],
     description:
       '批量缩小 JPEG 的尺寸与体积，同时保留相机、镜头和拍摄参数等 EXIF 信息。',
     detail: '不修改原文件，可一次下载全部结果',
@@ -39,26 +42,39 @@ const tools = [
   },
   {
     index: '04',
+    eyebrow: '系列编辑辅助',
+    title: '色彩样本提取器',
+    titleLines: ['色彩样本', '提取器'],
+    description:
+      '提取单张与整组照片的主色、综合色板和明暗比例，辅助系列封面选择与页面排版。',
+    detail: '多张照片在浏览器本地综合色彩',
+    href: '/tools/color-sampler/',
+  },
+  {
+    index: '05',
     eyebrow: '照片输出准备',
     title: '打印尺寸计算器',
+    titleLines: ['打印尺寸', '计算器'],
     description:
       '根据照片像素、目标 DPI 与纸张尺寸，判断清晰度是否足够、铺满是否需要裁切。',
     detail: '支持 A 系列与常用相纸尺寸',
     href: '/tools/print-size/',
   },
   {
-    index: '05',
+    index: '06',
     eyebrow: '社交图片准备',
     title: '社交平台裁切预览器',
+    titleLines: ['社交平台裁切', '预览器'],
     description:
       '同时预览方形、竖屏、横屏与宽幅构图，分别移动主体位置并按原图分辨率导出。',
     detail: '含 11 个常见比例与自定义比例',
     href: '/tools/social-crop/',
   },
   {
-    index: '06',
+    index: '07',
     eyebrow: '外拍准备',
     title: '机位与光线规划器',
+    titleLines: ['机位与光线', '规划器'],
     description:
       '在地图上安排机位与被摄物，沿时间轴查看太阳、月亮、黄金时刻与焦段覆盖。',
     detail: '适合建筑、城市、风光与月升构图',
@@ -101,8 +117,12 @@ export default function ToolsPage() {
                 <span>{tool.eyebrow}</span>
               </div>
               <div className="mt-auto pt-20">
-                <h2 className="text-[clamp(2rem,4vw,3.8rem)] font-medium leading-none tracking-[-.055em]">
-                  {tool.title}
+                <h2 className="min-h-[2em] text-[clamp(2rem,3.25vw,3.25rem)] font-medium leading-[.96] tracking-[-.055em]">
+                  {tool.titleLines.map((line) => (
+                    <span className="block" key={line}>
+                      {line}
+                    </span>
+                  ))}
                 </h2>
                 <p className="mt-6 max-w-lg text-sm font-light leading-7 text-white/52">
                   {tool.description}
