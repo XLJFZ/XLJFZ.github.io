@@ -63,6 +63,25 @@ test('tools navigation opens an index containing every public tool', async () =>
   assert.match(source, /tool\.titleLines\.map/);
 });
 
+test('desktop tool directory fits all nine cards in one viewport', async () => {
+  const [page, styles] = await Promise.all([
+    readFile('src/app/tools/page.tsx', 'utf8'),
+    readFile('src/app/globals.css', 'utf8'),
+  ]);
+
+  assert.match(page, /tools-index-content/);
+  assert.match(page, /tools-index-grid/);
+  assert.equal((page.match(/index:\s*'\d{2}'/g) ?? []).length, 9);
+  assert.match(styles, /@media \(min-width: 1280px\)/);
+  assert.match(styles, /height:\s*calc\(100svh - 81px\)/);
+  assert.match(styles, /grid-template-rows:\s*repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /\.tools-index-card\s*{[^}]*min-height:\s*0/s);
+  assert.match(
+    styles,
+    /@media \(min-width: 1280px\) and \(max-height: 720px\)/,
+  );
+});
+
 test('site pages keep their footer at the viewport bottom without an overlay', async () => {
   const [styles, footer] = await Promise.all([
     readFile(new URL('../src/app/globals.css', import.meta.url), 'utf8'),

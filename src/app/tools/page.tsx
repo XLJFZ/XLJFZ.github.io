@@ -108,9 +108,9 @@ export default function ToolsPage() {
       <SiteHeader active="tools" />
       <section
         id="content"
-        className="mx-auto max-w-[1500px] px-5 py-12 md:px-10 md:py-20"
+        className="tools-index-content mx-auto flex w-full max-w-[1500px] flex-col px-5 py-12 md:px-10 md:py-20"
       >
-        <div className="grid gap-8 border-t border-white/12 pt-5 md:grid-cols-[1fr_1.15fr] md:items-end">
+        <div className="tools-index-intro grid gap-8 border-t border-white/12 pt-5 md:grid-cols-[1fr_1.15fr] md:items-end">
           <div>
             <p className="text-xs tracking-[.2em] text-white/38">
               PHOTOGRAPHY UTILITIES
@@ -124,30 +124,30 @@ export default function ToolsPage() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-px overflow-hidden border border-white/12 bg-white/12 md:mt-24 md:grid-cols-2 xl:grid-cols-3">
+        <div className="tools-index-grid mt-16 grid gap-px overflow-hidden border border-white/12 bg-white/12 md:mt-24 md:grid-cols-2 xl:grid-cols-3">
           {tools.map((tool) => (
             <a
               key={tool.href}
               href={tool.href}
               aria-label={`打开${tool.title}`}
-              className="group flex min-h-[360px] flex-col bg-[#191918] p-6 transition-colors hover:bg-[#20201e] md:min-h-[430px] md:p-9"
+              className="tools-index-card group flex min-h-[360px] flex-col bg-[#191918] p-6 transition-colors hover:bg-[#20201e] md:min-h-[430px] md:p-9"
             >
               <div className="flex items-center justify-between text-[10px] tracking-[.2em] text-white/35">
                 <span>{tool.index}</span>
                 <span>{tool.eyebrow}</span>
               </div>
-              <div className="mt-auto pt-20">
-                <h2 className="min-h-[2em] text-[clamp(2rem,3.25vw,3.25rem)] font-medium leading-[.96] tracking-[-.055em]">
+              <div className="tools-index-card-body mt-auto pt-20">
+                <h2 className="tools-index-card-title min-h-[2em] text-[clamp(2rem,3.25vw,3.25rem)] font-medium leading-[.96] tracking-[-.055em]">
                   {tool.titleLines.map((line) => (
                     <span className="block" key={line}>
                       {line}
                     </span>
                   ))}
                 </h2>
-                <p className="mt-6 max-w-lg text-sm font-light leading-7 text-white/52">
+                <p className="tools-index-card-description mt-6 max-w-lg text-sm font-light leading-7 text-white/52">
                   {tool.description}
                 </p>
-                <div className="mt-9 flex items-end justify-between gap-6 border-t border-white/12 pt-4">
+                <div className="tools-index-card-detail mt-9 flex items-end justify-between gap-6 border-t border-white/12 pt-4">
                   <span className="text-[10px] leading-5 tracking-[.08em] text-white/35">
                     {tool.detail}
                   </span>
