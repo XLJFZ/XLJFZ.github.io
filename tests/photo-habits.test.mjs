@@ -125,3 +125,15 @@ test('photo habits workspace is vertically centered in the available viewport', 
     /id="content"[\s\S]*className="[^"]*\bflex-1\b[^"]*\bflex-col\b[^"]*\bjustify-center\b[^"]*"/,
   );
 });
+
+test('photo habits upload workspace has a spacious responsive height', async () => {
+  const source = await readFile(
+    'src/components/photo-habits-analyzer.tsx',
+    'utf8',
+  );
+
+  assert.match(source, /min-h-\[360px\]/);
+  assert.match(source, /md:min-h-\[420px\]/);
+  assert.match(source, /lg:min-h-\[520px\]/);
+  assert.match(source, /xl:min-h-\[560px\]/);
+});
