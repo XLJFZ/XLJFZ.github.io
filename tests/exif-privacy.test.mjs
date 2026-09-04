@@ -77,12 +77,58 @@ test('EXIF privacy checker is local, selective, and verifies cleaned copies', as
   assert.match(component, /原文件保持不变/);
   assert.match(component, /remaining\.some/);
   assert.match(component, /type="checkbox"/);
+  assert.match(component, /image\/jxl/);
+  assert.match(component, /image\/heic/);
+  assert.match(component, /image\/avif/);
+  assert.match(component, /image\/webp/);
+  assert.match(component, /image\/tiff/);
   assert.match(library, /0xa431/);
   assert.match(library, /0xa435/);
   assert.match(library, /0xa430/);
   assert.match(library, /0x9003/);
+  assert.match(page, /JPEG、JXL、HEIC、HEIF、AVIF、WebP、TIFF/);
   assert.match(page, /不改变画质与像素/);
   assert.match(tools, /href: '\/tools\/exif-privacy\/'/);
+});
+
+test('accepts common photo containers and finds their embedded TIFF EXIF', async () => {
+  const { hasCompressedJxlExif, inspectExifPrivacy, isSupportedPrivacyPhoto } =
+    await import('../src/lib/exif-privacy.ts');
+  for (const name of [
+    'photo.jpg',
+    'photo.jxl',
+    'photo.heic',
+    'photo.heif',
+    'photo.avif',
+    'photo.webp',
+    'photo.tif',
+    'photo.tiff',
+  ]) {
+    assert.equal(isSupportedPrivacyPhoto({ name, type: '' }), true, name);
+  }
+  assert.equal(isSupportedPrivacyPhoto({ name: 'photo.png', type: '' }), false);
+  assert.equal(isSupportedPrivacyPhoto({ name: 'photo.gif', type: '' }), false);
+  assert.equal(
+    hasCompressedJxlExif(
+      new TextEncoder().encode('JXL box brobExif compressed data').buffer,
+    ),
+    true,
+  );
+
+  const tiff = privateJpegFixture().slice(12, -2);
+  for (const prefix of [
+    new Uint8Array(),
+    new TextEncoder().encode('0000JXL container metadata'),
+    new TextEncoder().encode('0000ftypheic container metadata'),
+    new TextEncoder().encode('RIFF0000WEBP metadata'),
+  ]) {
+    const file = new Uint8Array(prefix.length + tiff.length);
+    file.set(prefix);
+    file.set(tiff, prefix.length);
+    const findings = inspectExifPrivacy(file.buffer);
+    assert.ok(findings.some((item) => item.category === 'location'));
+    assert.ok(findings.some((item) => item.category === 'serial'));
+  }
 });
 
 test('selective cleaning removes chosen privacy tags and preserves unselected EXIF', async () => {
