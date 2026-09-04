@@ -42,15 +42,27 @@ test('map can switch between a flat plan and an elevated 3D view', async () => {
   assert.match(source, /aria-pressed/);
 });
 
+test('place search locates worldwide administrative areas and landmarks', async () => {
+  const source = await readFile('src/components/light-planner.tsx', 'utf8');
+  assert.match(source, /搜索国家、省市或地标/);
+  assert.match(source, /nominatim\.openstreetmap\.org\/search/);
+  assert.match(source, /addressdetails=1/);
+  assert.match(source, /accept-language/);
+  assert.match(source, /候选地点/);
+  assert.match(source, /OpenStreetMap Nominatim/);
+  assert.match(source, /全球可用/);
+  assert.match(source, /请核对时区/);
+});
+
 test('planner supports a complete location-to-light-to-lens workflow', async () => {
   const source = await readFile('src/components/light-planner.tsx', 'utf8');
-  assert.match(source, /搜索地点/);
+  assert.match(source, /搜索国家、省市或地标/);
   assert.match(source, /经度/);
   assert.match(source, /纬度/);
   assert.match(source, /立面朝向/);
   assert.match(source, /planner-fov/);
   assert.match(source, /定位失败/);
-  assert.match(source, /搜索失败/);
+  assert.match(source, /地点搜索暂时不可用/);
   assert.match(source, /timeline-event/);
 });
 
