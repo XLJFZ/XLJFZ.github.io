@@ -28,6 +28,7 @@ test('exports every public route as GitHub Pages HTML', async () => {
     '/tools',
     '/tools/photo-habits',
     '/tools/image-compressor',
+    '/tools/exif-privacy',
     '/tools/print-size',
     '/tools/social-crop',
     '/tools/light-planner',

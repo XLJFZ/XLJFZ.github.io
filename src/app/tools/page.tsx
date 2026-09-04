@@ -21,6 +21,15 @@ const tools = [
   },
   {
     index: '02',
+    eyebrow: '发布前隐私检查',
+    title: '照片隐私检查器',
+    description:
+      '检查 GPS、设备序列号、所有者、拍摄时间等 EXIF，并按勾选项生成清理副本。',
+    detail: '本地检查，可选择要清理的信息',
+    href: '/tools/exif-privacy/',
+  },
+  {
+    index: '03',
     eyebrow: '网站图片准备',
     title: '照片批量压缩',
     description:
@@ -29,7 +38,7 @@ const tools = [
     href: '/tools/image-compressor/',
   },
   {
-    index: '03',
+    index: '04',
     eyebrow: '照片输出准备',
     title: '打印尺寸计算器',
     description:
@@ -38,7 +47,7 @@ const tools = [
     href: '/tools/print-size/',
   },
   {
-    index: '04',
+    index: '05',
     eyebrow: '社交图片准备',
     title: '社交平台裁切预览器',
     description:
@@ -47,7 +56,7 @@ const tools = [
     href: '/tools/social-crop/',
   },
   {
-    index: '05',
+    index: '06',
     eyebrow: '外拍准备',
     title: '机位与光线规划器',
     description:
