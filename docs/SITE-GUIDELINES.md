@@ -263,6 +263,10 @@ git diff --check
 - 推送后由 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 自动部署。
 - 不能只看到 `git push` 成功就宣布完成；必须确认对应 GitHub Actions 运行结果为 `success`。
 - 部署完成后至少抽查受影响的公开页面，确认标题、照片和说明已经上线。
+- 本机已安装 GitHub CLI 时，优先用 `gh` 查询与本次提交对应的 Actions 运行；首次使用先执行 `gh auth status`，未登录时由仓库所有者完成一次 `gh auth login` 网页授权。不得把访问令牌写入仓库、脚本、日志或本文档。
+- 推荐先运行 `gh run list --repo XLJFZ/XLJFZ.github.io --limit 5` 找到与当前提交对应的运行，再用 `gh run watch <run-id> --exit-status` 等待结果；失败时查看该运行日志并修复，不能反复盲目重跑。
+- 如果 `gh` 尚未登录或当前环境无法调用，可只读查询 GitHub 公共 Actions API 作为备用；这只能用于公开仓库状态核验，不能代替需要身份授权的仓库操作。
+- Actions 成功后必须直接请求受影响的正式网址并确认 HTTP `200`，同时核对关键标题或文案。新增路由还要确认工具索引与 `public/sitemap.xml` 已包含该地址；Actions 成功但正式页面仍是 `404` 时继续等待 Pages 切换，不能提前宣布上线。
 
 ## 12. 修改前快速检查表
 
@@ -282,4 +286,4 @@ git diff --check
 - [ ] 若新增工具路由，是否同步更新导航、静态导出、站点地图和测试？
 - [ ] 使用公共页脚的短页面是否贴近视口底部，且长页面没有被页脚遮挡？
 - [ ] 是否通过 lint、测试、构建和 Pages 导出？
-- [ ] 是否确认 GitHub Pages 部署成功？
+- [ ] 是否确认对应提交的 GitHub Actions 运行成功，并核对正式页面返回 `200` 与关键内容已更新？
