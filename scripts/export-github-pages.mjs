@@ -10,6 +10,7 @@ export const routes = [
   '/tools/photo-habits',
   '/tools/image-compressor',
   '/tools/print-size',
+  '/tools/social-crop',
   '/tools/light-planner',
   '/series',
   '/series/urban-pulse',
@@ -60,10 +61,7 @@ async function waitUntilReady(origin, attempts = 60) {
 }
 
 async function installMapLibreWorker(projectRoot) {
-  const workerFiles = [
-    'maplibre-gl-worker.mjs',
-    'maplibre-gl-shared.mjs',
-  ];
+  const workerFiles = ['maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs'];
   const chunks = path.join(
     projectRoot,
     'dist',
@@ -76,13 +74,7 @@ async function installMapLibreWorker(projectRoot) {
   await Promise.all(
     workerFiles.map((fileName) =>
       copyFile(
-        path.join(
-          projectRoot,
-          'node_modules',
-          'maplibre-gl',
-          'dist',
-          fileName,
-        ),
+        path.join(projectRoot, 'node_modules', 'maplibre-gl', 'dist', fileName),
         path.join(chunks, fileName),
       ),
     ),
