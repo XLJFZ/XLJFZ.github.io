@@ -45,12 +45,14 @@ test('tools navigation opens an index containing every public tool', async () =>
 
   assert.match(source, /href:\s*'\/tools\/photo-habits\/'/);
   assert.match(source, /href:\s*'\/tools\/image-compressor\/'/);
+  assert.match(source, /href:\s*'\/tools\/photo-renamer\/'/);
   assert.match(source, /href:\s*'\/tools\/color-sampler\/'/);
   assert.match(source, /href:\s*'\/tools\/print-size\/'/);
   assert.match(source, /href:\s*'\/tools\/social-crop\/'/);
   assert.match(source, /href:\s*'\/tools\/light-planner\/'/);
   assert.match(source, /摄影习惯分析/);
   assert.match(source, /照片批量压缩/);
+  assert.match(source, /智能照片批量命名器/);
   assert.match(source, /色彩样本提取器/);
   assert.match(source, /打印尺寸计算器/);
   assert.match(source, /机位与光线规划器/);
