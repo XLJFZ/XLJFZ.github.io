@@ -32,6 +32,16 @@ test('GitHub Pages export ships the MapLibre worker beside its browser chunk', a
   assert.match(source, /dist[\s\S]*client[\s\S]*_next[\s\S]*static[\s\S]*chunks/);
 });
 
+test('map can switch between a flat plan and an elevated 3D view', async () => {
+  const source = await readFile('src/components/light-planner.tsx', 'utf8');
+  assert.match(source, /二维地图/);
+  assert.match(source, /三维地形/);
+  assert.match(source, /planner-terrain/);
+  assert.match(source, /setTerrain/);
+  assert.match(source, /easeTo/);
+  assert.match(source, /aria-pressed/);
+});
+
 test('planner supports a complete location-to-light-to-lens workflow', async () => {
   const source = await readFile('src/components/light-planner.tsx', 'utf8');
   assert.match(source, /搜索地点/);

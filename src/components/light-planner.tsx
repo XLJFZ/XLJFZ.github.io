@@ -7,7 +7,9 @@ import {
   Camera,
   Compass,
   Download,
+  Layers2,
   LocateFixed,
+  Mountain,
   Moon,
   Search,
   Sun,
@@ -33,28 +35,10 @@ import {
 
 const initialCamera = { lat: 31.2323, lng: 121.4667 };
 const initialSubject = { lat: 31.2332, lng: 121.4682 };
-const MAP_STYLE = {
-  version: 8 as const,
-  sources: {
-    openStreetMap: {
-      type: 'raster' as const,
-      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-      tileSize: 256,
-      attribution: '© OpenStreetMap contributors',
-    },
-  },
-  layers: [
-    {
-      id: 'openStreetMap',
-      type: 'raster' as const,
-      source: 'openStreetMap',
-      minzoom: 0,
-      maxzoom: 19,
-    },
-  ],
-};
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
 type PlacementMode = 'camera' | 'subject';
+type MapMode = '2d' | '3d';
 function pad(value: number) {
   return String(value).padStart(2, '0');
 }
@@ -243,6 +227,7 @@ export function LightPlanner() {
   const [subjectWidth, setSubjectWidth] = useState(35);
   const [placeName, setPlaceName] = useState('上海 · 待勘察机位');
   const [mapReady, setMapReady] = useState(false);
+  const [mapMode, setMapMode] = useState<MapMode>('2d');
   const [facadeBearing, setFacadeBearing] = useState(() =>
     bearingDegrees(initialSubject, initialCamera),
   );
@@ -390,6 +375,11 @@ export function LightPlanner() {
       });
       map.on('load', () => {
         if (cancelled) return;
+        map.addSource('planner-terrain', {
+          type: 'raster-dem',
+          url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+          tileSize: 256,
+        });
         map.addSource('planner-fov', {
           type: 'geojson',
           data: { type: 'FeatureCollection', features: [] },
@@ -524,6 +514,32 @@ export function LightPlanner() {
     cameraBearing,
     fov,
   ]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+    const is3d = mapMode === '3d';
+    map.setTerrain(
+      is3d
+        ? {
+            source: 'planner-terrain',
+            exaggeration: 1.25,
+          }
+        : null,
+    );
+    if (map.getLayer('building-3d')) {
+      map.setLayoutProperty(
+        'building-3d',
+        'visibility',
+        is3d ? 'visible' : 'none',
+      );
+    }
+    map.easeTo({
+      pitch: is3d ? 62 : 0,
+      bearing: is3d ? cameraBearing : 0,
+      duration: 850,
+    });
+  }, [mapMode, mapReady, cameraBearing]);
 
   const useCurrentLocation = () => {
     setGeoError('');
@@ -748,12 +764,32 @@ export function LightPlanner() {
             >
               <LocateFixed size={15} /> 我的位置
             </button>
+            <span className="hidden w-px bg-white/10 sm:block" />
+            <button
+              type="button"
+              aria-pressed={mapMode === '2d'}
+              disabled={!mapReady}
+              onClick={() => setMapMode('2d')}
+              className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors disabled:opacity-40 ${mapMode === '2d' ? 'bg-white/12 text-white' : 'text-white/65 hover:bg-white/[.08]'}`}
+            >
+              <Layers2 size={15} /> 二维地图
+            </button>
+            <button
+              type="button"
+              aria-pressed={mapMode === '3d'}
+              disabled={!mapReady}
+              onClick={() => setMapMode('3d')}
+              className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors disabled:opacity-40 ${mapMode === '3d' ? 'bg-[#e6dcc8] text-[#171815]' : 'text-white/65 hover:bg-white/[.08]'}`}
+            >
+              <Mountain size={15} /> 三维地形
+            </button>
           </div>
           <div className="absolute bottom-6 left-4 z-10 max-w-[calc(100%-2rem)] bg-[#171815]/92 px-4 py-3 text-xs leading-5 text-white/62 shadow-xl backdrop-blur md:left-6">
             {mapError || geoError || (
               <>
-                点击地图放置{placement === 'camera' ? '机位' : '被摄物'} ·
-                标记可拖动
+                {mapMode === '3d'
+                  ? '三维模式 · 拖动指南针旋转，双指或右键调整视角'
+                  : `点击地图放置${placement === 'camera' ? '机位' : '被摄物'} · 标记可拖动`}
               </>
             )}
           </div>
