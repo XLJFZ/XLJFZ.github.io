@@ -94,6 +94,9 @@ export function SocialCropPreviewer() {
   const [positions, setPositions] = useState<Record<string, Position>>({});
   const [customWidth, setCustomWidth] = useState('3');
   const [customHeight, setCustomHeight] = useState('1');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+    () => new Set([...defaultRatios.map((ratio) => ratio.id), 'custom']),
+  );
   const [working, setWorking] = useState(false);
   const [error, setError] = useState('');
 
@@ -123,6 +126,16 @@ export function SocialCropPreviewer() {
   }, [customWidth, customHeight]);
 
   const positionFor = (id: string) => positions[id] ?? { x: 50, y: 50 };
+  const selectedRatios = ratios.filter((ratio) => selectedIds.has(ratio.id));
+
+  const toggleRatio = (id: string) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const choose = (next: File) => {
     if (!next.type.startsWith('image/'))
@@ -177,7 +190,7 @@ export function SocialCropPreviewer() {
     setError('');
     try {
       const outputs = await Promise.all(
-        ratios.map(async (ratio) => {
+        selectedRatios.map(async (ratio) => {
           const blob = await exportCrop(
             imageRef.current!,
             ratio,
@@ -227,7 +240,7 @@ export function SocialCropPreviewer() {
                 return (
                   <article
                     key={ratio.id}
-                    className="group border border-white/10 bg-[#111]"
+                    className={`group border bg-[#111] transition-colors ${selectedIds.has(ratio.id) ? 'border-white/35' : 'border-white/10 opacity-55'}`}
                   >
                     <div
                       className="relative touch-none cursor-grab overflow-hidden active:cursor-grabbing"
@@ -263,12 +276,25 @@ export function SocialCropPreviewer() {
                       <div className="pointer-events-none absolute inset-0 border border-inset border-white/10" />
                     </div>
                     <div className="flex items-center justify-between gap-2 p-3">
-                      <div className="min-w-0">
-                        <p className="text-sm tabular-nums">{ratio.label}</p>
-                        <p className="truncate text-[11px] text-white/38">
-                          {ratio.note}
-                        </p>
-                      </div>
+                      <label
+                        aria-label={`选择导出 ${ratio.label}`}
+                        className="flex min-w-0 cursor-pointer items-center gap-3"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(ratio.id)}
+                          onChange={() => toggleRatio(ratio.id)}
+                          className="size-4 shrink-0 accent-white"
+                        />
+                        <span className="min-w-0">
+                          <span className="block text-sm tabular-nums">
+                            {ratio.label}
+                          </span>
+                          <span className="block truncate text-[11px] text-white/38">
+                            {ratio.note}
+                          </span>
+                        </span>
+                      </label>
                       <button
                         type="button"
                         onClick={() => downloadOne(ratio)}
@@ -298,7 +324,28 @@ export function SocialCropPreviewer() {
         <aside className="flex flex-col bg-[#20201e] p-5 md:p-6">
           <p className="text-xs tracking-[.18em] text-white/40">裁切设置</p>
           <div className="mt-5">
-            <p className="text-sm text-white/72">自定义比例</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-white/72">选择导出比例</p>
+              <div className="flex gap-3 text-xs text-white/45">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedIds(new Set(ratios.map((ratio) => ratio.id)))
+                  }
+                  className="hover:text-white"
+                >
+                  全选
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedIds(new Set())}
+                  className="hover:text-white"
+                >
+                  清空
+                </button>
+              </div>
+            </div>
+            <p className="mt-6 text-sm text-white/72">自定义比例</p>
             <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
               <label>
                 <span className="sr-only">宽度比例</span>
@@ -363,10 +410,14 @@ export function SocialCropPreviewer() {
             <Button
               className="h-12 w-full rounded-none"
               onClick={downloadAll}
-              disabled={!file || working}
+              disabled={!file || working || selectedRatios.length === 0}
             >
               <Download className="size-4" />
-              {working ? '正在导出…' : `导出全部 ${ratios.length} 个比例`}
+              {working
+                ? '正在导出…'
+                : selectedRatios.length
+                  ? `导出已选 ${selectedRatios.length} 个比例`
+                  : '请先选择比例'}
             </Button>
             <p className="mt-3 text-center text-[11px] leading-5 text-white/32">
               JPEG · 质量 92 · 保留原图可用分辨率
