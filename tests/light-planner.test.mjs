@@ -12,6 +12,45 @@ test('light planner exposes map, time, lens and export controls', async () => {
   assert.match(source, /canvas\.toDataURL\('image\/png'\)/);
 });
 
+test('map host keeps a real height after MapLibre applies its own styles', async () => {
+  const [component, css] = await Promise.all([
+    readFile('src/components/light-planner.tsx', 'utf8'),
+    readFile('src/app/globals.css', 'utf8'),
+  ]);
+  assert.match(component, /className="planner-map/);
+  assert.match(
+    css,
+    /\.planner-map\s*\{[^}]*position:\s*absolute\s*!important;[^}]*inset:\s*0;[^}]*height:\s*100%;/s,
+  );
+});
+
+test('GitHub Pages export ships the MapLibre worker beside its browser chunk', async () => {
+  const source = await readFile('scripts/export-github-pages.mjs', 'utf8');
+  assert.match(source, /maplibre-gl-worker\.mjs/);
+  assert.match(source, /maplibre-gl-shared\.mjs/);
+  assert.match(source, /node_modules[\s\S]*maplibre-gl[\s\S]*dist/);
+  assert.match(source, /dist[\s\S]*client[\s\S]*_next[\s\S]*static[\s\S]*chunks/);
+});
+
+test('planner supports a complete location-to-light-to-lens workflow', async () => {
+  const source = await readFile('src/components/light-planner.tsx', 'utf8');
+  assert.match(source, /搜索地点/);
+  assert.match(source, /经度/);
+  assert.match(source, /纬度/);
+  assert.match(source, /立面朝向/);
+  assert.match(source, /planner-fov/);
+  assert.match(source, /定位失败/);
+  assert.match(source, /搜索失败/);
+  assert.match(source, /timeline-event/);
+});
+
+test('exported plan card includes the critical light windows', async () => {
+  const source = await readFile('src/components/light-planner.tsx', 'utf8');
+  assert.match(source, /日出.*黄金.*日落/s);
+  assert.match(source, /蓝调/);
+  assert.match(source, /月升/);
+});
+
 test('light planner is included in the tool index, sitemap and static export', async () => {
   const sources = await Promise.all([
     readFile('src/app/tools/page.tsx', 'utf8'),
