@@ -257,10 +257,10 @@ export function PhotoHabitsAnalyzer({
 
   return (
     <div className="space-y-6">
-      <section className="grid border border-white/10 bg-[#1b1b19] lg:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="grid min-h-[360px] border border-white/10 bg-[#1b1b19] md:min-h-[420px] lg:min-h-[520px] lg:grid-cols-[minmax(0,1fr)_360px] xl:min-h-[560px]">
         <button
           type="button"
-          className={`group flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center transition-colors md:min-h-72 ${isDragging ? 'bg-white/[.09]' : 'hover:bg-white/[.035]'}`}
+          className={`group flex min-h-64 flex-col items-center justify-center px-6 py-12 text-center transition-colors md:min-h-72 ${isDragging ? 'bg-white/[.09]' : 'hover:bg-white/[.035]'}`}
           onClick={() => inputRef.current?.click()}
           onDragEnter={(event) => {
             event.preventDefault();
