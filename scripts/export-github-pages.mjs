@@ -58,6 +58,36 @@ async function waitUntilReady(origin, attempts = 60) {
   throw new Error(`Preview server did not become ready at ${origin}`);
 }
 
+async function installMapLibreWorker(projectRoot) {
+  const workerFiles = [
+    'maplibre-gl-worker.mjs',
+    'maplibre-gl-shared.mjs',
+  ];
+  const chunks = path.join(
+    projectRoot,
+    'dist',
+    'client',
+    '_next',
+    'static',
+    'chunks',
+  );
+  await mkdir(chunks, { recursive: true });
+  await Promise.all(
+    workerFiles.map((fileName) =>
+      copyFile(
+        path.join(
+          projectRoot,
+          'node_modules',
+          'maplibre-gl',
+          'dist',
+          fileName,
+        ),
+        path.join(chunks, fileName),
+      ),
+    ),
+  );
+}
+
 async function main() {
   const projectRoot = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
@@ -65,6 +95,7 @@ async function main() {
   );
   const port = process.env.PAGES_EXPORT_PORT ?? '4173';
   const origin = `http://127.0.0.1:${port}`;
+  await installMapLibreWorker(projectRoot);
   const wrangler = path.join(
     projectRoot,
     'node_modules',

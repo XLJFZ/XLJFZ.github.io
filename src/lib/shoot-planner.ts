@@ -70,6 +70,20 @@ export function classifyLight(
   return { label: '逆光', detail: '太阳在被摄物后方，注意动态范围' };
 }
 
+export function classifyFacadeIllumination(
+  sunAzimuth: number,
+  facadeBearing: number,
+  sunAltitude: number,
+) {
+  if (sunAltitude <= 0) return { label: '无直射', detail: '太阳位于地平线下' };
+  const difference = angularDifference(sunAzimuth, facadeBearing);
+  if (difference <= 55)
+    return { label: '立面受光', detail: '太阳正照向这片立面' };
+  if (difference <= 115)
+    return { label: '立面擦光', detail: '光线沿立面掠过，纹理更明显' };
+  return { label: '立面背光', detail: '这片立面没有直接日照' };
+}
+
 export function destinationPoint(
   origin: Point,
   bearing: number,

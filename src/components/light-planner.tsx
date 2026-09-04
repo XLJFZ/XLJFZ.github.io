@@ -9,14 +9,16 @@ import {
   Download,
   LocateFixed,
   Moon,
+  Search,
   Sun,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
 import * as SunCalc from 'suncalc';
 
 import { Button } from '@/components/ui/button';
 import {
   bearingDegrees,
+  classifyFacadeIllumination,
   classifyLight,
   destinationPoint,
   distanceMeters,
@@ -31,10 +33,28 @@ import {
 
 const initialCamera = { lat: 31.2323, lng: 121.4667 };
 const initialSubject = { lat: 31.2332, lng: 121.4682 };
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+const MAP_STYLE = {
+  version: 8 as const,
+  sources: {
+    openStreetMap: {
+      type: 'raster' as const,
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '© OpenStreetMap contributors',
+    },
+  },
+  layers: [
+    {
+      id: 'openStreetMap',
+      type: 'raster' as const,
+      source: 'openStreetMap',
+      minzoom: 0,
+      maxzoom: 19,
+    },
+  ],
+};
 
 type PlacementMode = 'camera' | 'subject';
-
 function pad(value: number) {
   return String(value).padStart(2, '0');
 }
@@ -59,6 +79,12 @@ function formatTime(value: Date | null | undefined, offsetHours: number) {
 
 function formatSliderTime(minutes: number) {
   return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
+}
+
+function minutesAtZone(value: Date | null | undefined, offsetHours: number) {
+  if (!value || Number.isNaN(value.getTime())) return null;
+  const shifted = new Date(value.getTime() + offsetHours * 3_600_000);
+  return shifted.getUTCHours() * 60 + shifted.getUTCMinutes();
 }
 
 function bearingPoint(bearing: number, radius: number, center = 150) {
@@ -217,6 +243,13 @@ export function LightPlanner() {
   const [subjectWidth, setSubjectWidth] = useState(35);
   const [placeName, setPlaceName] = useState('上海 · 待勘察机位');
   const [mapReady, setMapReady] = useState(false);
+  const [facadeBearing, setFacadeBearing] = useState(() =>
+    bearingDegrees(initialSubject, initialCamera),
+  );
+  const [query, setQuery] = useState('');
+  const [searchError, setSearchError] = useState('');
+  const [geoError, setGeoError] = useState('');
+  const [mapError, setMapError] = useState('');
 
   const instant = useMemo(
     () => dateAtZone(date, minutes, timezone),
@@ -260,7 +293,7 @@ export function LightPlanner() {
     () => bearingDegrees(cameraPoint, subjectPoint),
     [cameraPoint, subjectPoint],
   );
-  const facadeBearing = useMemo(
+  const cameraSideBearing = useMemo(
     () => bearingDegrees(subjectPoint, cameraPoint),
     [cameraPoint, subjectPoint],
   );
@@ -274,6 +307,11 @@ export function LightPlanner() {
   const isWideEnough = coverage >= subjectWidth;
   const light = classifyLight(
     sunPosition.azimuth,
+    cameraSideBearing,
+    sunPosition.altitude,
+  );
+  const facadeLight = classifyFacadeIllumination(
+    sunPosition.azimuth,
     facadeBearing,
     sunPosition.altitude,
   );
@@ -281,6 +319,7 @@ export function LightPlanner() {
   useEffect(() => {
     if (!mapNode.current || mapRef.current) return;
     let cancelled = false;
+    let resizeObserver: ResizeObserver | undefined;
     void import('maplibre-gl').then((module) => {
       if (cancelled || !mapNode.current) return;
       const maplibregl = module;
@@ -299,6 +338,9 @@ export function LightPlanner() {
         new maplibregl.AttributionControl({ compact: true }),
         'bottom-right',
       );
+      resizeObserver = new ResizeObserver(() => map.resize());
+      resizeObserver.observe(mapNode.current);
+      requestAnimationFrame(() => map.resize());
 
       const makeMarker = (kind: PlacementMode) => {
         const element = document.createElement('div');
@@ -343,8 +385,25 @@ export function LightPlanner() {
           return 'camera';
         });
       });
+      map.on('error', (event) => {
+        setMapError(event.error?.message || '地图加载失败，请检查网络后重试。');
+      });
       map.on('load', () => {
         if (cancelled) return;
+        map.addSource('planner-fov', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        });
+        map.addLayer({
+          id: 'planner-fov',
+          type: 'fill',
+          source: 'planner-fov',
+          paint: {
+            'fill-color': '#d8c19b',
+            'fill-opacity': 0.16,
+            'fill-outline-color': '#d8c19b',
+          },
+        });
         map.addSource('planner-rays', {
           type: 'geojson',
           data: { type: 'FeatureCollection', features: [] },
@@ -359,14 +418,17 @@ export function LightPlanner() {
             'line-dasharray': [2, 2],
           },
         });
+        setMapError('');
         setMapReady(true);
+        map.resize();
       });
       mapRef.current = map;
       cameraMarker.current = camera;
       subjectMarker.current = subject;
-    });
+    }).catch(() => setMapError('地图加载失败，请刷新页面后重试。'));
     return () => {
       cancelled = true;
+      resizeObserver?.disconnect();
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -422,6 +484,36 @@ export function LightPlanner() {
         },
       ],
     });
+    const wedgeDistance = Math.max(distance * 1.12, 40);
+    const arc = Array.from({ length: 17 }, (_, index) =>
+      destinationPoint(
+        cameraPoint,
+        cameraBearing - fov / 2 + (fov * index) / 16,
+        wedgeDistance,
+      ),
+    );
+    const fovSource = mapRef.current.getSource(
+      'planner-fov',
+    ) as import('maplibre-gl').GeoJSONSource;
+    void fovSource?.setData({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [cameraPoint.lng, cameraPoint.lat],
+                ...arc.map((point) => [point.lng, point.lat]),
+                [cameraPoint.lng, cameraPoint.lat],
+              ],
+            ],
+          },
+        },
+      ],
+    });
   }, [
     mapReady,
     cameraPoint,
@@ -429,18 +521,73 @@ export function LightPlanner() {
     sunPosition.azimuth,
     moonPosition.azimuth,
     distance,
+    cameraBearing,
+    fov,
   ]);
 
   const useCurrentLocation = () => {
-    navigator.geolocation?.getCurrentPosition((position) => {
-      const point = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      };
+    setGeoError('');
+    if (!navigator.geolocation) {
+      setGeoError('定位失败：当前浏览器不支持定位，请手动输入坐标。');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const point = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setCameraPoint(point);
+        cameraMarker.current?.setLngLat([point.lng, point.lat]);
+        mapRef.current?.flyTo({ center: [point.lng, point.lat], zoom: 15 });
+      },
+      () =>
+        setGeoError('定位失败：请允许位置权限，或手动输入机位坐标。'),
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
+  };
+
+  const locateCoordinates = (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const values = query
+      .trim()
+      .split(/[，,\s]+/)
+      .filter(Boolean)
+      .map(Number);
+    if (
+      values.length !== 2 ||
+      !Number.isFinite(values[0]) ||
+      !Number.isFinite(values[1]) ||
+      Math.abs(values[0]) > 90 ||
+      Math.abs(values[1]) > 180
+    ) {
+      setSearchError('搜索失败：请输入“纬度, 经度”，例如 31.2304, 121.4737。');
+      return;
+    }
+    const point = { lat: values[0], lng: values[1] };
+    setSubjectPoint(point);
+    subjectMarker.current?.setLngLat([point.lng, point.lat]);
+    mapRef.current?.flyTo({ center: [point.lng, point.lat], zoom: 16 });
+    setSearchError('');
+    setPlacement('camera');
+  };
+
+  const updateCoordinate = (
+    kind: PlacementMode,
+    axis: 'lat' | 'lng',
+    rawValue: string,
+  ) => {
+    const value = Number(rawValue);
+    if (!Number.isFinite(value)) return;
+    if (kind === 'camera') {
+      const point = { ...cameraPoint, [axis]: value };
       setCameraPoint(point);
       cameraMarker.current?.setLngLat([point.lng, point.lat]);
-      mapRef.current?.flyTo({ center: [point.lng, point.lat], zoom: 15 });
-    });
+    } else {
+      const point = { ...subjectPoint, [axis]: value };
+      setSubjectPoint(point);
+      subjectMarker.current?.setLngLat([point.lng, point.lat]);
+    }
   };
 
   const exportCard = () => {
@@ -468,7 +615,7 @@ export function LightPlanner() {
     const rows = [
       [
         '光线',
-        `${light.label} · 太阳 ${formatBearing(sunPosition.azimuth)} / 高度 ${sunPosition.altitude.toFixed(1)}°`,
+        `${light.label} / ${facadeLight.label} · 太阳 ${formatBearing(sunPosition.azimuth)} / ${sunPosition.altitude.toFixed(1)}°`,
       ],
       [
         '月亮',
@@ -488,29 +635,37 @@ export function LightPlanner() {
           ? `镜头够广，最长可用约 ${Math.floor(requiredFocal)}mm`
           : `镜头不够广，建议 ${Math.floor(requiredFocal)}mm 或更广`,
       ],
+      [
+        '日出/黄金/日落',
+        `${formatTime(sunTimes.sunrise, timezone)} · ${formatTime(sunTimes.goldenHourEnd, timezone)} / ${formatTime(sunTimes.goldenHour, timezone)} · ${formatTime(sunTimes.sunset, timezone)}`,
+      ],
+      [
+        '蓝调/月升',
+        `${formatTime(sunTimes.dawn, timezone)}–${formatTime(sunTimes.sunrise, timezone)} / ${formatTime(sunTimes.sunset, timezone)}–${formatTime(sunTimes.dusk, timezone)} · ${formatTime(moonTimes.rise, timezone)}`,
+      ],
     ];
-    let y = 360;
+    let y = 330;
     rows.forEach(([label, value]) => {
       context.fillStyle = '#73756f';
       context.font = '24px Arial, sans-serif';
       context.fillText(label, 72, y);
       context.fillStyle = '#f2eee6';
-      context.font = '32px Arial, sans-serif';
+      context.font = '26px Arial, sans-serif';
       context.fillText(value, 190, y);
       context.strokeStyle = 'rgba(255,255,255,.1)';
       context.beginPath();
       context.moveTo(72, y + 34);
       context.lineTo(1008, y + 34);
       context.stroke();
-      y += 126;
+      y += 92;
     });
 
     const cx = 540;
-    const cy = 1030;
+    const cy = 1050;
     context.strokeStyle = 'rgba(255,255,255,.14)';
     context.lineWidth = 2;
     context.beginPath();
-    context.arc(cx, cy, 180, 0, Math.PI * 2);
+    context.arc(cx, cy, 160, 0, Math.PI * 2);
     context.stroke();
     const drawRay = (
       bearing: number,
@@ -533,9 +688,9 @@ export function LightPlanner() {
       context.font = '24px Arial, sans-serif';
       context.fillText(label, x + 20, rayY + 8);
     };
-    drawRay(cameraBearing, '#f2eee6', '被摄物', 138);
-    drawRay(sunPosition.azimuth, '#f0b95b', '太阳', 180);
-    drawRay(moonPosition.azimuth, '#9bb9d7', '月亮', 165);
+    drawRay(cameraBearing, '#f2eee6', '被摄物', 122);
+    drawRay(sunPosition.azimuth, '#f0b95b', '太阳', 160);
+    drawRay(moonPosition.azimuth, '#9bb9d7', '月亮', 146);
     context.fillStyle = '#6f716c';
     context.font = '22px Arial, sans-serif';
     context.fillText(
@@ -548,7 +703,9 @@ export function LightPlanner() {
     const link = document.createElement('a');
     link.download = `shoot-plan-${date}-${formatSliderTime(minutes).replace(':', '')}.png`;
     link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
     link.click();
+    link.remove();
   };
 
   const events = [
@@ -566,7 +723,7 @@ export function LightPlanner() {
         <section className="relative min-h-[480px] border-b border-white/10 xl:min-h-[760px] xl:border-b-0 xl:border-r">
           <div
             ref={mapNode}
-            className="absolute inset-0"
+            className="planner-map"
             aria-label="摄影机位规划地图"
           />
           <div className="absolute left-3 top-3 z-10 flex max-w-[calc(100%-5rem)] flex-wrap gap-2 rounded-sm bg-[#171815]/92 p-2 shadow-xl backdrop-blur md:left-5 md:top-5">
@@ -593,12 +750,45 @@ export function LightPlanner() {
             </button>
           </div>
           <div className="absolute bottom-6 left-4 z-10 max-w-[calc(100%-2rem)] bg-[#171815]/92 px-4 py-3 text-xs leading-5 text-white/62 shadow-xl backdrop-blur md:left-6">
-            点击地图放置{placement === 'camera' ? '机位' : '被摄物'} ·
-            标记可拖动
+            {mapError || geoError || (
+              <>
+                点击地图放置{placement === 'camera' ? '机位' : '被摄物'} ·
+                标记可拖动
+              </>
+            )}
           </div>
         </section>
 
         <section className="p-4 md:p-6 xl:max-h-[760px] xl:overflow-y-auto">
+          <form onSubmit={locateCoordinates} className="mb-5">
+            <label className="text-xs text-white/42" htmlFor="place-search">
+              搜索地点（经纬度）
+            </label>
+            <div className="mt-2 flex">
+              <input
+                id="place-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="纬度, 经度，如 31.2304, 121.4737"
+                className="min-w-0 flex-1 border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-[#d8c19b]/60"
+              />
+              <button
+                type="submit"
+                className="flex items-center gap-2 bg-[#e6dcc8] px-4 text-xs text-[#171815] hover:bg-white"
+              >
+                <Search size={15} /> 定位
+              </button>
+            </div>
+            {searchError && (
+              <p className="mt-2 text-xs leading-5 text-orange-200/80">
+                {searchError}
+              </p>
+            )}
+            <p className="mt-2 text-[11px] leading-5 text-white/28">
+              坐标仅在本页计算，不会发送给地点搜索服务。
+            </p>
+          </form>
+
           <div className="grid grid-cols-2 gap-3">
             <label className="col-span-2 text-xs text-white/42">
               地点备注
@@ -606,6 +796,54 @@ export function LightPlanner() {
                 value={placeName}
                 onChange={(event) => setPlaceName(event.target.value)}
                 className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-[#d8c19b]/60"
+              />
+            </label>
+            <label className="text-xs text-white/42">
+              机位纬度
+              <input
+                type="number"
+                step="0.00001"
+                value={cameraPoint.lat}
+                onChange={(event) =>
+                  updateCoordinate('camera', 'lat', event.target.value)
+                }
+                className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm tabular-nums text-white outline-none"
+              />
+            </label>
+            <label className="text-xs text-white/42">
+              机位经度
+              <input
+                type="number"
+                step="0.00001"
+                value={cameraPoint.lng}
+                onChange={(event) =>
+                  updateCoordinate('camera', 'lng', event.target.value)
+                }
+                className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm tabular-nums text-white outline-none"
+              />
+            </label>
+            <label className="text-xs text-white/42">
+              被摄物纬度
+              <input
+                type="number"
+                step="0.00001"
+                value={subjectPoint.lat}
+                onChange={(event) =>
+                  updateCoordinate('subject', 'lat', event.target.value)
+                }
+                className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm tabular-nums text-white outline-none"
+              />
+            </label>
+            <label className="text-xs text-white/42">
+              被摄物经度
+              <input
+                type="number"
+                step="0.00001"
+                value={subjectPoint.lng}
+                onChange={(event) =>
+                  updateCoordinate('subject', 'lng', event.target.value)
+                }
+                className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm tabular-nums text-white outline-none"
               />
             </label>
             <label className="text-xs text-white/42">
@@ -633,6 +871,28 @@ export function LightPlanner() {
                   ),
                 )}
               </select>
+            </label>
+            <label className="col-span-2 text-xs text-white/42">
+              立面朝向 · {formatBearing(facadeBearing)}
+              <input
+                type="range"
+                min="0"
+                max="359"
+                step="1"
+                value={facadeBearing}
+                onChange={(event) => setFacadeBearing(Number(event.target.value))}
+                className="planner-range mt-3 w-full"
+              />
+              <span className="mt-2 flex items-center justify-between text-[11px] text-white/28">
+                <span>立面朝外法线方向</span>
+                <button
+                  type="button"
+                  onClick={() => setFacadeBearing(cameraSideBearing)}
+                  className="text-[#d8c19b] hover:text-white"
+                >
+                  取朝向机位的一面
+                </button>
+              </span>
             </label>
           </div>
 
@@ -662,6 +922,20 @@ export function LightPlanner() {
               onChange={(event) => setMinutes(Number(event.target.value))}
               className="planner-range mt-5 w-full"
             />
+            <div className="relative mt-2 h-3 border-t border-white/10">
+              {events.map(([label, value]) => {
+                const eventMinute = minutesAtZone(value, timezone);
+                if (eventMinute === null) return null;
+                return (
+                  <span
+                    key={label}
+                    className="timeline-event"
+                    style={{ left: `${(eventMinute / 1440) * 100}%` }}
+                    title={`${label} ${formatTime(value, timezone)}`}
+                  />
+                );
+              })}
+            </div>
             <div className="mt-2 flex justify-between text-[11px] tabular-nums text-white/28">
               <span>00:00</span>
               <span>06:00</span>
@@ -670,6 +944,9 @@ export function LightPlanner() {
               <span>24:00</span>
             </div>
             <p className="mt-4 text-sm text-white/58">{light.detail}</p>
+            <p className="mt-2 text-xs text-white/42">
+              {facadeLight.label}：{facadeLight.detail}
+            </p>
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden border border-white/10 bg-white/10">
@@ -814,7 +1091,8 @@ export function LightPlanner() {
             <div>
               <p className="text-sm leading-6 text-white/58">
                 月面亮度约 {(moonLight.fraction * 100).toFixed(0)}
-                %。立面判断按被摄物朝向机位的一面计算。
+                %。当前立面朝向 {formatBearing(facadeBearing)}，判断为
+                {facadeLight.label}。
               </p>
               <Button
                 type="button"
@@ -825,7 +1103,7 @@ export function LightPlanner() {
                 导出拍摄计划卡
               </Button>
               <p className="mt-3 text-[11px] leading-5 text-white/28">
-                计算：SunCalc · 地图：MapLibre / OpenFreeMap / OpenStreetMap
+                计算：SunCalc · 地图：MapLibre / OpenStreetMap
               </p>
             </div>
           </div>

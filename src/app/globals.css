@@ -98,6 +98,20 @@ img {
 .maplibregl-map {
   font-family: var(--font-cjk), var(--font-sans), Arial, sans-serif;
 }
+.planner-map {
+  position: absolute !important;
+  inset: 0;
+  height: 100%;
+  min-height: 100%;
+}
+.timeline-event {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 12px;
+  background: rgba(216, 193, 155, 0.7);
+  transform: translateX(-0.5px);
+}
 .maplibregl-ctrl-group {
   border-radius: 2px !important;
 }
