@@ -29,6 +29,14 @@ test('internal navigation uses native links in the deployed site', async () => {
   assert.match(sources[0], /<a[^>]+href="\/about\/"[^>]*>\s*关于\s*<\/a>/s);
 });
 
+test('the shared site header stays fixed above every page without covering content', async () => {
+  const header = await readFile('src/components/site-header.tsx', 'utf8');
+  assert.match(header, /fixed inset-x-0 top-0 z-40/);
+  assert.match(header, /backdrop-blur-md/);
+  assert.match(header, /h-\[61px\][\s\S]*md:h-\[81px\]/);
+  assert.doesNotMatch(header, /mix-blend-difference/);
+});
+
 test('tools navigation opens an index containing every public tool', async () => {
   const source = await readFile(
     new URL('../src/app/tools/page.tsx', import.meta.url),
