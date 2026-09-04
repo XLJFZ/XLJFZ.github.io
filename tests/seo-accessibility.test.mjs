@@ -34,6 +34,7 @@ test('the site publishes discovery files for every exported route', async () => 
     '/tools/',
     '/tools/photo-habits/',
     '/tools/image-compressor/',
+    '/tools/exif-privacy/',
     '/tools/print-size/',
     '/tools/social-crop/',
     '/tools/light-planner/',

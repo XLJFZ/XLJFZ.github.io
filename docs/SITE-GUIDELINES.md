@@ -132,13 +132,16 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ## 7. 站内照片工具
 
-站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩、打印尺寸计算器、社交平台裁切预览器和机位与光线规划器。
+站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片隐私检查器、照片批量压缩、打印尺寸计算器、社交平台裁切预览器和机位与光线规划器。
 
 | 文件                                                                                      | 职责                               |
 | ----------------------------------------------------------------------------------------- | ---------------------------------- |
 | [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx)   | 页面元数据与工具布局               |
 | [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)           | 文件选择、压缩进度、预设与下载交互 |
 | [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                         | JPEG EXIF 检测与无压缩 ZIP 打包    |
+| [`src/app/tools/exif-privacy/page.tsx`](../src/app/tools/exif-privacy/page.tsx)           | 照片隐私检查器页面与元数据         |
+| [`src/components/exif-privacy-checker.tsx`](../src/components/exif-privacy-checker.tsx)   | 隐私检查、清理选择、复查与下载     |
+| [`src/lib/exif-privacy.ts`](../src/lib/exif-privacy.ts)                                   | 敏感 EXIF 标签检查与原位清理       |
 | [`src/app/tools/social-crop/page.tsx`](../src/app/tools/social-crop/page.tsx)             | 社交平台裁切页面与元数据           |
 | [`src/components/social-crop-previewer.tsx`](../src/components/social-crop-previewer.tsx) | 多比例预览、主体定位与本地导出     |
 | [`src/app/tools/photo-habits/page.tsx`](../src/app/tools/photo-habits/page.tsx)           | 摄影习惯分析页面与站内作品输入     |
@@ -184,6 +187,12 @@ public/covers/                       首页和专题索引使用的轻量封面
 - 本节描述的是下载文件内的元数据保留；作品灯箱仍只允许展示 5.1 节规定的五个字段，两者不能混为一谈。
 
 ### 7.3 工具路由与回归检查
+
+- 照片隐私检查器只接受 JPG / JPEG，检查和清理全程在浏览器本地完成，不上传照片或元数据；输出必须使用 `-clean.jpg` 后缀且不能覆盖原文件。
+- 默认选择 GPS、设备标识、所有者、拍摄时间、备注与编辑信息五类隐私项，允许逐类取消；未选中的曝光参数、相机型号等 EXIF 应保留。
+- 清理设备标识时必须同时移除厂商私有信息，因为机身序列号可能只存在于 MakerNote；生成下载前必须重新解析副本并确认所选类别不再出现。
+- 该工具不重编码图像数据，因此保持原始像素与 JPEG 画质；当前不处理 RAW、HEIC、PNG 或独立 XMP 边车文件，界面必须明确首版格式边界。
+- 隐私检查器的类别、标签范围、本地处理、原图保护与复查约束由 `tests/exif-privacy.test.mjs` 保护。
 
 - 社交平台裁切预览器必须在浏览器本地读取图片，保持各比例的主体位置互不影响，并允许用户选择需要的比例后单张或 ZIP 导出；输出不覆盖原文件。
 - 默认比例包含 1:1、4:5、9:16、5:7、4:3、3:2、16:9、16:10、1.91:1、65:24 与 2.35:1，并保留自定义宽高入口。
