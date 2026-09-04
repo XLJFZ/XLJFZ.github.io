@@ -9,6 +9,7 @@ export const routes = [
   '/tools',
   '/tools/photo-habits',
   '/tools/image-compressor',
+  '/tools/print-size',
   '/tools/light-planner',
   '/series',
   '/series/urban-pulse',
