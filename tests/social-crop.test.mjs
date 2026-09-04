@@ -26,6 +26,11 @@ test('social crop tool supports requested ratios, custom crops, local positionin
   assert.match(source, /onPointerMove/);
   assert.match(source, /canvas\.toBlob/);
   assert.match(source, /createZip/);
+  assert.match(source, /type="checkbox"/);
+  assert.match(source, /selectedRatios/);
+  assert.match(source, /导出已选/);
+  assert.match(source, /全选/);
+  assert.match(source, /清空/);
   assert.match(page, /canonical: '\/tools\/social-crop\/'/);
   for (const value of [index, sitemap, exporter])
     assert.match(value, /tools\/social-crop/);
