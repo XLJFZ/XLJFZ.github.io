@@ -128,13 +128,15 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ## 7. 站内照片工具
 
-站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩、打印尺寸计算器和机位与光线规划器。
+站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩、打印尺寸计算器、社交平台裁切预览器和机位与光线规划器。
 
 | 文件                                                                                      | 职责                               |
 | ----------------------------------------------------------------------------------------- | ---------------------------------- |
 | [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx)   | 页面元数据与工具布局               |
 | [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)           | 文件选择、压缩进度、预设与下载交互 |
 | [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                         | JPEG EXIF 检测与无压缩 ZIP 打包    |
+| [`src/app/tools/social-crop/page.tsx`](../src/app/tools/social-crop/page.tsx)             | 社交平台裁切页面与元数据           |
+| [`src/components/social-crop-previewer.tsx`](../src/components/social-crop-previewer.tsx) | 多比例预览、主体定位与本地导出     |
 | [`src/app/tools/photo-habits/page.tsx`](../src/app/tools/photo-habits/page.tsx)           | 摄影习惯分析页面与站内作品输入     |
 | [`src/components/photo-habits-analyzer.tsx`](../src/components/photo-habits-analyzer.tsx) | 文件选择、统计图表与镜头购买建议   |
 | [`src/lib/photo-metadata.ts`](../src/lib/photo-metadata.ts)                               | JPEG、TIFF 与相机 RAW 元数据读取   |
@@ -178,9 +180,14 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ### 7.3 工具路由与回归检查
 
+- 社交平台裁切预览器必须在浏览器本地读取图片，保持各比例的主体位置互不影响，并允许单张或 ZIP 导出；输出不覆盖原文件。
+- 默认比例包含 1:1、4:5、9:16、5:7、4:3、3:2、16:9、16:10、1.91:1、65:24 与 2.35:1，并保留自定义宽高入口。
+- 裁切导出会重新编码为 JPEG，不承诺保留 EXIF；这一点有助于减少公开社交图片携带位置等隐私信息，但不能替代发布前检查。
+
 - 打印尺寸计算器按纸张物理尺寸估算最大打印尺寸、有效 DPI、铺满裁切比例和完整保留画面尺寸；推荐精度须考虑成品尺寸与通常观看距离，A2、A1、A0 分别默认建议 240、200、150 DPI，不能把超大幅面一律按 300 DPI 判断。结果不包含打印机不可打印边距、出血和装裱余量。
 - 新增站内工具时，必须同步更新主导航、`scripts/export-github-pages.mjs`、`public/sitemap.xml` 和对应测试。
 - 照片压缩工具的基础约束由 `tests/image-compressor.test.mjs` 保护：本地处理、EXIF 保留、三档预设和无连续滑杆。
+- 社交平台裁切工具的基础约束由 `tests/social-crop.test.mjs` 保护：默认与自定义比例、独立主体定位、本地 Canvas 导出和 ZIP 打包。
 - `tests/navigation-links.test.mjs` 必须继续验证“工具”入口；`tests/github-pages-export.test.mjs` 必须继续验证工具页面被静态导出。
 - 工具属于作品集的辅助能力，视觉上沿用暖深灰与编辑式排版，但首屏必须直接露出可操作区域，不能改成营销落地页。
 - 机位与光线规划器使用 SunCalc 计算太阳、月亮及曙暮光时段，MapLibre GL JS 显示地图；角度统一采用从正北顺时针的方位角。

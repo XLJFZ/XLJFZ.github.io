@@ -39,6 +39,15 @@ const tools = [
   },
   {
     index: '04',
+    eyebrow: '社交图片准备',
+    title: '社交平台裁切预览器',
+    description:
+      '同时预览方形、竖屏、横屏与宽幅构图，分别移动主体位置并按原图分辨率导出。',
+    detail: '含 11 个常见比例与自定义比例',
+    href: '/tools/social-crop/',
+  },
+  {
+    index: '05',
     eyebrow: '外拍准备',
     title: '机位与光线规划器',
     description:
