@@ -13,7 +13,9 @@ import { Button } from '@/components/ui/button';
 import { createZip } from '@/lib/jpeg-exif';
 import {
   cleanExifPrivacy,
+  hasCompressedJxlExif,
   inspectExifPrivacy,
+  isSupportedPrivacyPhoto,
   type PrivacyCategory,
   type PrivacyFinding,
 } from '@/lib/exif-privacy';
@@ -39,7 +41,9 @@ const names: Record<PrivacyCategory, string> = Object.fromEntries(
 ) as Record<PrivacyCategory, string>;
 
 function safeName(name: string) {
-  return `${name.replace(/\.(jpe?g)$/i, '')}-clean.jpg`;
+  const match = name.match(/(\.[^.]+)$/);
+  const extension = match?.[1] ?? '';
+  return `${extension ? name.slice(0, -extension.length) : name}-clean${extension}`;
 }
 
 export function ExifPrivacyChecker() {
@@ -55,20 +59,23 @@ export function ExifPrivacyChecker() {
 
   const addFiles = async (incoming: FileList | File[]) => {
     const files = Array.from(incoming);
-    const jpeg = files.filter(
-      (file) => /image\/jpeg/i.test(file.type) || /\.jpe?g$/i.test(file.name),
-    );
-    if (!jpeg.length) {
-      setError('请选择 JPG 或 JPEG 照片。');
+    const supported = files.filter(isSupportedPrivacyPhoto);
+    if (!supported.length) {
+      setError('请选择 JPEG、JXL、HEIC、HEIF、AVIF、WebP 或 TIFF 照片。');
       return;
     }
     setIsWorking(true);
     try {
       const inspected = await Promise.all(
-        jpeg.map(async (file) => ({
-          file,
-          findings: inspectExifPrivacy(await file.arrayBuffer()),
-        })),
+        supported.map(async (file) => {
+          const source = await file.arrayBuffer();
+          if (/\.jxl$/i.test(file.name) && hasCompressedJxlExif(source)) {
+            throw new Error(
+              `${file.name} 使用 Brotli 压缩 EXIF，当前无法安全选择性清理。`,
+            );
+          }
+          return { file, findings: inspectExifPrivacy(source) };
+        }),
       );
       setPhotos((current) => {
         const known = new Set(
@@ -82,9 +89,13 @@ export function ExifPrivacyChecker() {
         ];
       });
       setOutputs([]);
-      setError(jpeg.length < files.length ? '已忽略非 JPEG 文件。' : '');
-    } catch {
-      setError('有照片无法读取，请换一张 JPEG 再试。');
+      setError(supported.length < files.length ? '已忽略暂不支持的文件。' : '');
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : '有照片无法读取，请换一个受支持的文件再试。',
+      );
     } finally {
       setIsWorking(false);
     }
@@ -180,7 +191,7 @@ export function ExifPrivacyChecker() {
           <span className="mb-5 flex size-14 items-center justify-center rounded-full border border-white/15 bg-white/[.035] transition-transform group-hover:-translate-y-1">
             <ImagePlus className="size-5" aria-hidden="true" />
           </span>
-          <span className="text-xl tracking-[-.02em]">拖入 JPEG 照片检查</span>
+          <span className="text-xl tracking-[-.02em]">拖入照片检查隐私</span>
           <span className="mt-3 text-sm text-white/45">
             或点击选择，可一次添加多张
           </span>
@@ -189,7 +200,7 @@ export function ExifPrivacyChecker() {
           ref={inputRef}
           className="sr-only"
           type="file"
-          accept="image/jpeg,.jpg,.jpeg"
+          accept="image/jpeg,image/jxl,image/heic,image/heif,image/avif,image/webp,image/tiff,.jpg,.jpeg,.jxl,.heic,.heif,.avif,.webp,.tif,.tiff"
           multiple
           onChange={(event) =>
             event.target.files && void addFiles(event.target.files)

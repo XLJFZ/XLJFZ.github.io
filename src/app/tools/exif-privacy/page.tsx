@@ -6,7 +6,7 @@ import { SiteHeader } from '@/components/site-header';
 export const metadata: Metadata = {
   title: '照片隐私检查器｜迅雷疾风',
   description:
-    '在浏览器本地检查并选择性清理 JPEG 照片中的 GPS、序列号、所有者、拍摄时间等 EXIF 隐私信息。',
+    '在浏览器本地检查并选择性清理 JPEG、JPEG XL、HEIC、HEIF、AVIF、WebP 与 TIFF 照片中的 EXIF 隐私信息。',
   alternates: { canonical: '/tools/exif-privacy/' },
 };
 
@@ -31,10 +31,15 @@ export default function ExifPrivacyPage() {
             <p className="text-base font-light leading-7 text-white/52">
               检查
               GPS、设备序列号、所有者、拍摄时间、备注与编辑信息。按需要勾选清理项，一键生成经过复查的
-              JPEG 副本。
+              原格式副本。
             </p>
             <p className="mt-4 text-xs leading-5 tracking-[.04em] text-white/38">
-              首版支持 JPG / JPEG · 不改变画质与像素 · 原文件不会被修改
+              支持 JPEG、JXL、HEIC、HEIF、AVIF、WebP、TIFF · 不改变画质与像素 ·
+              原文件不会被修改
+            </p>
+            <p className="mt-2 text-xs leading-5 text-white/30">
+              JPEG XL 当前支持未压缩 EXIF；遇到 Brotli 压缩 EXIF
+              会明确提示，不会误报为安全。
             </p>
           </div>
         </div>

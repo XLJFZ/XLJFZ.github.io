@@ -11,6 +11,25 @@ export type PrivacyFinding = {
   value: string;
 };
 
+const SUPPORTED_PHOTO = /\.(jpe?g|jxl|hei[cf]|avif|webp|tiff?)$/i;
+
+export function isSupportedPrivacyPhoto(file: Pick<File, 'name' | 'type'>) {
+  return (
+    SUPPORTED_PHOTO.test(file.name) ||
+    /image\/(jpeg|jxl|heic|heif|avif|webp|tiff)/i.test(file.type)
+  );
+}
+
+export function hasCompressedJxlExif(source: ArrayBuffer) {
+  const bytes = new Uint8Array(source);
+  const signature = [0x62, 0x72, 0x6f, 0x62, 0x45, 0x78, 0x69, 0x66];
+  for (let offset = 0; offset + signature.length <= bytes.length; offset += 1) {
+    if (signature.every((value, index) => bytes[offset + index] === value))
+      return true;
+  }
+  return false;
+}
+
 type Entry = {
   tag: number;
   type: number;
@@ -63,8 +82,8 @@ const TAGS: Record<number, { category: PrivacyCategory; label: string }> = {
   0x1001d: { category: 'time', label: 'GPS 日期' },
 };
 
-function findExif(bytes: Uint8Array) {
-  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+function findJpegExif(bytes: Uint8Array) {
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return undefined;
   let offset = 2;
   while (offset + 12 <= bytes.length && bytes[offset] === 0xff) {
     const marker = bytes[offset + 1];
@@ -80,22 +99,37 @@ function findExif(bytes: Uint8Array) {
       bytes[offset + 8] === 0 &&
       bytes[offset + 9] === 0
     ) {
-      return { tiffStart: offset + 10, segmentStart: offset };
+      return offset + 10;
     }
     offset += 2 + length;
   }
-  return null;
+  return undefined;
 }
 
-function entries(bytes: Uint8Array) {
-  const found = findExif(bytes);
-  if (!found)
-    return {
-      entries: [] as Entry[],
-      gpsPointer: undefined as Entry | undefined,
-    };
+function findTiffStarts(bytes: Uint8Array) {
+  const jpeg = findJpegExif(bytes);
+  if (jpeg !== undefined) return [jpeg];
+
+  const starts: number[] = [];
+  for (let offset = 0; offset + 8 <= bytes.length; offset += 1) {
+    const littleEndian =
+      bytes[offset] === 0x49 &&
+      bytes[offset + 1] === 0x49 &&
+      bytes[offset + 2] === 0x2a &&
+      bytes[offset + 3] === 0;
+    const bigEndian =
+      bytes[offset] === 0x4d &&
+      bytes[offset + 1] === 0x4d &&
+      bytes[offset + 2] === 0 &&
+      bytes[offset + 3] === 0x2a;
+    if (littleEndian || bigEndian) starts.push(offset);
+    if (starts.length >= 8) break;
+  }
+  return starts;
+}
+
+function entriesAt(bytes: Uint8Array, tiffStart: number) {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const { tiffStart } = found;
   const order = view.getUint16(tiffStart, false);
   const littleEndian = order === 0x4949;
   if (
@@ -104,12 +138,12 @@ function entries(bytes: Uint8Array) {
   ) {
     return {
       entries: [] as Entry[],
-      gpsPointer: undefined as Entry | undefined,
+      gpsPointers: [] as Entry[],
     };
   }
   const result: Entry[] = [];
   const visited = new Set<number>();
-  let gpsPointer: Entry | undefined;
+  const gpsPointers: Entry[] = [];
 
   const readIfd = (relativeOffset: number, isGps = false) => {
     const offset = tiffStart + relativeOffset;
@@ -146,7 +180,7 @@ function entries(bytes: Uint8Array) {
         readIfd(view.getUint32(entryOffset + 8, littleEndian));
       }
       if (tag === 0x8825) {
-        gpsPointer = entry;
+        gpsPointers.push(entry);
         readIfd(view.getUint32(entryOffset + 8, littleEndian), true);
       }
     }
@@ -157,7 +191,18 @@ function entries(bytes: Uint8Array) {
     }
   };
   readIfd(view.getUint32(tiffStart + 4, littleEndian));
-  return { entries: result, gpsPointer };
+  return { entries: result, gpsPointers };
+}
+
+function entries(bytes: Uint8Array) {
+  const result: Entry[] = [];
+  const gpsPointers: Entry[] = [];
+  for (const tiffStart of findTiffStarts(bytes)) {
+    const parsed = entriesAt(bytes, tiffStart);
+    result.push(...parsed.entries);
+    gpsPointers.push(...parsed.gpsPointers);
+  }
+  return { entries: result, gpsPointers };
 }
 
 function valueOf(bytes: Uint8Array, entry: Entry) {
@@ -204,7 +249,7 @@ export function inspectExifPrivacy(source: ArrayBuffer): PrivacyFinding[] {
   const parsed = entries(bytes);
   const findings: PrivacyFinding[] = [];
   const gpsEntries = parsed.entries.filter((entry) => entry.tag >= 0x10000);
-  if (parsed.gpsPointer && gpsEntries.length) {
+  if (parsed.gpsPointers.length && gpsEntries.length) {
     findings.push({
       category: 'location',
       label: 'GPS 位置',
@@ -217,7 +262,15 @@ export function inspectExifPrivacy(source: ArrayBuffer): PrivacyFinding[] {
     const value = valueOf(bytes, entry);
     if (value) findings.push({ ...info, value });
   }
-  return findings;
+  return findings.filter(
+    (finding, index) =>
+      findings.findIndex(
+        (other) =>
+          other.category === finding.category &&
+          other.label === finding.label &&
+          other.value === finding.value,
+      ) === index,
+  );
 }
 
 function eraseEntry(bytes: Uint8Array, entry: Entry) {
@@ -231,10 +284,10 @@ export function cleanExifPrivacy(
 ) {
   const bytes = new Uint8Array(source.slice(0));
   const parsed = entries(bytes);
-  if (selected.has('location') && parsed.gpsPointer) {
+  if (selected.has('location') && parsed.gpsPointers.length) {
     for (const entry of parsed.entries.filter((item) => item.tag >= 0x10000))
       eraseEntry(bytes, entry);
-    eraseEntry(bytes, parsed.gpsPointer);
+    for (const pointer of parsed.gpsPointers) eraseEntry(bytes, pointer);
   }
   for (const entry of parsed.entries) {
     const info = TAGS[entry.tag];

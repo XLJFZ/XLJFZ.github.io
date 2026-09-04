@@ -27,7 +27,7 @@ const tools = [
     titleLines: ['照片隐私', '检查器'],
     description:
       '检查 GPS、设备序列号、所有者、拍摄时间等 EXIF，并按勾选项生成清理副本。',
-    detail: '本地检查，可选择要清理的信息',
+    detail: '支持 JPEG、JXL、HEIC、AVIF、WebP、TIFF',
     href: '/tools/exif-privacy/',
   },
   {
