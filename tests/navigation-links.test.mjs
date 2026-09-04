@@ -45,13 +45,18 @@ test('tools navigation opens an index containing every public tool', async () =>
 
   assert.match(source, /href:\s*'\/tools\/photo-habits\/'/);
   assert.match(source, /href:\s*'\/tools\/image-compressor\/'/);
+  assert.match(source, /href:\s*'\/tools\/color-sampler\/'/);
   assert.match(source, /href:\s*'\/tools\/print-size\/'/);
   assert.match(source, /href:\s*'\/tools\/social-crop\/'/);
   assert.match(source, /href:\s*'\/tools\/light-planner\/'/);
   assert.match(source, /摄影习惯分析/);
   assert.match(source, /照片批量压缩/);
+  assert.match(source, /色彩样本提取器/);
   assert.match(source, /打印尺寸计算器/);
   assert.match(source, /机位与光线规划器/);
+  assert.match(source, /titleLines:\s*\['摄影习惯', '分析'\]/);
+  assert.match(source, /titleLines:\s*\['社交平台裁切', '预览器'\]/);
+  assert.match(source, /tool\.titleLines\.map/);
 });
 
 test('site pages keep their footer at the viewport bottom without an overlay', async () => {
