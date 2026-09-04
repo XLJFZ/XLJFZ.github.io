@@ -5,7 +5,7 @@ import { SiteHeader } from '@/components/site-header';
 
 export const metadata: Metadata = {
   title: '摄影工具｜迅雷疾风',
-  description: '无需上传照片，在浏览器本地完成摄影习惯分析和照片批量压缩。',
+  description: '在浏览器本地完成摄影分析、照片输出准备与外拍规划。',
   alternates: { canonical: '/tools/' },
 };
 
@@ -30,6 +30,15 @@ const tools = [
   },
   {
     index: '03',
+    eyebrow: '照片输出准备',
+    title: '打印尺寸计算器',
+    description:
+      '根据照片像素、目标 DPI 与纸张尺寸，判断清晰度是否足够、铺满是否需要裁切。',
+    detail: '支持 A 系列与常用相纸尺寸',
+    href: '/tools/print-size/',
+  },
+  {
+    index: '04',
     eyebrow: '外拍准备',
     title: '机位与光线规划器',
     description:

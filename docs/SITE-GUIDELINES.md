@@ -128,7 +128,7 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ## 7. 站内照片工具
 
-站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩和机位与光线规划器。
+站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片批量压缩、打印尺寸计算器和机位与光线规划器。
 
 | 文件                                                                                      | 职责                               |
 | ----------------------------------------------------------------------------------------- | ---------------------------------- |
@@ -142,6 +142,9 @@ public/covers/                       首页和专题索引使用的轻量封面
 | [`src/app/tools/light-planner/page.tsx`](../src/app/tools/light-planner/page.tsx)         | 机位与光线规划页及元数据           |
 | [`src/components/light-planner.tsx`](../src/components/light-planner.tsx)                 | 地图、光线、焦段与计划卡交互       |
 | [`src/lib/shoot-planner.ts`](../src/lib/shoot-planner.ts)                                 | 距离、方向与视角几何计算           |
+| [`src/app/tools/print-size/page.tsx`](../src/app/tools/print-size/page.tsx)               | 打印尺寸计算器页面与元数据         |
+| [`src/components/print-size-calculator.tsx`](../src/components/print-size-calculator.tsx) | 像素、DPI、纸张与裁切交互          |
+| [`src/lib/print-size.ts`](../src/lib/print-size.ts)                                       | 打印尺寸、有效 DPI 与裁切计算      |
 
 ### 7.1 摄影习惯分析规则
 
@@ -174,6 +177,7 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ### 7.3 工具路由与回归检查
 
+- 打印尺寸计算器按纸张物理尺寸估算最大打印尺寸、有效 DPI、铺满裁切比例和完整保留画面尺寸；推荐精度须考虑成品尺寸与通常观看距离，A2、A1、A0 分别默认建议 240、200、150 DPI，不能把超大幅面一律按 300 DPI 判断。结果不包含打印机不可打印边距、出血和装裱余量。
 - 新增站内工具时，必须同步更新主导航、`scripts/export-github-pages.mjs`、`public/sitemap.xml` 和对应测试。
 - 照片压缩工具的基础约束由 `tests/image-compressor.test.mjs` 保护：本地处理、EXIF 保留、三档预设和无连续滑杆。
 - `tests/navigation-links.test.mjs` 必须继续验证“工具”入口；`tests/github-pages-export.test.mjs` 必须继续验证工具页面被静态导出。
