@@ -132,34 +132,38 @@ public/covers/                       首页和专题索引使用的轻量封面
 
 ## 7. 站内照片工具
 
-站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面包括摄影习惯分析、照片隐私检查器、照片批量压缩、色彩样本提取器、打印尺寸计算器、社交平台裁切预览器、机位与光线规划器和智能照片批量命名器。
+站内工具入口位于主导航“工具”，统一由 `/tools/` 索引页进入。当前公开页面共九个：摄影习惯分析、照片隐私检查器、照片批量压缩、色彩样本提取器、打印尺寸计算器、社交平台裁切预览器、机位与光线规划器、智能照片批量命名器和照片质量初筛器。
 
-| 文件                                                                                      | 职责                               |
-| ----------------------------------------------------------------------------------------- | ---------------------------------- |
-| [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx)   | 页面元数据与工具布局               |
-| [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)           | 文件选择、压缩进度、预设与下载交互 |
-| [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                         | JPEG EXIF 检测与无压缩 ZIP 打包    |
-| [`src/app/tools/exif-privacy/page.tsx`](../src/app/tools/exif-privacy/page.tsx)           | 照片隐私检查器页面与元数据         |
-| [`src/components/exif-privacy-checker.tsx`](../src/components/exif-privacy-checker.tsx)   | 隐私检查、清理选择、复查与下载     |
-| [`src/lib/exif-privacy.ts`](../src/lib/exif-privacy.ts)                                   | 敏感 EXIF 标签检查与原位清理       |
-| [`src/app/tools/color-sampler/page.tsx`](../src/app/tools/color-sampler/page.tsx)         | 色彩工具页面、说明与元数据         |
-| [`src/components/color-sampler.tsx`](../src/components/color-sampler.tsx)                 | 多图导入、单张与整组结果交互       |
-| [`src/lib/color-sampler.ts`](../src/lib/color-sampler.ts)                                 | 主色量化、综合色板与明暗比例计算   |
-| [`src/app/tools/social-crop/page.tsx`](../src/app/tools/social-crop/page.tsx)             | 社交平台裁切页面与元数据           |
-| [`src/components/social-crop-previewer.tsx`](../src/components/social-crop-previewer.tsx) | 多比例预览、主体定位与本地导出     |
-| [`src/app/tools/photo-habits/page.tsx`](../src/app/tools/photo-habits/page.tsx)           | 摄影习惯分析页面与站内作品输入     |
-| [`src/components/photo-habits-analyzer.tsx`](../src/components/photo-habits-analyzer.tsx) | 文件选择、统计图表与镜头购买建议   |
-| [`src/lib/photo-metadata.ts`](../src/lib/photo-metadata.ts)                               | JPEG、TIFF 与相机 RAW 元数据读取   |
-| [`src/lib/photo-analysis.ts`](../src/lib/photo-analysis.ts)                               | 拍摄参数统计与证据受限的镜头建议   |
-| [`src/app/tools/light-planner/page.tsx`](../src/app/tools/light-planner/page.tsx)         | 机位与光线规划页及元数据           |
-| [`src/components/light-planner.tsx`](../src/components/light-planner.tsx)                 | 地图、光线、焦段与计划卡交互       |
-| [`src/lib/shoot-planner.ts`](../src/lib/shoot-planner.ts)                                 | 距离、方向与视角几何计算           |
-| [`src/app/tools/print-size/page.tsx`](../src/app/tools/print-size/page.tsx)               | 打印尺寸计算器页面与元数据         |
-| [`src/components/print-size-calculator.tsx`](../src/components/print-size-calculator.tsx) | 像素、DPI、纸张与裁切交互          |
-| [`src/lib/print-size.ts`](../src/lib/print-size.ts)                                       | 打印尺寸、有效 DPI 与裁切计算      |
-| [`src/app/tools/photo-renamer/page.tsx`](../src/app/tools/photo-renamer/page.tsx)         | 智能命名页面与元数据               |
-| [`src/components/photo-batch-renamer.tsx`](../src/components/photo-batch-renamer.tsx)     | 导入、人工修改、预览、检重与下载   |
-| [`src/lib/photo-renamer.ts`](../src/lib/photo-renamer.ts)                                 | 中英文命名、连续编号与重名检测     |
+| 文件                                                                                        | 职责                               |
+| ------------------------------------------------------------------------------------------- | ---------------------------------- |
+| [`src/app/tools/image-compressor/page.tsx`](../src/app/tools/image-compressor/page.tsx)     | 页面元数据与工具布局               |
+| [`src/components/image-compressor.tsx`](../src/components/image-compressor.tsx)             | 文件选择、压缩进度、预设与下载交互 |
+| [`src/lib/jpeg-exif.ts`](../src/lib/jpeg-exif.ts)                                           | JPEG EXIF 检测与无压缩 ZIP 打包    |
+| [`src/app/tools/exif-privacy/page.tsx`](../src/app/tools/exif-privacy/page.tsx)             | 照片隐私检查器页面与元数据         |
+| [`src/components/exif-privacy-checker.tsx`](../src/components/exif-privacy-checker.tsx)     | 隐私检查、清理选择、复查与下载     |
+| [`src/lib/exif-privacy.ts`](../src/lib/exif-privacy.ts)                                     | 敏感 EXIF 标签检查与原位清理       |
+| [`src/app/tools/color-sampler/page.tsx`](../src/app/tools/color-sampler/page.tsx)           | 色彩工具页面、说明与元数据         |
+| [`src/components/color-sampler.tsx`](../src/components/color-sampler.tsx)                   | 多图导入、单张与整组结果交互       |
+| [`src/lib/color-sampler.ts`](../src/lib/color-sampler.ts)                                   | 主色量化、综合色板与明暗比例计算   |
+| [`src/app/tools/social-crop/page.tsx`](../src/app/tools/social-crop/page.tsx)               | 社交平台裁切页面与元数据           |
+| [`src/components/social-crop-previewer.tsx`](../src/components/social-crop-previewer.tsx)   | 多比例预览、主体定位与本地导出     |
+| [`src/app/tools/photo-habits/page.tsx`](../src/app/tools/photo-habits/page.tsx)             | 摄影习惯分析页面与站内作品输入     |
+| [`src/components/photo-habits-analyzer.tsx`](../src/components/photo-habits-analyzer.tsx)   | 文件选择、统计图表与镜头购买建议   |
+| [`src/lib/photo-metadata.ts`](../src/lib/photo-metadata.ts)                                 | JPEG、TIFF 与相机 RAW 元数据读取   |
+| [`src/lib/photo-analysis.ts`](../src/lib/photo-analysis.ts)                                 | 拍摄参数统计与证据受限的镜头建议   |
+| [`src/app/tools/light-planner/page.tsx`](../src/app/tools/light-planner/page.tsx)           | 机位与光线规划页及元数据           |
+| [`src/components/light-planner.tsx`](../src/components/light-planner.tsx)                   | 地图、光线、焦段与计划卡交互       |
+| [`src/lib/shoot-planner.ts`](../src/lib/shoot-planner.ts)                                   | 距离、方向与视角几何计算           |
+| [`src/app/tools/print-size/page.tsx`](../src/app/tools/print-size/page.tsx)                 | 打印尺寸计算器页面与元数据         |
+| [`src/components/print-size-calculator.tsx`](../src/components/print-size-calculator.tsx)   | 像素、DPI、纸张与裁切交互          |
+| [`src/lib/print-size.ts`](../src/lib/print-size.ts)                                         | 打印尺寸、有效 DPI 与裁切计算      |
+| [`src/app/tools/photo-renamer/page.tsx`](../src/app/tools/photo-renamer/page.tsx)           | 智能命名页面与元数据               |
+| [`src/components/photo-batch-renamer.tsx`](../src/components/photo-batch-renamer.tsx)       | 导入、人工修改、预览、检重与下载   |
+| [`src/lib/photo-renamer.ts`](../src/lib/photo-renamer.ts)                                   | 中英文命名、连续编号与重名检测     |
+| [`src/app/tools/photo-quality/page.tsx`](../src/app/tools/photo-quality/page.tsx)           | 照片质量初筛页面与元数据           |
+| [`src/components/photo-quality-screener.tsx`](../src/components/photo-quality-screener.tsx) | 导入、逐张分析、结果分组与报告导出 |
+| [`src/lib/photo-quality.ts`](../src/lib/photo-quality.ts)                                   | 像素指标、感知哈希与重复分组       |
+| [`tests/photo-quality.test.mjs`](../tests/photo-quality.test.mjs)                           | RAW、检测依据、本地处理与边界回归  |
 
 ### 7.1 摄影习惯分析规则
 
