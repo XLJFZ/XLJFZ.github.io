@@ -9,7 +9,7 @@ export default function Home() {
         id="content"
         className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white"
       >
-        <SiteHeader inverse />
+        <SiteHeader />
         <img
           src="/hero-previews/hero-zbz-2714-1280.jpg"
           srcSet="/hero-previews/hero-zbz-2714-1280.jpg 1280w, /hero-previews/hero-zbz-2714-2200.jpg 2200w, /hero-zbz-2714.jpg 3000w"
