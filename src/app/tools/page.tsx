@@ -90,6 +90,16 @@ const tools = [
     detail: '中英文切换、重名检测与连续编号',
     href: '/tools/photo-renamer/',
   },
+  {
+    index: '09',
+    eyebrow: '本地质量整理',
+    title: '照片质量初筛器',
+    titleLines: ['照片质量', '初筛器'],
+    description:
+      '批量检查清晰度、曝光剪切、像素尺寸与重复照片，用可解释的数值辅助人工选片。',
+    detail: '支持常见图片与多种相机 RAW 格式',
+    href: '/tools/photo-quality/',
+  },
 ];
 
 export default function ToolsPage() {
