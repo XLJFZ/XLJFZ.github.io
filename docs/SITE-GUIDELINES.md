@@ -269,7 +269,13 @@ git diff --check
 - 本项目默认只发布到 GitHub；除非用户明确指定其他平台，否则不得同时发布到其他托管服务。
 - GitHub Pages 是默认且唯一的线上发布渠道，公开站点为 `https://xljfz.github.io/`。
 - 发布分支为 `main`。
-- 推送后由 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 自动部署。
+- 发布流程以 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 为唯一配置源：推送到 `main` 后自动运行，也允许通过 `workflow_dispatch` 手动触发。
+- 工作流使用 `ubuntu-latest` 与 Node.js 22，并启用 npm 缓存；依赖必须通过 `npm ci` 按锁文件安装，不能在发布任务中改用会更新依赖解析结果的安装方式。
+- 工作流必须依次执行 `npm run build` 和 `npm run export:github-pages`，并将生成的 `_site` 目录作为 GitHub Pages artifact 上传；发布内容不能绕过这两个项目脚本另行拼装。
+- Pages 任务只保留读取仓库内容、写入 Pages 和签发 OIDC 令牌所需的最小权限：`contents: read`、`pages: write`、`id-token: write`。
+- 部署环境固定为 `github-pages`，环境网址取自部署步骤的 `page_url`；构建时 `NEXT_PUBLIC_SITE_URL` 固定为 `https://xljfz.github.io`，以生成一致的公开站点元数据。
+- 同一时间只保留最新一次 `pages` 部署；新提交到达时取消仍在运行的旧任务，避免旧产物晚于新版本上线。
+- 当前部署链使用 `actions/checkout@v4`、`actions/setup-node@v4`、`actions/configure-pages@v5`、`actions/upload-pages-artifact@v3` 和 `actions/deploy-pages@v4`。调整 Actions 或 Node 版本、构建命令、发布目录、权限、环境变量或触发条件时，应在同一次修改中同步更新本节。
 - 不能只看到 `git push` 成功就宣布完成；必须确认对应 GitHub Actions 运行结果为 `success`。
 - 部署完成后至少抽查受影响的公开页面，确认标题、照片和说明已经上线。
 - 本机已安装 GitHub CLI 时，优先用 `gh` 查询与本次提交对应的 Actions 运行；首次使用先执行 `gh auth status`，未登录时由仓库所有者完成一次 `gh auth login` 网页授权。不得把访问令牌写入仓库、脚本、日志或本文档。
