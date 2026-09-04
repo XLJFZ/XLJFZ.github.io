@@ -80,6 +80,16 @@ const tools = [
     detail: '适合建筑、城市、风光与月升构图',
     href: '/tools/light-planner/',
   },
+  {
+    index: '08',
+    eyebrow: '本地整理工作流',
+    title: '智能照片批量命名器',
+    titleLines: ['智能照片', '批量命名器'],
+    description:
+      '读取可靠 EXIF，结合人工地点与受控主题词表，预览中英文文件名并下载不覆盖原图的副本。',
+    detail: '中英文切换、重名检测与连续编号',
+    href: '/tools/photo-renamer/',
+  },
 ];
 
 export default function ToolsPage() {
