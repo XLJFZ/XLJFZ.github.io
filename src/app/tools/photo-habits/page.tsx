@@ -26,7 +26,7 @@ export default function PhotoHabitsPage() {
       <SiteHeader active="tools" />
       <div
         id="content"
-        className="mx-auto max-w-[1500px] px-5 py-9 md:px-10 md:py-14"
+        className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col justify-center px-5 py-9 md:px-10 md:py-14"
       >
         <div className="mb-8 grid gap-5 border-t border-white/12 pt-5 md:grid-cols-[1fr_1.15fr] md:items-end">
           <div>
