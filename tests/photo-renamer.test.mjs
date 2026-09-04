@@ -41,3 +41,21 @@ test('theme workflow is controlled, editable and does not fake semantics', async
   assert.match(ui, /350\s*MB/);
   assert.match(ui, /没有使用颜色或文件名冒充语义识别/);
 });
+
+test('renamed downloads offer original plus three simple local compression presets', async () => {
+  const source = await readFile(
+    'src/components/photo-batch-renamer.tsx',
+    'utf8',
+  );
+  assert.match(source, /import Compressor from ['"]compressorjs['"]/);
+  assert.match(source, /retainExif:\s*true/);
+  assert.match(source, /checkOrientation:\s*true/);
+  assert.match(
+    source,
+    /id: 'original'[\s\S]*id: 'light'[\s\S]*id: 'balanced'[\s\S]*id: 'large'/,
+  );
+  assert.match(source, /1600px · 质量 76/);
+  assert.match(source, /2400px · 质量 82/);
+  assert.match(source, /3200px · 质量 86/);
+  assert.match(source, /不压缩.*保持原始字节、格式和画质/);
+});
