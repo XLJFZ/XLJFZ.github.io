@@ -116,3 +116,12 @@ test('lens picker includes ultra-wide, telephoto and custom choices', async () =
     assert.match(source, new RegExp(label));
   }
 });
+
+test('photo habits workspace is vertically centered in the available viewport', async () => {
+  const source = await readFile('src/app/tools/photo-habits/page.tsx', 'utf8');
+
+  assert.match(
+    source,
+    /id="content"[\s\S]*className="[^"]*\bflex-1\b[^"]*\bflex-col\b[^"]*\bjustify-center\b[^"]*"/,
+  );
+});
