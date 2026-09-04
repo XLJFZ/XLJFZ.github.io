@@ -39,6 +39,22 @@ const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
 type PlacementMode = 'camera' | 'subject';
 type MapMode = '2d' | '3d';
+type PlaceResult = {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+  addresstype?: string;
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    state?: string;
+    region?: string;
+    country?: string;
+  };
+};
 function pad(value: number) {
   return String(value).padStart(2, '0');
 }
@@ -232,6 +248,8 @@ export function LightPlanner() {
     bearingDegrees(initialSubject, initialCamera),
   );
   const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
+  const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [geoError, setGeoError] = useState('');
   const [mapError, setMapError] = useState('');
@@ -563,29 +581,77 @@ export function LightPlanner() {
     );
   };
 
-  const locateCoordinates = (event: SyntheticEvent<HTMLFormElement>) => {
+  const placeSubject = (point: Point, zoom: number) => {
+    setSubjectPoint(point);
+    subjectMarker.current?.setLngLat([point.lng, point.lat]);
+    mapRef.current?.flyTo({ center: [point.lng, point.lat], zoom });
+    setPlacement('camera');
+  };
+
+  const searchLocation = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values = query
       .trim()
       .split(/[，,\s]+/)
       .filter(Boolean)
       .map(Number);
-    if (
-      values.length !== 2 ||
-      !Number.isFinite(values[0]) ||
-      !Number.isFinite(values[1]) ||
-      Math.abs(values[0]) > 90 ||
-      Math.abs(values[1]) > 180
-    ) {
-      setSearchError('搜索失败：请输入“纬度, 经度”，例如 31.2304, 121.4737。');
+    const isCoordinate =
+      values.length === 2 &&
+      Number.isFinite(values[0]) &&
+      Number.isFinite(values[1]) &&
+      Math.abs(values[0]) <= 90 &&
+      Math.abs(values[1]) <= 180;
+    if (isCoordinate) {
+      placeSubject({ lat: values[0], lng: values[1] }, 16);
+      setSearchResults([]);
+      setSearchError('');
       return;
     }
-    const point = { lat: values[0], lng: values[1] };
-    setSubjectPoint(point);
-    subjectMarker.current?.setLngLat([point.lng, point.lat]);
-    mapRef.current?.flyTo({ center: [point.lng, point.lat], zoom: 16 });
+    const keyword = query.trim();
+    if (keyword.length < 2) {
+      setSearchResults([]);
+      setSearchError('请输入国家、省州、城市、地标，或“纬度, 经度”。');
+      return;
+    }
+    setSearching(true);
+    setSearchResults([]);
     setSearchError('');
-    setPlacement('camera');
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&accept-language=zh-CN,en&q=${encodeURIComponent(keyword)}`,
+      );
+      if (!response.ok) throw new Error('Place search failed');
+      const results = (await response.json()) as PlaceResult[];
+      setSearchResults(results);
+      if (!results.length) setSearchError('没有找到匹配地点，请补充国家或省州名称。');
+    } catch {
+      setSearchError('地点搜索暂时不可用，请稍后重试或直接输入经纬度。');
+    } finally {
+      await new Promise((resolve) => setTimeout(resolve, 1_000));
+      setSearching(false);
+    }
+  };
+
+  const chooseSearchResult = (result: PlaceResult) => {
+    const point = { lat: Number(result.lat), lng: Number(result.lon) };
+    const type = result.addresstype;
+    const zoom =
+      type === 'country' ? 4 : type === 'state' ? 7 : type === 'city' ? 11 : 15;
+    placeSubject(point, zoom);
+    const address = result.address;
+    const locationParts = [
+      address?.city || address?.town || address?.village || address?.municipality,
+      address?.state || address?.region,
+      address?.country,
+    ].filter(Boolean);
+    setPlaceName(
+      locationParts.length
+        ? locationParts.join(' · ')
+        : result.display_name.split(',').slice(0, 3).join(' · '),
+    );
+    setQuery(result.display_name);
+    setSearchResults([]);
+    setSearchError('');
   };
 
   const updateCoordinate = (
@@ -796,32 +862,54 @@ export function LightPlanner() {
         </section>
 
         <section className="p-4 md:p-6 xl:max-h-[760px] xl:overflow-y-auto">
-          <form onSubmit={locateCoordinates} className="mb-5">
+          <form onSubmit={searchLocation} className="mb-5">
             <label className="text-xs text-white/42" htmlFor="place-search">
-              搜索地点（经纬度）
+              搜索国家、省市或地标
             </label>
             <div className="mt-2 flex">
               <input
                 id="place-search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="纬度, 经度，如 31.2304, 121.4737"
+                placeholder="如 云南德钦、Paris France，或纬度, 经度"
                 className="min-w-0 flex-1 border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-[#d8c19b]/60"
               />
               <button
                 type="submit"
-                className="flex items-center gap-2 bg-[#e6dcc8] px-4 text-xs text-[#171815] hover:bg-white"
+                disabled={searching}
+                className="flex items-center gap-2 bg-[#e6dcc8] px-4 text-xs text-[#171815] hover:bg-white disabled:cursor-wait disabled:opacity-60"
               >
-                <Search size={15} /> 定位
+                <Search size={15} /> {searching ? '搜索中' : '搜索'}
               </button>
             </div>
-            {searchError && (
-              <p className="mt-2 text-xs leading-5 text-orange-200/80">
-                {searchError}
-              </p>
-            )}
+            <div aria-live="polite">
+              {searchError && (
+                <p className="mt-2 text-xs leading-5 text-orange-200/80">
+                  {searchError}
+                </p>
+              )}
+              {searchResults.length > 0 && (
+                <div className="mt-2 overflow-hidden border border-white/10 bg-[#1d1e1b]">
+                  <p className="border-b border-white/10 px-3 py-2 text-[11px] tracking-[.12em] text-white/35">
+                    候选地点
+                  </p>
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.place_id}
+                      type="button"
+                      onClick={() => chooseSearchResult(result)}
+                      className="flex w-full items-center justify-between gap-3 border-b border-white/[.07] px-3 py-2.5 text-left text-xs leading-5 text-white/68 transition-colors last:border-b-0 hover:bg-white/[.06] hover:text-white"
+                    >
+                      <span>{result.display_name}</span>
+                      <span className="shrink-0 text-[#d8c19b]">设为被摄物</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <p className="mt-2 text-[11px] leading-5 text-white/28">
-              坐标仅在本页计算，不会发送给地点搜索服务。
+              全球可用。点击搜索会将关键词发送给 OpenStreetMap Nominatim；
+              经纬度仅在本页计算。定位后请核对时区。
             </p>
           </form>
 
