@@ -65,6 +65,87 @@ main#top {
 main#top > footer {
   margin-top: auto;
 }
+
+/* Keep the complete 3 × 3 tool directory visible in a desktop viewport. */
+@media (min-width: 1280px) {
+  .tools-index-content {
+    height: calc(100svh - 81px);
+    min-height: 620px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .tools-index-intro h1 {
+    margin-top: 8px;
+    font-size: clamp(2.75rem, 4.5vw, 4.5rem);
+  }
+
+  .tools-index-grid {
+    flex: 1;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    margin-top: 24px;
+  }
+
+  .tools-index-card {
+    min-height: 0;
+    padding: 16px 22px;
+  }
+
+  .tools-index-card-body {
+    padding-top: 10px;
+  }
+
+  .tools-index-card-title {
+    font-size: clamp(1.55rem, 1.8vw, 2rem);
+    line-height: 0.94;
+  }
+
+  .tools-index-card-description {
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .tools-index-card-detail {
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+}
+
+@media (min-width: 1280px) and (max-height: 720px) {
+  .tools-index-content {
+    min-height: 560px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .tools-index-intro {
+    padding-top: 12px;
+  }
+
+  .tools-index-intro h1 {
+    font-size: 2.5rem;
+  }
+
+  .tools-index-grid {
+    margin-top: 14px;
+  }
+
+  .tools-index-card {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+
+  .tools-index-card-description {
+    margin-top: 7px;
+    line-height: 1.4;
+  }
+
+  .tools-index-card-detail {
+    margin-top: 7px;
+    padding-top: 6px;
+  }
+}
 img {
   display: block;
 }
