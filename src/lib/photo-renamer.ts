@@ -53,9 +53,12 @@ export function buildPhotoName(input: {
   camera?: string;
   sequence: number;
   language: RenameLanguage;
+  extension?: string;
 }) {
   const extension =
-    input.originalName.match(/\.[^.]+$/)?.[0].toLowerCase() ?? '.jpg';
+    input.extension ??
+    input.originalName.match(/\.[^.]+$/)?.[0].toLowerCase() ??
+    '.jpg';
   const theme =
     input.customTheme ||
     THEMES.find((item) => item.en === input.theme)?.[input.language];
