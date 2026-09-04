@@ -39,14 +39,25 @@ export function TemporaryStatus({
   if (!message) return null;
 
   return (
-    <output
-      aria-live="polite"
-      className={cn(
-        'pointer-events-none fixed left-1/2 top-1/2 z-[100] max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 border bg-[#242321]/95 px-6 py-4 text-center text-sm leading-relaxed tracking-[0.08em] text-white shadow-[0_12px_38px_rgba(0,0,0,.32)] backdrop-blur-md sm:px-7 sm:py-4.5 sm:text-base',
-        message.tone === 'error' ? 'border-red-300/35' : 'border-white/15',
-      )}
-    >
-      {message.text}
-    </output>
+    <>
+      <output
+        aria-live="polite"
+        className={cn(
+          'pointer-events-none fixed left-1/2 top-1/2 z-[100] max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 border bg-[#242321]/95 px-6 py-4 text-center text-sm leading-relaxed tracking-[0.08em] text-white shadow-[0_12px_38px_rgba(0,0,0,.32)] backdrop-blur-md sm:px-7 sm:py-4.5 sm:text-base',
+          message.tone === 'error' ? 'border-red-300/35' : 'border-white/15',
+        )}
+      >
+        {message.text}
+      </output>
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-[100] max-w-[calc(100%-2rem)] border bg-[#242321]/95 px-4 py-3 text-center text-xs leading-relaxed tracking-[0.08em] text-white shadow-[0_12px_38px_rgba(0,0,0,.32)] backdrop-blur-md sm:right-6 sm:bottom-6 sm:px-5 sm:text-sm',
+          message.tone === 'error' ? 'border-red-300/35' : 'border-white/15',
+        )}
+      >
+        {message.text}
+      </div>
+    </>
   );
 }
