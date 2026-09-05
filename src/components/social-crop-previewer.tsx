@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Download, ImagePlus, LockKeyhole, RotateCcw } from 'lucide-react';
+import { PrivacyNextStep } from '@/components/privacy-next-step';
 import { Button } from '@/components/ui/button';
 import { createZip } from '@/lib/jpeg-exif';
 
@@ -99,6 +100,7 @@ export function SocialCropPreviewer() {
   );
   const [working, setWorking] = useState(false);
   const [error, setError] = useState('');
+  const [hasDownloaded, setHasDownloaded] = useState(false);
 
   useEffect(
     () => () => {
@@ -177,6 +179,7 @@ export function SocialCropPreviewer() {
       link.download = `${file.name.replace(/\.[^.]+$/, '')}-${ratio.label.replace(':', 'x')}.jpg`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      setHasDownloaded(true);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : '导出失败。');
     } finally {
@@ -208,6 +211,7 @@ export function SocialCropPreviewer() {
       link.download = `${file.name.replace(/\.[^.]+$/, '')}-social-crops.zip`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      setHasDownloaded(true);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : '导出失败。');
     } finally {
@@ -422,6 +426,7 @@ export function SocialCropPreviewer() {
             <p className="mt-3 text-center text-[11px] leading-5 text-white/32">
               JPEG · 质量 92 · 保留原图可用分辨率
             </p>
+            {hasDownloaded && <PrivacyNextStep />}
           </div>
         </aside>
       </div>

@@ -31,7 +31,15 @@ test('social crop tool supports requested ratios, custom crops, local positionin
   assert.match(source, /导出已选/);
   assert.match(source, /全选/);
   assert.match(source, /清空/);
+  assert.match(source, /PrivacyNextStep/);
   assert.match(page, /canonical: '\/tools\/social-crop\/'/);
   for (const value of [index, sitemap, exporter])
     assert.match(value, /tools\/social-crop/);
+});
+
+test('completed photo outputs share the restrained privacy-check next step', async () => {
+  const source = await readFile('src/components/privacy-next-step.tsx', 'utf8');
+  assert.match(source, /下一步：检查照片隐私/);
+  assert.match(source, /href="\/tools\/exif-privacy\/"/);
+  assert.match(source, /位置、设备标识等敏感 EXIF/);
 });

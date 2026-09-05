@@ -233,6 +233,7 @@ public/covers/                       首页和专题索引使用的轻量封面
 - 社交平台裁切预览器必须在浏览器本地读取图片，保持各比例的主体位置互不影响，并允许用户选择需要的比例后单张或 ZIP 导出；输出不覆盖原文件。
 - 默认比例包含 1:1、4:5、9:16、5:7、4:3、3:2、16:9、16:10、1.91:1、65:24 与 2.35:1，并保留自定义宽高入口。
 - 裁切导出会重新编码为 JPEG，不承诺保留 EXIF；这一点有助于减少公开社交图片携带位置等隐私信息，但不能替代发布前检查。
+- 智能命名器、照片压缩器和社交裁切器在形成结果或完成下载后，必须在主要操作附近显示统一且克制的“下一步：检查照片隐私”入口，链接到 `/tools/exif-privacy/`。入口不得遮挡下载按钮，也不得暗示前一步已经清除了敏感信息。
 
 - 打印尺寸计算器按纸张物理尺寸估算最大打印尺寸、有效 DPI、铺满裁切比例和完整保留画面尺寸；推荐精度须考虑成品尺寸与通常观看距离，A2、A1、A0 分别默认建议 240、200、150 DPI，不能把超大幅面一律按 300 DPI 判断。结果不包含打印机不可打印边距、出血和装裱余量。
 - 新增站内工具时，必须同步更新主导航、`scripts/export-github-pages.mjs`、`public/sitemap.xml` 和对应测试。
@@ -241,6 +242,7 @@ public/covers/                       首页和专题索引使用的轻量封面
 - `tests/navigation-links.test.mjs` 必须继续验证“工具”入口；`tests/github-pages-export.test.mjs` 必须继续验证工具页面被静态导出。
 - 工具属于作品集的辅助能力，视觉上沿用暖深灰与编辑式排版，但首屏必须直接露出可操作区域，不能改成营销落地页。
 - 工具索引在宽度不小于 `1280px` 的电脑浏览器中必须把九个工具以 `3 × 3` 完整放进一个视口；索引内容区使用扣除公共页头后的动态视口高度，卡片三行等分，并为高度不超过 `720px` 的常见笔记本视口提供紧凑间距。移动端和平板继续自然滚动，不能为追求一屏而压缩其可读性。该约束由 `tests/navigation-links.test.mjs` 保护，并须用真实桌面视口复核滚动高度。
+- 工具索引卡片在桌面三列布局中使用较大的单行标题，不再人工拆成两行。编号与标题之间只保留适度的编辑式留白，正文从卡片上半部开始，详情线与箭头贴近底部，避免卡片顶部形成大面积空白；较窄视口允许标题自然换行。
 - 机位与光线规划器使用 SunCalc 计算太阳、月亮及曙暮光时段，MapLibre GL JS 显示地图；角度统一采用从正北顺时针的方位角。
 - 地点搜索支持国家、省州、城市和地标，并使用 OpenStreetMap Nominatim 返回最多五个候选；搜索词会发送给该服务，界面必须持续说明这一点。直接输入经纬度只在本页计算，搜索或定位后必须提醒用户核对时区。
 - 机位与被摄物的经纬度都可直接编辑；地图点击和标记拖动必须同步更新坐标。定位、搜索和地图加载失败都要给出可恢复的错误提示，不能留下无说明的空地图。
@@ -274,12 +276,15 @@ public/covers/                       首页和专题索引使用的轻量封面
 ## 10. 必须通过的质量检查
 
 ```bash
+npm run format
 npm run lint
 npm test
 npm run build
 npm run export:github-pages
 git diff --check
 ```
+
+以上是提交前的完整本地质量门槛。当前 Pages 工作流只重复执行 `npm ci`、`npm run build` 与 `npm run export:github-pages`，不会执行格式化、lint、测试或 `git diff --check`；不得用一次 Actions 成功代替这些本地检查。运行全项目格式化后必须复核差异，不能把无关文件的纯格式变化混入提交。
 
 检查重点：
 
@@ -300,7 +305,8 @@ git diff --check
 - 发布分支为 `main`。
 - 发布流程以 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 为唯一配置源：推送到 `main` 后自动运行，也允许通过 `workflow_dispatch` 手动触发。
 - 工作流使用 `ubuntu-latest` 与 Node.js 22，并启用 npm 缓存；依赖必须通过 `npm ci` 按锁文件安装，不能在发布任务中改用会更新依赖解析结果的安装方式。
-- 工作流必须依次执行 `npm run build` 和 `npm run export:github-pages`，并将生成的 `_site` 目录作为 GitHub Pages artifact 上传；发布内容不能绕过这两个项目脚本另行拼装。
+- 工作流只有一个 `deploy` 任务，步骤顺序固定为：检出仓库、配置 Node.js、`npm ci`、`npm run build`、`npm run export:github-pages`、配置 Pages、上传 `_site` artifact、部署 Pages。发布内容不能绕过这条链路另行拼装。
+- Actions 中没有单独的 lint 与测试步骤，因此推送前必须完成第 10 节的本地检查；若以后把这些检查加入工作流，应在同一次修改中同步更新第 10 节与本节。
 - Pages 任务只保留读取仓库内容、写入 Pages 和签发 OIDC 令牌所需的最小权限：`contents: read`、`pages: write`、`id-token: write`。
 - 部署环境固定为 `github-pages`，环境网址取自部署步骤的 `page_url`；构建时 `NEXT_PUBLIC_SITE_URL` 固定为 `https://xljfz.github.io`，以生成一致的公开站点元数据。
 - 同一时间只保留最新一次 `pages` 部署；新提交到达时取消仍在运行的旧任务，避免旧产物晚于新版本上线。

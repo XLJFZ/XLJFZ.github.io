@@ -17,4 +17,5 @@ test('image compressor is local, keeps EXIF, and uses three simple presets', asy
   assert.match(source, /id: ['"]large['"]/);
   assert.doesNotMatch(source, /type="range"/);
   assert.match(page, /照片[\s\S]*不会被修改/);
+  assert.match(source, /PrivacyNextStep/);
 });

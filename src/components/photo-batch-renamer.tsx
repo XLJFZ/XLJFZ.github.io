@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import Compressor from 'compressorjs';
+import { PrivacyNextStep } from '@/components/privacy-next-step';
 import { createZip } from '@/lib/jpeg-exif';
 import { parsePhotoMetadata } from '@/lib/photo-metadata';
 import {
@@ -77,6 +78,7 @@ export function PhotoBatchRenamer() {
   const [compressionId, setCompressionId] = useState<CompressionId>('original');
   const [isWorking, setIsWorking] = useState(false);
   const [downloadError, setDownloadError] = useState('');
+  const [hasDownloaded, setHasDownloaded] = useState(false);
   const selectedCompression =
     compressionPresets.find((preset) => preset.id === compressionId) ??
     compressionPresets[0];
@@ -157,6 +159,7 @@ export function PhotoBatchRenamer() {
       link.download = 'renamed-photos.zip';
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setHasDownloaded(true);
     } catch (reason) {
       setDownloadError(
         reason instanceof Error ? reason.message : '压缩或打包失败，请重试。',
@@ -419,6 +422,7 @@ export function PhotoBatchRenamer() {
           {downloadError}
         </p>
       )}
+      {hasDownloaded && <PrivacyNextStep />}
     </section>
   );
 }
