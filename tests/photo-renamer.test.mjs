@@ -58,4 +58,5 @@ test('renamed downloads offer original plus three simple local compression prese
   assert.match(source, /2400px · 质量 82/);
   assert.match(source, /3200px · 质量 86/);
   assert.match(source, /不压缩.*保持原始字节、格式和画质/);
+  assert.match(source, /PrivacyNextStep/);
 });

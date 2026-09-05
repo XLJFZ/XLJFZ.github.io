@@ -58,9 +58,10 @@ test('tools navigation opens an index containing every public tool', async () =>
   assert.match(source, /色彩样本提取器/);
   assert.match(source, /打印尺寸计算器/);
   assert.match(source, /机位与光线规划器/);
-  assert.match(source, /titleLines:\s*\['摄影习惯', '分析'\]/);
-  assert.match(source, /titleLines:\s*\['社交平台裁切', '预览器'\]/);
-  assert.match(source, /tool\.titleLines\.map/);
+  assert.doesNotMatch(source, /titleLines/);
+  assert.match(source, /xl:whitespace-nowrap/);
+  assert.match(source, /tools-index-card-body mt-10 flex flex-1 flex-col/);
+  assert.match(source, /tools-index-card-detail mt-auto/);
 });
 
 test('desktop tool directory fits all nine cards in one viewport', async () => {
@@ -76,6 +77,10 @@ test('desktop tool directory fits all nine cards in one viewport', async () => {
   assert.match(styles, /height:\s*calc\(100svh - 81px\)/);
   assert.match(styles, /grid-template-rows:\s*repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(styles, /\.tools-index-card\s*{[^}]*min-height:\s*0/s);
+  assert.match(
+    styles,
+    /\.tools-index-card-title\s*{[^}]*font-size:\s*clamp\(1\.75rem, 2vw, 2\.25rem\)/s,
+  );
   assert.match(
     styles,
     /@media \(min-width: 1280px\) and \(max-height: 720px\)/,

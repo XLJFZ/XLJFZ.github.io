@@ -92,12 +92,12 @@ main#top > footer {
   }
 
   .tools-index-card-body {
-    padding-top: 10px;
+    margin-top: clamp(20px, 3.2vh, 36px);
   }
 
   .tools-index-card-title {
-    font-size: clamp(1.55rem, 1.8vw, 2rem);
-    line-height: 0.94;
+    font-size: clamp(1.75rem, 2vw, 2.25rem);
+    line-height: 1;
   }
 
   .tools-index-card-description {
@@ -107,7 +107,6 @@ main#top > footer {
   }
 
   .tools-index-card-detail {
-    margin-top: 10px;
     padding-top: 8px;
   }
 }
@@ -141,8 +140,11 @@ main#top > footer {
     line-height: 1.4;
   }
 
+  .tools-index-card-body {
+    margin-top: 16px;
+  }
+
   .tools-index-card-detail {
-    margin-top: 7px;
     padding-top: 6px;
   }
 }

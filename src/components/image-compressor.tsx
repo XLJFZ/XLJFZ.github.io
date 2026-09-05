@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Archive, Check, ImagePlus, LockKeyhole, Trash2 } from 'lucide-react';
 import Compressor from 'compressorjs';
+import { PrivacyNextStep } from '@/components/privacy-next-step';
 import { Button } from '@/components/ui/button';
 import { createZip, extractExifSegment } from '@/lib/jpeg-exif';
 
@@ -315,6 +316,7 @@ export function ImageCompressor() {
               <Button className="h-12 w-full rounded-none" onClick={download}>
                 <Archive className="size-4" /> 下载 ZIP
               </Button>
+              <PrivacyNextStep />
             </>
           ) : (
             <Button
