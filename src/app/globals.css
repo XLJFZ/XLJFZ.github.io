@@ -468,3 +468,23 @@ a {
     padding-top: 4px;
   }
 }
+
+@media (max-width: 767px) {
+  .tools-index-grid {
+    margin-top: 32px;
+  }
+  .tools-index-card {
+    min-height: 0;
+    padding: 22px;
+  }
+  .tools-index-card-body {
+    margin-top: 24px;
+  }
+  .tools-index-card-description {
+    margin-top: 16px;
+  }
+  .tools-index-card-detail {
+    margin-top: 24px;
+    padding-top: 14px;
+  }
+}
