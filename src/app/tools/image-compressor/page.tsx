@@ -15,6 +15,7 @@ export default function ImageCompressorPage() {
       <SiteHeader active="tools" />
       <div
         id="content"
+        data-tool-content
         className="mx-auto max-w-[1400px] px-5 py-10 md:px-10 md:py-16"
       >
         <div className="mb-10 grid gap-5 border-t border-white/12 pt-5 md:grid-cols-[1fr_1.2fr] md:items-end">
