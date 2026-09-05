@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Trash2,
 } from 'lucide-react';
+import { ToolProgress } from '@/components/tool-progress';
 import { Button } from '@/components/ui/button';
 import { runPhotoBatch } from '@/lib/photo-batch';
 import { createZip } from '@/lib/jpeg-exif';
@@ -373,98 +374,110 @@ export function ExifPrivacyChecker() {
             生成新文件，不覆盖原图；未勾选的曝光参数、相机型号等 EXIF 会保留。
           </p>
         </div>
-        <div className="mt-5 space-y-3 text-sm" aria-live="polite">
-          {isWorking && (
-            <>
-              <p>
-                {phase === 'inspect' ? '检查' : '清理'}：已完成 {progress.done}{' '}
-                / {progress.total}
-              </p>
-              <progress
-                className="w-full"
-                value={progress.done}
-                max={progress.total || 1}
-                aria-label="照片处理进度"
-              />
-              <Button onClick={() => controller.current?.abort()}>
-                取消处理
-              </Button>
-            </>
-          )}
-          {!isWorking && notice && <p>{notice}</p>}
-          {failures.length > 0 && (
-            <>
-              <p className="text-[#e0a099]">
-                {failures.length} 张失败，其他结果不受影响
-              </p>
-              <ul className="max-h-48 overflow-auto space-y-2">
-                {failures.map(({ file, message }, index) => (
-                  <li key={index} className="break-all">
-                    {file.name}：{message}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                disabled={isWorking}
-                onClick={() =>
-                  void run(
-                    failures.map((item) => item.file),
-                    phase,
-                    true,
-                  )
-                }
-              >
-                重试失败项
-              </Button>
-            </>
-          )}
-          {pending.length > 0 && (
-            <Button
-              disabled={isWorking}
-              onClick={() => void run(pending, phase, true)}
-            >
-              继续剩余 {pending.length} 张
-            </Button>
-          )}
-        </div>
-        {error && (
-          <p className="mt-5 text-sm text-[#e0a099]" role="alert">
-            {error}
+        <section className="tool-result-panel mt-6">
+          <p className="tool-result-summary">
+            已检查 {photos.length} 张 · 已清理 {outputs.length} 张
           </p>
-        )}
-        <div className="mt-8 lg:mt-auto lg:pt-10">
-          {outputs.length > 0 ? (
-            <>
-              <div className="mb-4 flex items-center gap-3 border-t border-white/10 pt-4 text-sm text-[#b8c99d]">
-                <ShieldCheck className="size-5" aria-hidden="true" />
-                {outputs.length} 张已重新检查，所选信息已清理
-              </div>
+          <div className="mt-5 space-y-3 text-sm" aria-live="polite">
+            {isWorking && (
+              <>
+                <p>
+                  {phase === 'inspect' ? '检查' : '清理'}：已完成{' '}
+                  {progress.done} / {progress.total}
+                </p>
+                <ToolProgress
+                  done={progress.done}
+                  total={progress.total}
+                  label={phase === 'inspect' ? '正在检查' : '正在清理'}
+                />
+                <Button
+                  variant="ghost"
+                  className="h-9 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
+                  onClick={() => controller.current?.abort()}
+                >
+                  取消处理
+                </Button>
+              </>
+            )}
+            {!isWorking && notice && <p>{notice}</p>}
+            {failures.length > 0 && (
+              <>
+                <p className="text-[#e0a099]">
+                  {failures.length} 张失败，其他结果不受影响
+                </p>
+                <ul className="max-h-48 overflow-auto space-y-2">
+                  {failures.map(({ file, message }, index) => (
+                    <li key={index} className="break-all">
+                      {file.name}：{message}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  variant="outline"
+                  className="min-h-10 rounded-none border-white/20 bg-transparent text-white/75"
+                  disabled={isWorking}
+                  onClick={() =>
+                    void run(
+                      failures.map((item) => item.file),
+                      phase,
+                      true,
+                    )
+                  }
+                >
+                  重试失败项
+                </Button>
+              </>
+            )}
+            {pending.length > 0 && (
               <Button
-                className="h-12 w-full rounded-none"
-                onClick={download}
+                variant="outline"
+                className="min-h-10 rounded-none border-white/20 bg-transparent text-white/75"
                 disabled={isWorking}
+                onClick={() => void run(pending, phase, true)}
               >
-                <Archive className="size-4" /> 下载清理副本 ZIP
+                继续剩余 {pending.length} 张
               </Button>
-            </>
-          ) : (
-            <Button
-              className="h-12 w-full rounded-none"
-              onClick={() => void clean()}
-              disabled={!photos.length || isWorking}
-            >
-              {isWorking
-                ? '处理中…'
-                : `生成清理副本${photos.length ? ` · ${photos.length} 张` : ''}`}
-            </Button>
-          )}
-          {outputs.length > 0 && (
-            <p className="mt-3 flex items-center justify-center gap-2 text-xs text-white/40">
-              <Check className="size-3" aria-hidden="true" />
-              原文件保持不变
+            )}
+          </div>
+          {error && (
+            <p className="mt-5 text-sm text-[#e0a099]" role="alert">
+              {error}
             </p>
           )}
-        </div>
+          <div className="mt-5 border-t border-white/10 pt-5">
+            {outputs.length > 0 ? (
+              <>
+                <div className="mb-4 flex items-center gap-3 border-t border-white/10 pt-4 text-sm text-[#b8c99d]">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                  {outputs.length} 张已重新检查，所选信息已清理
+                </div>
+                <Button
+                  className="h-12 w-full rounded-none"
+                  onClick={download}
+                  disabled={isWorking}
+                >
+                  <Archive className="size-4" /> 下载清理副本 ZIP
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="h-12 w-full rounded-none"
+                onClick={() => void clean()}
+                disabled={!photos.length || isWorking}
+              >
+                {isWorking
+                  ? '处理中…'
+                  : `生成清理副本${photos.length ? ` · ${photos.length} 张` : ''}`}
+              </Button>
+            )}
+            {outputs.length > 0 && (
+              <p className="mt-3 flex items-center justify-center gap-2 text-xs text-white/40">
+                <Check className="size-3" aria-hidden="true" />
+                原文件保持不变
+              </p>
+            )}
+          </div>
+        </section>
       </aside>
     </div>
   );

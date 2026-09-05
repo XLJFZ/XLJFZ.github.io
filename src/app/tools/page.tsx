@@ -110,7 +110,7 @@ export default function ToolsPage() {
               摄影工具
             </h1>
           </div>
-          <p className="max-w-xl text-base font-light leading-7 text-white/52 md:justify-self-end">
+          <p className="max-w-xl text-base font-light leading-7 text-white/65 md:justify-self-end">
             为整理作品与理解拍摄习惯准备的小工具。照片只在你的浏览器中处理，不会上传到服务器。
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function ToolsPage() {
               aria-label={`打开${tool.title}`}
               className="tools-index-card group flex min-h-[360px] flex-col bg-[#191918] p-6 transition-colors hover:bg-[#20201e] md:min-h-[430px] md:p-9"
             >
-              <div className="flex items-center justify-between text-[10px] tracking-[.2em] text-white/35">
+              <div className="flex items-center justify-between text-xs tracking-[.2em] text-white/55">
                 <span>{tool.index}</span>
                 <span>{tool.eyebrow}</span>
               </div>
@@ -131,11 +131,11 @@ export default function ToolsPage() {
                 <h2 className="tools-index-card-title text-[clamp(2rem,3.25vw,3.25rem)] font-medium leading-none tracking-[-.055em] xl:whitespace-nowrap">
                   {tool.title}
                 </h2>
-                <p className="tools-index-card-description mt-6 max-w-lg text-sm font-light leading-7 text-white/52">
+                <p className="tools-index-card-description mt-6 max-w-lg text-sm font-light leading-7 text-white/65">
                   {tool.description}
                 </p>
                 <div className="tools-index-card-detail mt-auto flex items-end justify-between gap-6 border-t border-white/12 pt-4">
-                  <span className="text-[10px] leading-5 tracking-[.08em] text-white/35">
+                  <span className="text-xs leading-5 tracking-[.08em] text-white/55">
                     {tool.detail}
                   </span>
                   <span

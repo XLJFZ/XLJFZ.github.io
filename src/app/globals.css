@@ -366,3 +366,49 @@ a {
     @apply font-sans;
   }
 }
+
+/* Shared results keep summary, recovery and download visually grouped. */
+.tool-result-panel {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(0 0 0 / 0.1);
+  padding: 20px;
+}
+.tool-result-summary {
+  margin-bottom: 16px;
+  color: rgb(255 255 255 / 0.82);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.tool-result-panel button {
+  max-width: 100%;
+  white-space: normal;
+}
+.tool-result-panel ul {
+  padding: 12px;
+  border-left: 2px solid #b9817a;
+  background: rgb(224 160 153 / 0.04);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.tool-progress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  appearance: none;
+  background: rgb(255 255 255 / 0.1);
+}
+.tool-progress::-webkit-progress-bar {
+  background: rgb(255 255 255 / 0.1);
+}
+.tool-progress::-webkit-progress-value {
+  background: #d4c29e;
+  border-radius: 2px;
+}
+.tool-progress::-moz-progress-bar {
+  background: #d4c29e;
+  border-radius: 2px;
+}
