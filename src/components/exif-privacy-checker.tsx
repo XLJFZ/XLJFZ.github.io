@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Archive,
   Check,
@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { runPhotoBatch } from '@/lib/photo-batch';
 import { createZip } from '@/lib/jpeg-exif';
 import {
   cleanExifPrivacy,
@@ -21,7 +22,7 @@ import {
 } from '@/lib/exif-privacy';
 
 type Photo = { file: File; findings: PrivacyFinding[] };
-type Output = { name: string; data: Uint8Array; modified: Date };
+type Output = { file: File; name: string; data: Uint8Array; modified: Date };
 
 const categories: Array<{ id: PrivacyCategory; label: string; note: string }> =
   [
@@ -57,53 +58,141 @@ export function ExifPrivacyChecker() {
   const [isWorking, setIsWorking] = useState(false);
   const [error, setError] = useState('');
 
-  const addFiles = async (incoming: FileList | File[]) => {
-    const files = Array.from(incoming);
-    const supported = files.filter(isSupportedPrivacyPhoto);
-    if (!supported.length) {
-      setError('请选择 JPEG、JXL、HEIC、HEIF、AVIF、WebP 或 TIFF 照片。');
-      return;
-    }
+  const controller = useRef<AbortController | null>(null);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const [notice, setNotice] = useState('');
+  const [failures, setFailures] = useState<
+    Array<{ file: File; message: string }>
+  >([]);
+  const [pending, setPending] = useState<File[]>([]);
+  const [phase, setPhase] = useState<'inspect' | 'clean'>('inspect');
+  useEffect(
+    () => () => {
+      controller.current?.abort();
+      controller.current = null;
+    },
+    [],
+  );
+
+  const run = async (
+    files: File[],
+    mode: 'inspect' | 'clean',
+    retry = false,
+  ) => {
+    if (controller.current || !files.length) return;
+    const active = new AbortController();
+    controller.current = active;
     setIsWorking(true);
+    setPhase(mode);
+    setProgress({ done: 0, total: files.length });
+    setNotice('');
+    setError('');
+    const retainedFailures = retry
+      ? failures.filter((item) => !files.includes(item.file))
+      : [];
+    const retainedPending = retry
+      ? pending.filter((file) => !files.includes(file))
+      : [];
+    setFailures(retainedFailures);
+    setPending(retainedPending);
+    if (!retry) setOutputs([]);
+    const selection = new Set(selected);
     try {
-      const inspected = await Promise.all(
-        supported.map(async (file) => {
+      const result = await runPhotoBatch(
+        files,
+        async (file) => {
           const source = await file.arrayBuffer();
-          if (/\.jxl$/i.test(file.name) && hasCompressedJxlExif(source)) {
-            throw new Error(
-              `${file.name} 使用 Brotli 压缩 EXIF，当前无法安全选择性清理。`,
+          if (active.signal.aborted) return;
+          if (mode === 'inspect') {
+            if (/\.jxl$/i.test(file.name) && hasCompressedJxlExif(source))
+              throw new Error(
+                '使用 Brotli 压缩 EXIF，当前无法安全选择性清理。',
+              );
+            const photo = { file, findings: inspectExifPrivacy(source) };
+            setPhotos((current) =>
+              current.some((item) => item.file === file)
+                ? current
+                : [...current, photo],
             );
+          } else {
+            const data = cleanExifPrivacy(source, selection);
+            const remaining = inspectExifPrivacy(
+              data.buffer.slice(
+                data.byteOffset,
+                data.byteOffset + data.byteLength,
+              ),
+            );
+            if (remaining.some((finding) => selection.has(finding.category)))
+              throw new Error('清理验证未通过');
+            setOutputs((current) => [
+              ...current.filter((item) => item.file !== file),
+              {
+                file,
+                name: safeName(file.name),
+                data,
+                modified: new Date(file.lastModified),
+              },
+            ]);
           }
-          return { file, findings: inspectExifPrivacy(source) };
-        }),
+        },
+        active.signal,
+        setProgress,
       );
-      setPhotos((current) => {
-        const known = new Set(
-          current.map(({ file }) => `${file.name}:${file.size}`),
-        );
-        return [
-          ...current,
-          ...inspected.filter(
-            ({ file }) => !known.has(`${file.name}:${file.size}`),
-          ),
-        ];
-      });
-      setOutputs([]);
-      setError(supported.length < files.length ? '已忽略暂不支持的文件。' : '');
-    } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : '有照片无法读取，请换一个受支持的文件再试。',
+      if (controller.current !== active) return;
+      setFailures([
+        ...retainedFailures,
+        ...result.failures.map(({ item, message }) => ({
+          file: item,
+          message,
+        })),
+      ]);
+      setPending([...retainedPending, ...result.pending]);
+      setNotice(
+        active.signal.aborted
+          ? '已取消，已完成的结果已保留；可继续处理剩余照片。'
+          : '处理结束，成功结果已保留。',
       );
     } finally {
-      setIsWorking(false);
+      if (controller.current === active) {
+        controller.current = null;
+        setIsWorking(false);
+      }
     }
   };
 
+  const addFiles = async (incoming: FileList | File[]) => {
+    if (controller.current) return;
+    const files = Array.from(incoming);
+    const known = new Set(
+      photos.map(({ file }) =>
+        [file.name, file.size, file.lastModified].join(':'),
+      ),
+    );
+    const supported = files.filter(isSupportedPrivacyPhoto).filter((file) => {
+      const key = [file.name, file.size, file.lastModified].join(':');
+      if (known.has(key)) return false;
+      known.add(key);
+      return true;
+    });
+    if (!supported.length) {
+      setError(
+        '没有可添加的新照片：请选择尚未添加的 JPEG、JXL、HEIC、HEIF、AVIF、WebP 或 TIFF 照片。',
+      );
+      return;
+    }
+    await run(supported, 'inspect');
+    if (files.some((file) => !isSupportedPrivacyPhoto(file)))
+      setError('已忽略暂不支持的文件。');
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
   const clear = () => {
+    if (controller.current) return;
     setPhotos([]);
     setOutputs([]);
+    setFailures([]);
+    setPending([]);
+    setNotice('');
     setError('');
     if (inputRef.current) inputRef.current.value = '';
   };
@@ -116,6 +205,11 @@ export function ExifPrivacyChecker() {
       return next;
     });
     setOutputs([]);
+    if (phase === 'clean') {
+      setFailures([]);
+      setPending([]);
+      setNotice('');
+    }
   };
 
   const clean = async () => {
@@ -123,35 +217,10 @@ export function ExifPrivacyChecker() {
       setError('请至少选择一类要清理的信息。');
       return;
     }
-    setIsWorking(true);
-    setError('');
-    try {
-      const ready = await Promise.all(
-        photos.map(async ({ file }) => {
-          const data = cleanExifPrivacy(await file.arrayBuffer(), selected);
-          const remaining = inspectExifPrivacy(
-            data.buffer.slice(
-              data.byteOffset,
-              data.byteOffset + data.byteLength,
-            ),
-          );
-          if (remaining.some((finding) => selected.has(finding.category)))
-            throw new Error(`${file.name} 清理验证未通过`);
-          return {
-            name: safeName(file.name),
-            data,
-            modified: new Date(file.lastModified),
-          };
-        }),
-      );
-      setOutputs(ready);
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : '清理过程中出现错误。',
-      );
-    } finally {
-      setIsWorking(false);
-    }
+    await run(
+      photos.map((photo) => photo.file),
+      'clean',
+    );
   };
 
   const download = () => {
@@ -172,6 +241,7 @@ export function ExifPrivacyChecker() {
         <button
           type="button"
           className={`group flex min-h-64 w-full flex-col items-center justify-center px-6 text-center transition-colors ${isDragging ? 'bg-white/[.09]' : 'hover:bg-white/[.035]'}`}
+          disabled={isWorking}
           onClick={() => inputRef.current?.click()}
           onDragEnter={(event) => {
             event.preventDefault();
@@ -202,6 +272,7 @@ export function ExifPrivacyChecker() {
           type="file"
           accept="image/jpeg,image/jxl,image/heic,image/heif,image/avif,image/webp,image/tiff,.jpg,.jpeg,.jxl,.heic,.heif,.avif,.webp,.tif,.tiff"
           multiple
+          disabled={isWorking}
           onChange={(event) =>
             event.target.files && void addFiles(event.target.files)
           }
@@ -224,7 +295,10 @@ export function ExifPrivacyChecker() {
             </div>
             <ul className="max-h-[480px] divide-y divide-white/[.07] overflow-auto border-t border-white/[.07]">
               {photos.map(({ file, findings }) => (
-                <li key={`${file.name}-${file.size}`} className="px-5 py-4">
+                <li
+                  key={`${file.name}-${file.size}-${file.lastModified}`}
+                  className="px-5 py-4"
+                >
                   <div className="flex items-center justify-between gap-4">
                     <span className="truncate text-sm text-white/78">
                       {file.name}
@@ -299,19 +373,77 @@ export function ExifPrivacyChecker() {
             生成新文件，不覆盖原图；未勾选的曝光参数、相机型号等 EXIF 会保留。
           </p>
         </div>
+        <div className="mt-5 space-y-3 text-sm" aria-live="polite">
+          {isWorking && (
+            <>
+              <p>
+                {phase === 'inspect' ? '检查' : '清理'}：已完成 {progress.done}{' '}
+                / {progress.total}
+              </p>
+              <progress
+                className="w-full"
+                value={progress.done}
+                max={progress.total || 1}
+                aria-label="照片处理进度"
+              />
+              <Button onClick={() => controller.current?.abort()}>
+                取消处理
+              </Button>
+            </>
+          )}
+          {!isWorking && notice && <p>{notice}</p>}
+          {failures.length > 0 && (
+            <>
+              <p className="text-[#e0a099]">
+                {failures.length} 张失败，其他结果不受影响
+              </p>
+              <ul className="max-h-48 overflow-auto space-y-2">
+                {failures.map(({ file, message }, index) => (
+                  <li key={index} className="break-all">
+                    {file.name}：{message}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                disabled={isWorking}
+                onClick={() =>
+                  void run(
+                    failures.map((item) => item.file),
+                    phase,
+                    true,
+                  )
+                }
+              >
+                重试失败项
+              </Button>
+            </>
+          )}
+          {pending.length > 0 && (
+            <Button
+              disabled={isWorking}
+              onClick={() => void run(pending, phase, true)}
+            >
+              继续剩余 {pending.length} 张
+            </Button>
+          )}
+        </div>
         {error && (
           <p className="mt-5 text-sm text-[#e0a099]" role="alert">
             {error}
           </p>
         )}
         <div className="mt-8 lg:mt-auto lg:pt-10">
-          {outputs.length === photos.length && photos.length > 0 ? (
+          {outputs.length > 0 ? (
             <>
               <div className="mb-4 flex items-center gap-3 border-t border-white/10 pt-4 text-sm text-[#b8c99d]">
                 <ShieldCheck className="size-5" aria-hidden="true" />
-                已重新检查，所选信息已清理
+                {outputs.length} 张已重新检查，所选信息已清理
               </div>
-              <Button className="h-12 w-full rounded-none" onClick={download}>
+              <Button
+                className="h-12 w-full rounded-none"
+                onClick={download}
+                disabled={isWorking}
+              >
                 <Archive className="size-4" /> 下载清理副本 ZIP
               </Button>
             </>
