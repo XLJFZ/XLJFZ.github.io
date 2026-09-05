@@ -1,13 +1,15 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Archive, Check, ImagePlus, LockKeyhole, Trash2 } from 'lucide-react';
 import Compressor from 'compressorjs';
 import { PrivacyNextStep } from '@/components/privacy-next-step';
 import { Button } from '@/components/ui/button';
+import { runPhotoBatch } from '@/lib/photo-batch';
 import { createZip, extractExifSegment } from '@/lib/jpeg-exif';
 
 type Output = {
+  file: File;
   name: string;
   data: Uint8Array;
   before: number;
@@ -56,6 +58,7 @@ async function compress(file: File, maxEdge: number, quality: number) {
   );
   const data = new Uint8Array(await blob.arrayBuffer());
   return {
+    file,
     name: outputName(file.name),
     data,
     before: file.size,
@@ -75,8 +78,30 @@ export function ImageCompressor() {
   const [isWorking, setIsWorking] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  const controller = useRef<AbortController | null>(null);
+  const [batchTotal, setBatchTotal] = useState(0);
+  const [failures, setFailures] = useState<
+    Array<{ item: File; message: string }>
+  >([]);
+  const [pending, setPending] = useState<File[]>([]);
+  const [notice, setNotice] = useState('');
+  useEffect(
+    () => () => {
+      controller.current?.abort();
+      controller.current = null;
+    },
+    [],
+  );
+  const resetResults = () => {
+    setOutputs([]);
+    setFailures([]);
+    setPending([]);
+    setNotice('');
+    setProgress(0);
+  };
 
   const addFiles = (incoming: FileList | File[]) => {
+    if (controller.current) return;
     const photos = Array.from(incoming).filter((file) =>
       /image\/jpeg/i.test(file.type),
     );
@@ -91,41 +116,67 @@ export function ImageCompressor() {
         ...photos.filter((file) => !known.has(`${file.name}:${file.size}`)),
       ];
     });
-    setOutputs([]);
+    resetResults();
     setError(
       photos.length < Array.from(incoming).length ? '已忽略非 JPEG 文件。' : '',
     );
   };
 
   const clear = () => {
+    if (controller.current) return;
     setFiles([]);
-    setOutputs([]);
+    resetResults();
     setProgress(0);
     setError('');
     if (inputRef.current) inputRef.current.value = '';
   };
 
-  const start = async () => {
+  const start = async (batch = files, retry = false) => {
+    if (controller.current || !batch.length) return;
+    const active = new AbortController();
+    controller.current = active;
+    const retainedFailures = retry
+      ? failures.filter(({ item }) => !batch.includes(item))
+      : [];
+    const retainedPending = retry
+      ? pending.filter((item) => !batch.includes(item))
+      : [];
+    if (!retry) setOutputs([]);
+    setFailures(retainedFailures);
+    setPending(retainedPending);
     setIsWorking(true);
-    setOutputs([]);
     setError('');
+    setNotice('');
     setProgress(0);
-    const completed: Output[] = [];
+    setBatchTotal(batch.length);
     const preset = presets.find((item) => item.id === presetId) ?? presets[1];
     try {
-      for (let index = 0; index < files.length; index += 1) {
-        completed.push(
-          await compress(files[index], preset.maxEdge, preset.quality),
-        );
-        setOutputs([...completed]);
-        setProgress(index + 1);
-      }
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : '压缩过程中出现错误。',
+      const result = await runPhotoBatch(
+        batch,
+        async (file) => {
+          const output = await compress(file, preset.maxEdge, preset.quality);
+          if (active.signal.aborted) return;
+          setOutputs((current) => [
+            ...current.filter((item) => item.file !== file),
+            output,
+          ]);
+        },
+        active.signal,
+        ({ done }) => setProgress(done),
+      );
+      if (controller.current !== active) return;
+      setFailures([...retainedFailures, ...result.failures]);
+      setPending([...retainedPending, ...result.pending]);
+      setNotice(
+        active.signal.aborted
+          ? '已取消，成功结果已保留。'
+          : '处理结束，可下载成功结果。',
       );
     } finally {
-      setIsWorking(false);
+      if (controller.current === active) {
+        controller.current = null;
+        setIsWorking(false);
+      }
     }
   };
 
@@ -141,8 +192,11 @@ export function ImageCompressor() {
 
   const before = files.reduce((sum, file) => sum + file.size, 0);
   const after = outputs.reduce((sum, file) => sum + file.after, 0);
-  const saved =
-    before > 0 && outputs.length === files.length ? 1 - after / before : 0;
+  const completedBefore = outputs.reduce(
+    (sum, output) => sum + output.before,
+    0,
+  );
+  const saved = completedBefore > 0 ? 1 - after / completedBefore : 0;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -150,6 +204,7 @@ export function ImageCompressor() {
         <button
           type="button"
           className={`group flex min-h-72 w-full flex-col items-center justify-center px-6 text-center transition-colors ${isDragging ? 'bg-white/[.09]' : 'hover:bg-white/[.035]'}`}
+          disabled={isWorking}
           onClick={() => inputRef.current?.click()}
           onDragEnter={(event) => {
             event.preventDefault();
@@ -180,6 +235,7 @@ export function ImageCompressor() {
           className="sr-only"
           type="file"
           accept="image/jpeg,.jpg,.jpeg"
+          disabled={isWorking}
           multiple
           onChange={(event) =>
             event.target.files && addFiles(event.target.files)
@@ -202,8 +258,8 @@ export function ImageCompressor() {
               </button>
             </div>
             <ul className="max-h-64 divide-y divide-white/[.07] overflow-auto border-t border-white/[.07]">
-              {files.map((file, index) => {
-                const result = outputs[index];
+              {files.map((file) => {
+                const result = outputs.find((output) => output.file === file);
                 return (
                   <li
                     key={`${file.name}-${file.size}`}
@@ -251,7 +307,7 @@ export function ImageCompressor() {
                   checked={selected}
                   onChange={() => {
                     setPresetId(preset.id);
-                    setOutputs([]);
+                    resetResults();
                   }}
                   disabled={isWorking}
                 />
@@ -294,34 +350,77 @@ export function ImageCompressor() {
               <div className="mb-2 flex justify-between text-xs text-white/45">
                 <span>正在压缩</span>
                 <span>
-                  {progress}/{files.length}
+                  {progress}/{batchTotal}
                 </span>
               </div>
               <div className="h-px bg-white/10">
                 <div
                   className="h-px bg-white transition-[width]"
-                  style={{ width: `${(progress / files.length) * 100}%` }}
+                  style={{ width: `${(progress / batchTotal) * 100}%` }}
                 />
               </div>
             </div>
           )}
-          {outputs.length === files.length && files.length > 0 ? (
+          <div className="mb-4 space-y-3 text-sm" aria-live="polite">
+            {isWorking && (
+              <Button onClick={() => controller.current?.abort()}>
+                取消处理
+              </Button>
+            )}
+            {!isWorking && notice && <p>{notice}</p>}
+            {failures.length > 0 && (
+              <>
+                <ul className="max-h-48 overflow-auto text-[#e0a099]">
+                  {failures.map(({ item, message }, index) => (
+                    <li className="break-all" key={index}>
+                      {item.name}：{message}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  disabled={isWorking}
+                  onClick={() =>
+                    void start(
+                      failures.map(({ item }) => item),
+                      true,
+                    )
+                  }
+                >
+                  重试失败项
+                </Button>
+              </>
+            )}
+            {pending.length > 0 && (
+              <Button
+                disabled={isWorking}
+                onClick={() => void start(pending, true)}
+              >
+                继续剩余 {pending.length} 张
+              </Button>
+            )}
+          </div>
+          {outputs.length > 0 ? (
             <>
               <div className="mb-4 flex items-end justify-between border-t border-white/10 pt-4">
-                <span className="text-sm text-white/48">节省空间</span>
+                <span className="text-sm text-white/48">成功照片节省空间</span>
                 <span className="text-3xl font-light tabular-nums">
                   {Math.max(0, saved * 100).toFixed(0)}%
                 </span>
               </div>
-              <Button className="h-12 w-full rounded-none" onClick={download}>
-                <Archive className="size-4" /> 下载 ZIP
+              <Button
+                className="h-12 w-full rounded-none"
+                onClick={download}
+                disabled={isWorking}
+              >
+                <Archive className="size-4" /> 下载成功的 {outputs.length} 张
+                ZIP
               </Button>
               <PrivacyNextStep />
             </>
           ) : (
             <Button
               className="h-12 w-full rounded-none"
-              onClick={start}
+              onClick={() => void start()}
               disabled={!files.length || isWorking}
             >
               {isWorking
