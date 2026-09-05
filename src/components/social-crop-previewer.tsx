@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Download, ImagePlus, LockKeyhole, RotateCcw } from 'lucide-react';
 import { PrivacyNextStep } from '@/components/privacy-next-step';
 import { Button } from '@/components/ui/button';
+import { runPhotoBatch } from '@/lib/photo-batch';
+import { encodeCrop } from '@/lib/crop-export';
 import { createZip } from '@/lib/jpeg-exif';
 
 type Ratio = {
@@ -55,30 +57,7 @@ function cropRect(image: HTMLImageElement, ratio: Ratio, position: Position) {
 
 function exportCrop(image: HTMLImageElement, ratio: Ratio, position: Position) {
   const crop = cropRect(image, ratio, position);
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(crop.width);
-  canvas.height = Math.round(crop.height);
-  canvas
-    .getContext('2d')
-    ?.drawImage(
-      image,
-      crop.x,
-      crop.y,
-      crop.width,
-      crop.height,
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    );
-  return new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob(
-      (blob) =>
-        blob ? resolve(blob) : reject(new Error('无法生成裁切图片。')),
-      'image/jpeg',
-      0.92,
-    ),
-  );
+  return encodeCrop(image, crop);
 }
 
 export function SocialCropPreviewer() {
@@ -101,6 +80,19 @@ export function SocialCropPreviewer() {
   const [working, setWorking] = useState(false);
   const [error, setError] = useState('');
   const [hasDownloaded, setHasDownloaded] = useState(false);
+  const controller = useRef<AbortController | null>(null);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const [notice, setNotice] = useState('');
+  const [ready, setReady] = useState<
+    Array<{ name: string; data: Uint8Array; modified: Date }>
+  >([]);
+  useEffect(
+    () => () => {
+      controller.current?.abort();
+      controller.current = null;
+    },
+    [],
+  );
 
   useEffect(
     () => () => {
@@ -112,7 +104,12 @@ export function SocialCropPreviewer() {
   const ratios = useMemo(() => {
     const width = Number(customWidth);
     const height = Number(customHeight);
-    if (width > 0 && height > 0) {
+    if (
+      Number.isFinite(width) &&
+      Number.isFinite(height) &&
+      width > 0 &&
+      height > 0
+    ) {
       return [
         ...defaultRatios,
         {
@@ -140,6 +137,10 @@ export function SocialCropPreviewer() {
   };
 
   const choose = (next: File) => {
+    if (controller.current) return;
+    setReady([]);
+    setNotice('');
+    setHasDownloaded(false);
     if (!next.type.startsWith('image/'))
       return setError('请选择 JPG、PNG 或 WebP 图片。');
     if (url) URL.revokeObjectURL(url);
@@ -157,7 +158,7 @@ export function SocialCropPreviewer() {
 
   const pointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
-    if (!drag) return;
+    if (!drag || controller.current) return;
     const box = event.currentTarget.getBoundingClientRect();
     move(drag.id, {
       x: drag.origin.x - ((event.clientX - drag.startX) / box.width) * 100,
@@ -165,59 +166,83 @@ export function SocialCropPreviewer() {
     });
   };
 
-  const downloadOne = async (ratio: Ratio) => {
-    if (!imageRef.current || !file) return;
-    setWorking(true);
-    try {
-      const blob = await exportCrop(
-        imageRef.current,
-        ratio,
-        positionFor(ratio.id),
-      );
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${file.name.replace(/\.[^.]+$/, '')}-${ratio.label.replace(':', 'x')}.jpg`;
-      link.click();
-      window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-      setHasDownloaded(true);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '导出失败。');
-    } finally {
-      setWorking(false);
-    }
+  const saveBlob = (blob: Blob, name: string) => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = name;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    setHasDownloaded(true);
   };
 
-  const downloadAll = async () => {
-    if (!imageRef.current || !file) return;
+  const exportRatios = async (batch: Ratio[], single = false) => {
+    if (controller.current || !imageRef.current || !file) return;
+    const image = imageRef.current;
+    const active = new AbortController();
+    controller.current = active;
     setWorking(true);
     setError('');
+    setNotice('');
+    setReady([]);
+    setProgress({ done: 0, total: batch.length });
+    const outputs: Array<{ name: string; data: Uint8Array; modified: Date }> =
+      [];
     try {
-      const outputs = await Promise.all(
-        selectedRatios.map(async (ratio) => {
-          const blob = await exportCrop(
-            imageRef.current!,
-            ratio,
-            positionFor(ratio.id),
-          );
-          return {
-            name: `${file.name.replace(/\.[^.]+$/, '')}-${ratio.label.replace(':', 'x')}.jpg`,
-            data: new Uint8Array(await blob.arrayBuffer()),
+      const result = await runPhotoBatch(
+        batch,
+        async (ratio) => {
+          const blob = await exportCrop(image, ratio, positionFor(ratio.id));
+          if (active.signal.aborted) return;
+          const data = new Uint8Array(await blob.arrayBuffer());
+          if (active.signal.aborted) return;
+          outputs.push({
+            name:
+              file.name.replace(/\.[^.]+$/, '') +
+              '-' +
+              ratio.id +
+              '-' +
+              ratio.label.replace(':', 'x') +
+              '.jpg',
+            data,
             modified: new Date(file.lastModified),
-          };
-        }),
+          });
+          setReady([...outputs]);
+        },
+        active.signal,
+        setProgress,
       );
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(createZip(outputs));
-      link.download = `${file.name.replace(/\.[^.]+$/, '')}-social-crops.zip`;
-      link.click();
-      window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-      setHasDownloaded(true);
+      if (controller.current !== active) return;
+      setError(
+        result.failures
+          .map(({ item, message }) => item.label + '：' + message)
+          .join('；'),
+      );
+      setNotice(
+        active.signal.aborted ? '已取消，可下载已完成的比例。' : '导出完成。',
+      );
+      if (!active.signal.aborted && outputs.length) {
+        if (single)
+          saveBlob(
+            new Blob([new Uint8Array(outputs[0].data)], { type: 'image/jpeg' }),
+            outputs[0].name,
+          );
+        else
+          saveBlob(
+            createZip(outputs),
+            file.name.replace(/\.[^.]+$/, '') + '-social-crops.zip',
+          );
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : '导出失败。');
     } finally {
-      setWorking(false);
+      if (controller.current === active) {
+        controller.current = null;
+        setWorking(false);
+      }
     }
   };
+  const downloadOne = (ratio: Ratio) => exportRatios([ratio], true);
+  const downloadAll = () => exportRatios(selectedRatios);
 
   return (
     <div className="border border-white/10 bg-[#1b1b19]">
@@ -226,6 +251,7 @@ export function SocialCropPreviewer() {
           {!url ? (
             <button
               type="button"
+              disabled={working}
               onClick={() => inputRef.current?.click()}
               className="group flex min-h-[420px] w-full flex-col items-center justify-center border border-dashed border-white/18 px-6 text-center transition-colors hover:bg-white/[.035]"
             >
@@ -252,6 +278,7 @@ export function SocialCropPreviewer() {
                         aspectRatio: `${ratio.width} / ${ratio.height}`,
                       }}
                       onPointerDown={(event) => {
+                        if (controller.current) return;
                         event.currentTarget.setPointerCapture(event.pointerId);
                         dragRef.current = {
                           id: ratio.id,
@@ -285,6 +312,7 @@ export function SocialCropPreviewer() {
                         className="flex min-w-0 cursor-pointer items-center gap-3"
                       >
                         <input
+                          disabled={working}
                           type="checkbox"
                           checked={selectedIds.has(ratio.id)}
                           onChange={() => toggleRatio(ratio.id)}
@@ -301,6 +329,7 @@ export function SocialCropPreviewer() {
                       </label>
                       <button
                         type="button"
+                        disabled={working}
                         onClick={() => downloadOne(ratio)}
                         className="flex size-9 shrink-0 items-center justify-center border border-white/10 text-white/48 transition-colors hover:border-white/30 hover:text-white"
                         aria-label={`导出 ${ratio.label}`}
@@ -314,6 +343,7 @@ export function SocialCropPreviewer() {
             </div>
           )}
           <input
+            disabled={working}
             ref={inputRef}
             className="sr-only"
             type="file"
@@ -333,6 +363,7 @@ export function SocialCropPreviewer() {
               <div className="flex gap-3 text-xs text-white/45">
                 <button
                   type="button"
+                  disabled={working}
                   onClick={() =>
                     setSelectedIds(new Set(ratios.map((ratio) => ratio.id)))
                   }
@@ -342,6 +373,7 @@ export function SocialCropPreviewer() {
                 </button>
                 <button
                   type="button"
+                  disabled={working}
                   onClick={() => setSelectedIds(new Set())}
                   className="hover:text-white"
                 >
@@ -354,6 +386,7 @@ export function SocialCropPreviewer() {
               <label>
                 <span className="sr-only">宽度比例</span>
                 <input
+                  disabled={working}
                   value={customWidth}
                   onChange={(event) => setCustomWidth(event.target.value)}
                   inputMode="decimal"
@@ -364,6 +397,7 @@ export function SocialCropPreviewer() {
               <label>
                 <span className="sr-only">高度比例</span>
                 <input
+                  disabled={working}
                   value={customHeight}
                   onChange={(event) => setCustomHeight(event.target.value)}
                   inputMode="decimal"
@@ -387,6 +421,7 @@ export function SocialCropPreviewer() {
               <p className="truncate text-sm text-white/72">{file.name}</p>
               <button
                 type="button"
+                disabled={working}
                 onClick={() => {
                   setPositions({});
                   setError('');
@@ -398,6 +433,7 @@ export function SocialCropPreviewer() {
               </button>
               <button
                 type="button"
+                disabled={working}
                 onClick={() => inputRef.current?.click()}
                 className="mt-3 text-xs text-white/45 hover:text-white"
               >
@@ -405,6 +441,32 @@ export function SocialCropPreviewer() {
               </button>
             </div>
           )}
+          <div className="mt-5 space-y-3 text-sm" aria-live="polite">
+            {working && (
+              <>
+                <p>
+                  已完成 {progress.done} / {progress.total}
+                </p>
+                <progress
+                  className="w-full"
+                  value={progress.done}
+                  max={progress.total || 1}
+                  aria-label="裁切导出进度"
+                />
+                <Button onClick={() => controller.current?.abort()}>
+                  取消导出
+                </Button>
+              </>
+            )}
+            {!working && notice && <p>{notice}</p>}
+            {!working && ready.length > 0 && (
+              <Button
+                onClick={() => saveBlob(createZip(ready), 'social-crops.zip')}
+              >
+                下载已完成的 {ready.length} 个比例
+              </Button>
+            )}
+          </div>
           {error && (
             <p className="mt-5 text-sm text-[#e0a099]" role="alert">
               {error}

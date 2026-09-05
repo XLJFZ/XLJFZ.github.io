@@ -24,7 +24,10 @@ test('social crop tool supports requested ratios, custom crops, local positionin
   assert.match(source, /9:16/);
   assert.match(source, /customWidth/);
   assert.match(source, /onPointerMove/);
-  assert.match(source, /canvas\.toBlob/);
+  assert.match(
+    await readFile('src/lib/crop-export.ts', 'utf8'),
+    /canvas\.toBlob/,
+  );
   assert.match(source, /createZip/);
   assert.match(source, /type="checkbox"/);
   assert.match(source, /selectedRatios/);
