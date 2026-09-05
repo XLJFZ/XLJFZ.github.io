@@ -300,23 +300,26 @@ git diff --check
 
 ## 11. GitHub Pages 发布
 
+本节于 2026-09-05 对照远端 `main` 的工作流文件核对。工作流名称为 `Deploy GitHub Pages`；[运行记录与手动触发入口](https://github.com/XLJFZ/XLJFZ.github.io/actions/workflows/pages.yml) 用于查看执行结果，[工作流源文件](https://github.com/XLJFZ/XLJFZ.github.io/blob/main/.github/workflows/pages.yml) 用于核对配置。当前文件 Git blob 为 `e2bdedc9f1d7a3be554c696eeb7e92c2f9a72795`，仅作为本次核对依据，后续以实际文件为准。
+
+
 - 本项目默认只发布到 GitHub；除非用户明确指定其他平台，否则不得同时发布到其他托管服务。
 - GitHub Pages 是默认且唯一的线上发布渠道，公开站点为 `https://xljfz.github.io/`。
-- 发布分支为 `main`。
+- 自动发布分支为 `main`，当前没有路径过滤，因此仅修改文档的 main 推送也会触发部署。手动触发使用 `workflow_dispatch`，没有自定义输入；正式发布时须选择 `main`，并核对运行记录中的分支。
 - 发布流程以 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 为唯一配置源：推送到 `main` 后自动运行，也允许通过 `workflow_dispatch` 手动触发。
 - 工作流使用 `ubuntu-latest` 与 Node.js 22，并启用 npm 缓存；依赖必须通过 `npm ci` 按锁文件安装，不能在发布任务中改用会更新依赖解析结果的安装方式。
 - 工作流只有一个 `deploy` 任务，步骤顺序固定为：检出仓库、配置 Node.js、`npm ci`、`npm run build`、`npm run export:github-pages`、配置 Pages、上传 `_site` artifact、部署 Pages。发布内容不能绕过这条链路另行拼装。
 - Actions 中没有单独的 lint 与测试步骤，因此推送前必须完成第 10 节的本地检查；若以后把这些检查加入工作流，应在同一次修改中同步更新第 10 节与本节。
 - Pages 任务只保留读取仓库内容、写入 Pages 和签发 OIDC 令牌所需的最小权限：`contents: read`、`pages: write`、`id-token: write`。
 - 部署环境固定为 `github-pages`，环境网址取自部署步骤的 `page_url`；构建时 `NEXT_PUBLIC_SITE_URL` 固定为 `https://xljfz.github.io`，以生成一致的公开站点元数据。
-- 同一时间只保留最新一次 `pages` 部署；新提交到达时取消仍在运行的旧任务，避免旧产物晚于新版本上线。
+- 并发组固定为 `pages`，`cancel-in-progress: true`；新运行会取消同组仍在执行的旧运行。被取消的运行不能算发布成功，应跟踪实际要发布的最新提交。
 - 当前部署链使用 `actions/checkout@v4`、`actions/setup-node@v4`、`actions/configure-pages@v5`、`actions/upload-pages-artifact@v3` 和 `actions/deploy-pages@v4`。调整 Actions 或 Node 版本、构建命令、发布目录、权限、环境变量或触发条件时，应在同一次修改中同步更新本节。
-- 不能只看到 `git push` 成功就宣布完成；必须确认对应 GitHub Actions 运行结果为 `success`。
+- 不能只看到 `git push` 成功就宣布完成；先用 `git rev-parse HEAD` 记录完整提交 SHA，再确认该工作流运行的 `head_sha` 与目标提交一致，且 `status` 为 `completed`、`conclusion` 为 `success`。其他提交的成功记录或线上已出现新内容，均不能替代本次运行的最终结果。
 - 部署完成后至少抽查受影响的公开页面，确认标题、照片和说明已经上线。
 - 本机已安装 GitHub CLI 时，优先用 `gh` 查询与本次提交对应的 Actions 运行；首次使用先执行 `gh auth status`，未登录时由仓库所有者完成一次 `gh auth login` 网页授权。不得把访问令牌写入仓库、脚本、日志或本文档。
 - 推荐先运行 `gh run list --repo XLJFZ/XLJFZ.github.io --limit 5` 找到与当前提交对应的运行，再用 `gh run watch <run-id> --exit-status` 等待结果；失败时查看该运行日志并修复，不能反复盲目重跑。
-- 如果 `gh` 尚未登录或当前环境无法调用，可只读查询 GitHub 公共 Actions API 作为备用；这只能用于公开仓库状态核验，不能代替需要身份授权的仓库操作。
-- Actions 成功后必须直接请求受影响的正式网址并确认 HTTP `200`，同时核对关键标题或文案。新增路由还要确认工具索引与 `public/sitemap.xml` 已包含该地址；Actions 成功但正式页面仍是 `404` 时继续等待 Pages 切换，不能提前宣布上线。
+- 如果 `gh` 尚未登录或当前环境无法调用，可只读查询 [Pages 工作流运行 API](https://api.github.com/repos/XLJFZ/XLJFZ.github.io/actions/workflows/pages.yml/runs)，按 `head_sha` 匹配目标提交，再查询 `/repos/XLJFZ/XLJFZ.github.io/actions/runs/<run-id>` 获取最终状态。这只能用于公开仓库状态核验，不能代替需要身份授权的仓库操作。
+- Actions 成功后必须直接请求受影响的正式网址并确认 HTTP `200`，同时核对关键标题或文案。对于按钮、批处理等客户端功能，还应确认页面引用的新脚本包含目标更新；脚本核对不等同于浏览器交互测试。新增路由还要确认工具索引与 `public/sitemap.xml` 已包含该地址；Actions 成功但正式页面仍是 `404` 时继续等待 Pages 切换，不能提前宣布上线。
 
 ## 12. 修改前快速检查表
 
