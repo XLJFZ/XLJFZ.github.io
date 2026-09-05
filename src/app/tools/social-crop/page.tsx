@@ -23,8 +23,9 @@ export default function SocialCropPage() {
             <p className="text-xs tracking-[.2em] text-white/38">
               社交图片准备
             </p>
-            <h1 className="mt-4 text-[clamp(2.4rem,5vw,4.8rem)] font-medium leading-none tracking-[-.055em]">
-              社交平台裁切预览器
+            <h1 className="mt-4 text-[clamp(2.4rem,5vw,4.8rem)] font-medium leading-[1.08] tracking-[-.055em]">
+              <span className="block">社交平台裁切</span>
+              <span className="block">预览器</span>
             </h1>
           </div>
           <p className="max-w-xl text-base font-light leading-7 text-white/52 md:justify-self-end">
