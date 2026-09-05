@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Archive, Check, ImagePlus, LockKeyhole, Trash2 } from 'lucide-react';
 import Compressor from 'compressorjs';
 import { PrivacyNextStep } from '@/components/privacy-next-step';
+import { ToolProgress } from '@/components/tool-progress';
 import { Button } from '@/components/ui/button';
 import { runPhotoBatch } from '@/lib/photo-batch';
 import { createZip, extractExifSegment } from '@/lib/jpeg-exif';
@@ -344,26 +345,20 @@ export function ImageCompressor() {
           </p>
         )}
 
-        <div className="mt-8 lg:mt-auto lg:pt-10">
+        <div className="tool-result-panel mt-8 lg:mt-auto">
+          <p className="tool-result-summary">
+            已完成 {outputs.length} / {files.length} 张
+          </p>
           {isWorking && (
-            <div className="mb-4" aria-live="polite">
-              <div className="mb-2 flex justify-between text-xs text-white/45">
-                <span>正在压缩</span>
-                <span>
-                  {progress}/{batchTotal}
-                </span>
-              </div>
-              <div className="h-px bg-white/10">
-                <div
-                  className="h-px bg-white transition-[width]"
-                  style={{ width: `${(progress / batchTotal) * 100}%` }}
-                />
-              </div>
-            </div>
+            <ToolProgress done={progress} total={batchTotal} label="正在压缩" />
           )}
           <div className="mb-4 space-y-3 text-sm" aria-live="polite">
             {isWorking && (
-              <Button onClick={() => controller.current?.abort()}>
+              <Button
+                variant="ghost"
+                className="h-9 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
+                onClick={() => controller.current?.abort()}
+              >
                 取消处理
               </Button>
             )}
@@ -378,6 +373,8 @@ export function ImageCompressor() {
                   ))}
                 </ul>
                 <Button
+                  variant="outline"
+                  className="min-h-10 rounded-none border-white/20 bg-transparent text-white/75"
                   disabled={isWorking}
                   onClick={() =>
                     void start(
@@ -392,6 +389,8 @@ export function ImageCompressor() {
             )}
             {pending.length > 0 && (
               <Button
+                variant="outline"
+                className="min-h-10 rounded-none border-white/20 bg-transparent text-white/75"
                 disabled={isWorking}
                 onClick={() => void start(pending, true)}
               >

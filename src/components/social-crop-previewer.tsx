@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Download, ImagePlus, LockKeyhole, RotateCcw } from 'lucide-react';
 import { PrivacyNextStep } from '@/components/privacy-next-step';
+import { ToolProgress } from '@/components/tool-progress';
 import { Button } from '@/components/ui/button';
 import { runPhotoBatch } from '@/lib/photo-batch';
 import { encodeCrop } from '@/lib/crop-export';
@@ -441,55 +442,59 @@ export function SocialCropPreviewer() {
               </button>
             </div>
           )}
-          <div className="mt-5 space-y-3 text-sm" aria-live="polite">
-            {working && (
-              <>
-                <p>
-                  已完成 {progress.done} / {progress.total}
-                </p>
-                <progress
-                  className="w-full"
-                  value={progress.done}
-                  max={progress.total || 1}
-                  aria-label="裁切导出进度"
-                />
-                <Button onClick={() => controller.current?.abort()}>
-                  取消导出
+          <section className="tool-result-panel mt-6">
+            <p className="tool-result-summary">已生成 {ready.length} 个比例</p>
+            <div className="mt-5 space-y-3 text-sm" aria-live="polite">
+              {working && (
+                <>
+                  <ToolProgress
+                    done={progress.done}
+                    total={progress.total}
+                    label="正在导出"
+                  />
+                  <Button
+                    variant="ghost"
+                    className="h-9 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
+                    onClick={() => controller.current?.abort()}
+                  >
+                    取消导出
+                  </Button>
+                </>
+              )}
+              {!working && notice && <p>{notice}</p>}
+              {!working && ready.length > 0 && (
+                <Button
+                  onClick={() => saveBlob(createZip(ready), 'social-crops.zip')}
+                >
+                  下载已完成的 {ready.length} 个比例
                 </Button>
-              </>
+              )}
+            </div>
+            {error && (
+              <p className="mt-5 text-sm text-[#e0a099]" role="alert">
+                {error}
+              </p>
             )}
-            {!working && notice && <p>{notice}</p>}
-            {!working && ready.length > 0 && (
+            <div className="mt-5 border-t border-white/10 pt-5">
               <Button
-                onClick={() => saveBlob(createZip(ready), 'social-crops.zip')}
+                className="h-12 w-full rounded-none"
+                variant={ready.length ? 'outline' : 'default'}
+                onClick={downloadAll}
+                disabled={!file || working || selectedRatios.length === 0}
               >
-                下载已完成的 {ready.length} 个比例
+                <Download className="size-4" />
+                {working
+                  ? '正在导出…'
+                  : selectedRatios.length
+                    ? `导出已选 ${selectedRatios.length} 个比例`
+                    : '请先选择比例'}
               </Button>
-            )}
-          </div>
-          {error && (
-            <p className="mt-5 text-sm text-[#e0a099]" role="alert">
-              {error}
-            </p>
-          )}
-          <div className="mt-8 lg:mt-auto lg:pt-10">
-            <Button
-              className="h-12 w-full rounded-none"
-              onClick={downloadAll}
-              disabled={!file || working || selectedRatios.length === 0}
-            >
-              <Download className="size-4" />
-              {working
-                ? '正在导出…'
-                : selectedRatios.length
-                  ? `导出已选 ${selectedRatios.length} 个比例`
-                  : '请先选择比例'}
-            </Button>
-            <p className="mt-3 text-center text-[11px] leading-5 text-white/32">
-              JPEG · 质量 92 · 保留原图可用分辨率
-            </p>
-            {hasDownloaded && <PrivacyNextStep />}
-          </div>
+              <p className="mt-3 text-center text-[11px] leading-5 text-white/32">
+                JPEG · 质量 92 · 保留原图可用分辨率
+              </p>
+              {hasDownloaded && <PrivacyNextStep />}
+            </div>
+          </section>
         </aside>
       </div>
     </div>
