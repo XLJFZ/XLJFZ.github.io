@@ -488,3 +488,23 @@ a {
     padding-top: 14px;
   }
 }
+
+/* Card descriptions need breathing room below their headings. */
+.tools-index-card-description {
+  font-size: 16px;
+  line-height: 1.65;
+  margin-top: 16px;
+  color: rgb(255 255 255 / 0.72);
+}
+@media (min-width: 1280px) {
+  .tools-index-content {
+    height: auto;
+    min-height: calc(100svh - 81px);
+  }
+  .tools-index-grid {
+    grid-template-rows: repeat(3, minmax(205px, auto));
+  }
+  .tools-index-card-description {
+    margin-bottom: 16px;
+  }
+}
