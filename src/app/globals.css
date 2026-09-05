@@ -102,8 +102,8 @@ main#top > footer {
 
   .tools-index-card-description {
     margin-top: 10px;
-    font-size: 12px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   .tools-index-card-detail {
@@ -411,4 +411,60 @@ a {
 .tool-progress::-moz-progress-bar {
   background: #d4c29e;
   border-radius: 2px;
+}
+
+/* Readable supporting type, scoped to tool content rather than navigation or galleries. */
+[data-tool-content]
+  :is(
+    .text-xs,
+    [class~='text-[10px]'],
+    [class~='text-[11px]'],
+    [class~='text-[12px]']
+  ) {
+  font-size: 14px;
+  line-height: 1.6;
+}
+[data-tool-content]
+  :is(
+    [class~='text-white/32'],
+    [class~='text-white/35'],
+    [class~='text-white/38'],
+    [class~='text-white/40'],
+    [class~='text-white/42'],
+    [class~='text-white/45']
+  ) {
+  color: rgb(255 255 255 / 0.62);
+}
+[data-tool-content] .tool-result-panel ul {
+  font-size: 14px;
+  line-height: 1.65;
+}
+@media (min-width: 1280px) {
+  .tools-index-card {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .tools-index-card-body {
+    margin-top: 12px;
+  }
+  .tools-index-card-description {
+    margin-top: 8px;
+  }
+  .tools-index-card-detail {
+    gap: 12px;
+  }
+  .tools-index-card > div:first-child {
+    letter-spacing: 0.06em;
+  }
+}
+@media (min-width: 1280px) and (max-height: 720px) {
+  .tools-index-card-body {
+    margin-top: 8px;
+  }
+  .tools-index-card-title {
+    font-size: 26px;
+  }
+  .tools-index-card-detail {
+    padding-top: 4px;
+  }
 }

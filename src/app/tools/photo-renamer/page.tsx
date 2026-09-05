@@ -15,6 +15,7 @@ export default function PhotoRenamerPage() {
       <SiteHeader active="tools" />
       <div
         id="content"
+        data-tool-content
         className="mx-auto w-full max-w-[1500px] px-5 py-10 md:px-10 md:py-16"
       >
         <div className="mb-10 grid gap-5 border-t border-white/12 pt-5 md:grid-cols-[1fr_1.1fr] md:items-end">

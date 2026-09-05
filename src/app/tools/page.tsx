@@ -99,6 +99,7 @@ export default function ToolsPage() {
       <SiteHeader active="tools" />
       <section
         id="content"
+        data-tool-content
         className="tools-index-content mx-auto flex w-full max-w-[1500px] flex-col px-5 py-12 md:px-10 md:py-20"
       >
         <div className="tools-index-intro grid gap-8 border-t border-white/12 pt-5 md:grid-cols-[1fr_1.15fr] md:items-end">

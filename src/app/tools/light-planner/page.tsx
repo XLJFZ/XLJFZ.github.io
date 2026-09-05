@@ -17,6 +17,7 @@ export default function LightPlannerPage() {
       <SiteHeader active="tools" />
       <div
         id="content"
+        data-tool-content
         className="mx-auto max-w-[1600px] px-4 py-7 md:px-10 md:py-10"
       >
         <div className="mb-6 grid gap-4 border-t border-white/12 pt-4 md:grid-cols-[1fr_1.2fr] md:items-end">
