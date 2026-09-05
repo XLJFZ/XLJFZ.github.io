@@ -14,7 +14,13 @@ import {
   Search,
   Sun,
 } from 'lucide-react';
-import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type SyntheticEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as SunCalc from 'suncalc';
 
 import { Button } from '@/components/ui/button';
@@ -28,6 +34,7 @@ import {
   horizontalFov,
   requiredFocalLength,
   sceneWidthAtDistance,
+  sightlineGeometry,
   sensorWidths,
   type Point,
   type SensorKey,
@@ -241,6 +248,8 @@ export function LightPlanner() {
   const [sensor, setSensor] = useState<SensorKey>('fullFrame');
   const [focalLength, setFocalLength] = useState(24);
   const [subjectWidth, setSubjectWidth] = useState(35);
+  const [cameraHeight, setCameraHeight] = useState(0);
+  const [subjectHeight, setSubjectHeight] = useState(0);
   const [placeName, setPlaceName] = useState('上海 · 待勘察机位');
   const [mapReady, setMapReady] = useState(false);
   const [mapMode, setMapMode] = useState<MapMode>('2d');
@@ -301,10 +310,15 @@ export function LightPlanner() {
     [cameraPoint, subjectPoint],
   );
   const fov = horizontalFov(sensorWidths[sensor].width, focalLength);
-  const coverage = sceneWidthAtDistance(distance, fov);
+  const sightline = sightlineGeometry(distance, cameraHeight, subjectHeight);
+  const tiltLabel =
+    sightline.distance === 0
+      ? '两点重合，方向未定义'
+      : `${sightline.angle > 0 ? '仰拍' : sightline.angle < 0 ? '俯拍' : '平拍'} ${Math.abs(sightline.angle).toFixed(1)}°`;
+  const coverage = sceneWidthAtDistance(sightline.distance, fov);
   const requiredFocal = requiredFocalLength(
     sensorWidths[sensor].width,
-    Math.max(distance, 1),
+    sightline.distance,
     subjectWidth,
   );
   const isWideEnough = coverage >= subjectWidth;
@@ -323,117 +337,121 @@ export function LightPlanner() {
     if (!mapNode.current || mapRef.current) return;
     let cancelled = false;
     let resizeObserver: ResizeObserver | undefined;
-    void import('maplibre-gl').then((module) => {
-      if (cancelled || !mapNode.current) return;
-      const maplibregl = module;
-      const map = new maplibregl.Map({
-        container: mapNode.current,
-        style: MAP_STYLE,
-        center: [121.4675, 31.2327],
-        zoom: 15,
-        attributionControl: false,
-      });
-      map.addControl(
-        new maplibregl.NavigationControl({ showCompass: true }),
-        'top-right',
-      );
-      map.addControl(
-        new maplibregl.AttributionControl({ compact: true }),
-        'bottom-right',
-      );
-      resizeObserver = new ResizeObserver(() => map.resize());
-      resizeObserver.observe(mapNode.current);
-      requestAnimationFrame(() => map.resize());
-
-      const makeMarker = (kind: PlacementMode) => {
-        const element = document.createElement('div');
-        element.className = `planner-marker planner-marker-${kind}`;
-        element.textContent = kind === 'camera' ? '机' : '景';
-        element.setAttribute(
-          'aria-label',
-          kind === 'camera' ? '机位标记' : '被摄物标记',
+    void import('maplibre-gl')
+      .then((module) => {
+        if (cancelled || !mapNode.current) return;
+        const maplibregl = module;
+        const map = new maplibregl.Map({
+          container: mapNode.current,
+          style: MAP_STYLE,
+          center: [121.4675, 31.2327],
+          zoom: 15,
+          attributionControl: false,
+        });
+        map.addControl(
+          new maplibregl.NavigationControl({ showCompass: true }),
+          'top-right',
         );
-        return element;
-      };
-      const camera = new maplibregl.Marker({
-        element: makeMarker('camera'),
-        draggable: true,
+        map.addControl(
+          new maplibregl.AttributionControl({ compact: true }),
+          'bottom-right',
+        );
+        resizeObserver = new ResizeObserver(() => map.resize());
+        resizeObserver.observe(mapNode.current);
+        requestAnimationFrame(() => map.resize());
+
+        const makeMarker = (kind: PlacementMode) => {
+          const element = document.createElement('div');
+          element.className = `planner-marker planner-marker-${kind}`;
+          element.textContent = kind === 'camera' ? '机' : '景';
+          element.setAttribute(
+            'aria-label',
+            kind === 'camera' ? '机位标记' : '被摄物标记',
+          );
+          return element;
+        };
+        const camera = new maplibregl.Marker({
+          element: makeMarker('camera'),
+          draggable: true,
+        })
+          .setLngLat([initialCamera.lng, initialCamera.lat])
+          .addTo(map);
+        const subject = new maplibregl.Marker({
+          element: makeMarker('subject'),
+          draggable: true,
+        })
+          .setLngLat([initialSubject.lng, initialSubject.lat])
+          .addTo(map);
+        camera.on('dragend', () => {
+          const point = camera.getLngLat();
+          setCameraPoint({ lat: point.lat, lng: point.lng });
+        });
+        subject.on('dragend', () => {
+          const point = subject.getLngLat();
+          setSubjectPoint({ lat: point.lat, lng: point.lng });
+        });
+        map.on('click', (event: import('maplibre-gl').MapMouseEvent) => {
+          const point = { lat: event.lngLat.lat, lng: event.lngLat.lng };
+          setPlacement((current) => {
+            if (current === 'camera') {
+              camera.setLngLat(event.lngLat);
+              setCameraPoint(point);
+              return 'subject';
+            }
+            subject.setLngLat(event.lngLat);
+            setSubjectPoint(point);
+            return 'camera';
+          });
+        });
+        map.on('error', (event) => {
+          setMapError(
+            event.error?.message || '地图加载失败，请检查网络后重试。',
+          );
+        });
+        map.on('load', () => {
+          if (cancelled) return;
+          map.addSource('planner-terrain', {
+            type: 'raster-dem',
+            url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+            tileSize: 256,
+          });
+          map.addSource('planner-fov', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'planner-fov',
+            type: 'fill',
+            source: 'planner-fov',
+            paint: {
+              'fill-color': '#d8c19b',
+              'fill-opacity': 0.16,
+              'fill-outline-color': '#d8c19b',
+            },
+          });
+          map.addSource('planner-rays', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'planner-rays',
+            type: 'line',
+            source: 'planner-rays',
+            paint: {
+              'line-color': ['get', 'color'],
+              'line-width': ['get', 'width'],
+              'line-dasharray': [2, 2],
+            },
+          });
+          setMapError('');
+          setMapReady(true);
+          map.resize();
+        });
+        mapRef.current = map;
+        cameraMarker.current = camera;
+        subjectMarker.current = subject;
       })
-        .setLngLat([initialCamera.lng, initialCamera.lat])
-        .addTo(map);
-      const subject = new maplibregl.Marker({
-        element: makeMarker('subject'),
-        draggable: true,
-      })
-        .setLngLat([initialSubject.lng, initialSubject.lat])
-        .addTo(map);
-      camera.on('dragend', () => {
-        const point = camera.getLngLat();
-        setCameraPoint({ lat: point.lat, lng: point.lng });
-      });
-      subject.on('dragend', () => {
-        const point = subject.getLngLat();
-        setSubjectPoint({ lat: point.lat, lng: point.lng });
-      });
-      map.on('click', (event: import('maplibre-gl').MapMouseEvent) => {
-        const point = { lat: event.lngLat.lat, lng: event.lngLat.lng };
-        setPlacement((current) => {
-          if (current === 'camera') {
-            camera.setLngLat(event.lngLat);
-            setCameraPoint(point);
-            return 'subject';
-          }
-          subject.setLngLat(event.lngLat);
-          setSubjectPoint(point);
-          return 'camera';
-        });
-      });
-      map.on('error', (event) => {
-        setMapError(event.error?.message || '地图加载失败，请检查网络后重试。');
-      });
-      map.on('load', () => {
-        if (cancelled) return;
-        map.addSource('planner-terrain', {
-          type: 'raster-dem',
-          url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
-          tileSize: 256,
-        });
-        map.addSource('planner-fov', {
-          type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] },
-        });
-        map.addLayer({
-          id: 'planner-fov',
-          type: 'fill',
-          source: 'planner-fov',
-          paint: {
-            'fill-color': '#d8c19b',
-            'fill-opacity': 0.16,
-            'fill-outline-color': '#d8c19b',
-          },
-        });
-        map.addSource('planner-rays', {
-          type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] },
-        });
-        map.addLayer({
-          id: 'planner-rays',
-          type: 'line',
-          source: 'planner-rays',
-          paint: {
-            'line-color': ['get', 'color'],
-            'line-width': ['get', 'width'],
-            'line-dasharray': [2, 2],
-          },
-        });
-        setMapError('');
-        setMapReady(true);
-        map.resize();
-      });
-      mapRef.current = map;
-      cameraMarker.current = camera;
-      subjectMarker.current = subject;
-    }).catch(() => setMapError('地图加载失败，请刷新页面后重试。'));
+      .catch(() => setMapError('地图加载失败，请刷新页面后重试。'));
     return () => {
       cancelled = true;
       resizeObserver?.disconnect();
@@ -575,8 +593,7 @@ export function LightPlanner() {
         cameraMarker.current?.setLngLat([point.lng, point.lat]);
         mapRef.current?.flyTo({ center: [point.lng, point.lat], zoom: 15 });
       },
-      () =>
-        setGeoError('定位失败：请允许位置权限，或手动输入机位坐标。'),
+      () => setGeoError('定位失败：请允许位置权限，或手动输入机位坐标。'),
       { enableHighAccuracy: true, timeout: 10_000 },
     );
   };
@@ -623,7 +640,8 @@ export function LightPlanner() {
       if (!response.ok) throw new Error('Place search failed');
       const results = (await response.json()) as PlaceResult[];
       setSearchResults(results);
-      if (!results.length) setSearchError('没有找到匹配地点，请补充国家或省州名称。');
+      if (!results.length)
+        setSearchError('没有找到匹配地点，请补充国家或省州名称。');
     } catch {
       setSearchError('地点搜索暂时不可用，请稍后重试或直接输入经纬度。');
     } finally {
@@ -640,7 +658,10 @@ export function LightPlanner() {
     placeSubject(point, zoom);
     const address = result.address;
     const locationParts = [
-      address?.city || address?.town || address?.village || address?.municipality,
+      address?.city ||
+        address?.town ||
+        address?.village ||
+        address?.municipality,
       address?.state || address?.region,
       address?.country,
     ].filter(Boolean);
@@ -675,7 +696,7 @@ export function LightPlanner() {
   const exportCard = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
-    canvas.height = 1350;
+    canvas.height = 1460;
     const context = canvas.getContext('2d');
     if (!context) return;
     context.fillStyle = '#171815';
@@ -709,7 +730,11 @@ export function LightPlanner() {
       ],
       [
         '距离',
-        `${Math.round(distance)}m · 横向覆盖约 ${Math.round(coverage)}m · 目标宽 ${subjectWidth}m`,
+        `水平 ${Math.round(distance)}m · 直线 ${Math.round(sightline.distance)}m · 覆盖 ${Math.round(coverage)}m`,
+      ],
+      [
+        '高度 / 俯仰',
+        `机位 ${cameraHeight}m · 目标 ${subjectHeight}m · ${tiltLabel}`,
       ],
       [
         '判断',
@@ -743,7 +768,7 @@ export function LightPlanner() {
     });
 
     const cx = 540;
-    const cy = 1050;
+    const cy = 1160;
     context.strokeStyle = 'rgba(255,255,255,.14)';
     context.lineWidth = 2;
     context.beginPath();
@@ -778,10 +803,10 @@ export function LightPlanner() {
     context.fillText(
       `机位 ${cameraPoint.lat.toFixed(5)}, ${cameraPoint.lng.toFixed(5)}`,
       72,
-      1280,
+      1390,
     );
     context.textAlign = 'right';
-    context.fillText('XLJFZ Photography', 1008, 1280);
+    context.fillText('XLJFZ Photography', 1008, 1390);
     const link = document.createElement('a');
     link.download = `shoot-plan-${date}-${formatSliderTime(minutes).replace(':', '')}.png`;
     link.href = canvas.toDataURL('image/png');
@@ -901,7 +926,9 @@ export function LightPlanner() {
                       className="flex w-full items-center justify-between gap-3 border-b border-white/[.07] px-3 py-2.5 text-left text-xs leading-5 text-white/68 transition-colors last:border-b-0 hover:bg-white/[.06] hover:text-white"
                     >
                       <span>{result.display_name}</span>
-                      <span className="shrink-0 text-[#d8c19b]">设为被摄物</span>
+                      <span className="shrink-0 text-[#d8c19b]">
+                        设为被摄物
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -971,6 +998,37 @@ export function LightPlanner() {
               />
             </label>
             <label className="text-xs text-white/42">
+              机位高度 · m
+              <input
+                type="number"
+                step="0.1"
+                value={cameraHeight}
+                onChange={(event) => {
+                  if (Number.isFinite(event.target.valueAsNumber))
+                    setCameraHeight(event.target.valueAsNumber);
+                }}
+                className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm text-white"
+              />
+            </label>
+            <label className="text-xs text-white/42">
+              被摄物目标点高度 · m
+              <input
+                type="number"
+                step="0.1"
+                value={subjectHeight}
+                onChange={(event) => {
+                  if (Number.isFinite(event.target.valueAsNumber))
+                    setSubjectHeight(event.target.valueAsNumber);
+                }}
+                className="mt-2 w-full border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm text-white"
+              />
+            </label>
+            <p className="col-span-2 text-[11px] leading-5 text-white/40">
+              两端高度使用同一基准。同一地面可填楼顶高度（机位含相机架设高度）；地面海拔不同时填地面海拔
+              + 离地高度。目标点填取景中心高度。默认 0
+              表示等高，不会自动读取楼高。
+            </p>
+            <label className="text-xs text-white/42">
               日期
               <input
                 type="date"
@@ -1004,7 +1062,9 @@ export function LightPlanner() {
                 max="359"
                 step="1"
                 value={facadeBearing}
-                onChange={(event) => setFacadeBearing(Number(event.target.value))}
+                onChange={(event) =>
+                  setFacadeBearing(Number(event.target.value))
+                }
                 className="planner-range mt-3 w-full"
               />
               <span className="mt-2 flex items-center justify-between text-[11px] text-white/28">
@@ -1101,8 +1161,10 @@ export function LightPlanner() {
                 {formatBearing(cameraBearing)}
               </p>
               <p className="mt-1 text-xs text-white/42">
-                距离 {Math.round(distance)}m
+                水平 {Math.round(distance)}m · 直线{' '}
+                {Math.round(sightline.distance)}m
               </p>
+              <p className="mt-1 text-xs text-white/42">{tiltLabel}</p>
             </div>
           </div>
         </section>
@@ -1192,7 +1254,8 @@ export function LightPlanner() {
               {isWideEnough ? '这支镜头够广' : '这支镜头不够广'}
             </p>
             <p className="mt-1 text-xs leading-5 text-white/45">
-              水平视角 {fov.toFixed(1)}°，当前距离覆盖约 {Math.round(coverage)}
+              水平视角 {fov.toFixed(1)}°，按直线距离横向覆盖约{' '}
+              {Math.round(coverage)}
               m。
               {isWideEnough
                 ? `最长可用约 ${Math.floor(requiredFocal)}mm。`
@@ -1202,7 +1265,62 @@ export function LightPlanner() {
         </section>
 
         <section className="p-5 md:p-6">
-          <p className="text-xs tracking-[.16em] text-white/35">方向预览</p>
+          <p className="text-xs tracking-[.16em] text-white/35">
+            高度与方向预览
+          </p>
+          <svg
+            viewBox="0 0 320 120"
+            aria-label={`侧面高差示意：${tiltLabel}`}
+            className="mt-4 w-full"
+          >
+            <line
+              x1="40"
+              y1="65"
+              x2="280"
+              y2="65"
+              stroke="#ffffff30"
+              strokeDasharray="4 4"
+            />
+            <line
+              x1="40"
+              y1="65"
+              x2="280"
+              y2={65 - 45 * Math.sin((sightline.angle * Math.PI) / 180)}
+              stroke="#d8c19b"
+              strokeWidth="2"
+            />
+            <circle cx="40" cy="65" r="5" fill="#d8c19b" />
+            <circle
+              cx="280"
+              cy={65 - 45 * Math.sin((sightline.angle * Math.PI) / 180)}
+              r="5"
+              fill="#a8c3ba"
+            />
+            <text x="12" y="110" fill="#ffffff99" fontSize="12">
+              机位 {cameraHeight}m
+            </text>
+            <text
+              x="308"
+              y="110"
+              textAnchor="end"
+              fill="#ffffff99"
+              fontSize="12"
+            >
+              目标 {subjectHeight}m
+            </text>
+            <text
+              x="160"
+              y="15"
+              textAnchor="middle"
+              fill="#d8c19b"
+              fontSize="12"
+            >
+              {tiltLabel} · 高差 {sightline.difference.toFixed(1)}m
+            </text>
+          </svg>
+          <p className="text-[11px] leading-5 text-white/35">
+            侧面示意不按比例。覆盖宽度按相机瞄准目标中心、目标横向垂直于视线估算。地图标记与扇形仍为平面参考；光线分类按水平方位，未模拟楼宇遮挡、地球曲率或高处地平线变化。
+          </p>
           <div className="mt-1 grid items-center sm:grid-cols-[180px_1fr] lg:grid-cols-1 xl:grid-cols-[180px_1fr]">
             <CompassPlot
               sunAzimuth={sunPosition.azimuth}

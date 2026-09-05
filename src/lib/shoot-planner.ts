@@ -1,5 +1,18 @@
 export type Point = { lat: number; lng: number };
 
+export function sightlineGeometry(
+  distance: number,
+  cameraHeight: number,
+  subjectHeight: number,
+) {
+  const difference = subjectHeight - cameraHeight;
+  return {
+    difference,
+    distance: Math.hypot(distance, difference),
+    angle: (Math.atan2(difference, distance) * 180) / Math.PI,
+  };
+}
+
 export const sensorWidths = {
   fullFrame: { label: '全画幅', width: 36 },
   apsc: { label: 'APS-C · 1.5×', width: 24 },
