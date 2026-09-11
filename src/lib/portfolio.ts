@@ -35,6 +35,14 @@ export type Series = {
   images: PortfolioImage[];
 };
 
+// 全站对外提供的最高图片宽度。原图不再随站点发布，画廊 srcSet 与灯箱的最大档
+// 一律取 min(原图宽度, MAX_GALLERY_WIDTH)，由 scripts/generate-gallery-previews.mjs 生成。
+export const MAX_GALLERY_WIDTH = 4096;
+
+export function galleryMaxWidth(image: Pick<PortfolioImage, 'width'>) {
+  return Math.min(image.width, MAX_GALLERY_WIDTH);
+}
+
 export const series: Series[] = [
   {
     slug: 'urban-pulse',
@@ -45,7 +53,7 @@ export const series: Series[] = [
     location: '重庆 · 东京 · 上海 · 广州 · 深圳 · 南昌 · 香港',
     statement:
       '江岸、街巷、轨道与灯光把城市编织成不断变化的截面。镜头沿着人流与交通移动，记录秩序被速度短暂点亮的时刻。',
-    cover: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+    cover: '/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-1800.jpg',
     preview: {
       path: '/covers/urban-pulse.jpg',
       width: 2400,
@@ -430,7 +438,7 @@ export const series: Series[] = [
     location: '香格里拉 · 德钦 · 甘南 · 平潭 · 宁海',
     statement:
       '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
-    cover: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
+    cover: '/portfolio-previews/distant-weather/dsc-2989-shangri-la-1800.jpg',
     preview: {
       path: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
       width: 2800,
@@ -566,7 +574,7 @@ export const series: Series[] = [
     location: '大同 · 应县 · 景德镇 · 徽州 · 西安',
     statement:
       '石窟、木构、室内与民艺在时间中留下各自的表面。光线落在雕刻、斗拱、织物与日常器物上，让历史不再遥远。',
-    cover: '/portfolio/textures-of-time/xian-zbz-0868.jpg',
+    cover: '/portfolio-previews/textures-of-time/xian-zbz-0868-1800.jpg',
     preview: {
       path: '/covers/textures-of-time.jpg',
       width: 2400,
@@ -671,7 +679,7 @@ export const series: Series[] = [
     location: '上海 · 西安',
     statement:
       '一场球赛中的转身，与动物近距离的凝视，都是日常里短暂而完整的动作。镜头靠近，让熟悉的人与生命重新显出重量。',
-    cover: '/portfolio/nearby-moments/football-zbz-8440.jpg',
+    cover: '/portfolio-previews/nearby-moments/football-zbz-8440-1800.jpg',
     preview: {
       path: '/covers/nearby-moments.jpg',
       width: 2400,

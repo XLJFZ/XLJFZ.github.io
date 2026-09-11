@@ -115,7 +115,7 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /loadedOriginal/);
   assert.match(gallery, /failedOriginal/);
   assert.match(gallery, /aria-busy=/);
-  assert.match(gallery, /原图加载失败，当前显示高清预览/);
+  assert.match(gallery, /大图加载失败，当前显示高清预览/);
   assert.match(gallery, /fetchPriority="high"/);
   assert.match(gallery, /galleryPreviewSrc\([\s\S]*?1800/);
   assert.match(gallery, /transition-opacity duration-300/);
@@ -372,14 +372,14 @@ test('every portfolio record includes its real pixel dimensions', async () => {
   }
 });
 
-test('the Chongqing hero uses the high-quality web export', async () => {
+test('the Chongqing hero uses the highest published web export', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const record = portfolioRecord(
     source,
     '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
   );
   const asset = await stat(
-    'public/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+    'public/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-3600.jpg',
   );
 
   assert.match(record, /width:\s*3600,\s*height:\s*2197/);
@@ -391,9 +391,20 @@ test('every portfolio asset is referenced once and no photographs are duplicated
   const references = [...source.matchAll(/\bsrc: '([^']+)'/g)].map(
     (match) => match[1],
   );
-  const files = await listImages('public/portfolio');
-  const publicPaths = files.map(
-    (file) => `/${file.replaceAll('\\', '/').replace(/^public\//, '')}`,
+  const files = await listImages('public/portfolio-previews');
+  const publishedBases = new Set(
+    files.map((file) =>
+      file
+        .replaceAll('\\', '/')
+        .replace(/^public\/portfolio-previews\//, '')
+        .replace(/-\d+\.jpg$/, '')
+        .replace(/\.jpg$/, ''),
+    ),
+  );
+  const referenceBases = new Set(
+    references.map((reference) =>
+      reference.replace(/^\/portfolio\//, '').replace(/\.jpg$/, ''),
+    ),
   );
 
   assert.equal(
@@ -402,8 +413,8 @@ test('every portfolio asset is referenced once and no photographs are duplicated
     'duplicate entries in src/lib/portfolio.ts',
   );
   assert.deepEqual(
-    [...references].sort((left, right) => left.localeCompare(right)),
-    [...publicPaths].sort((left, right) => left.localeCompare(right)),
+    [...referenceBases].sort((left, right) => left.localeCompare(right)),
+    [...publishedBases].sort((left, right) => left.localeCompare(right)),
   );
 
   const hashes = await Promise.all(
@@ -415,7 +426,7 @@ test('every portfolio asset is referenced once and no photographs are duplicated
   assert.equal(
     new Set(hashes).size,
     hashes.length,
-    'duplicate image files in public/portfolio',
+    'duplicate image files in public/portfolio-previews',
   );
 });
 

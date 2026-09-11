@@ -13,7 +13,11 @@ test('public pages expose canonical metadata and structured site identity', asyn
   assert.match(layout, /alternates: \{ canonical: '\/' \}/);
   assert.match(layout, /application\/ld\+json/);
   assert.match(layout, /'@type': 'WebSite'/);
-  assert.match(layout, /portfolio\/distant-weather\/dsc-2989-shangri-la\.jpg/);
+  assert.match(
+    layout,
+    /portfolio-previews\/distant-weather\/dsc-2989-shangri-la-1800\.jpg/,
+  );
+  assert.doesNotMatch(layout, /(?<!-previews)\/portfolio\/[^'"]+\.jpg/);
   assert.match(layout, /viewportFit: 'cover'/);
   assert.doesNotMatch(layout, /og\.png/);
   assert.match(about, /canonical: '\/about\/'/);

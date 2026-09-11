@@ -13,7 +13,7 @@ import {
   TemporaryStatus,
   useTemporaryStatus,
 } from '@/components/temporary-status';
-import type { PortfolioImage } from '@/lib/portfolio';
+import { galleryMaxWidth, type PortfolioImage } from '@/lib/portfolio';
 import { cn } from '@/lib/utils';
 
 type GalleryItem = { image: PortfolioImage; sourceIndex: number };
@@ -44,6 +44,11 @@ function galleryPreviewSrc(src: string, width = 1200) {
   return src
     .replace('/portfolio/', '/portfolio-previews/')
     .replace(/\.[^.]+$/, `-${width}.jpg`);
+}
+
+// 站点不再发布原图，最大档取 min(原图宽度, MAX_GALLERY_WIDTH) 的预览图。
+function galleryMaxSrc(image: PortfolioImage) {
+  return galleryPreviewSrc(image.src, galleryMaxWidth(image));
 }
 
 function imageKey(src: string) {
@@ -409,7 +414,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                         >
                           <img
                             src={galleryPreviewSrc(image.src)}
-                            srcSet={`${galleryPreviewSrc(image.src)} 1200w, ${galleryPreviewSrc(image.src, 1800)} 1800w, ${image.src} ${image.width}w`}
+                            srcSet={`${galleryPreviewSrc(image.src)} 1200w, ${galleryPreviewSrc(image.src, 1800)} 1800w, ${galleryMaxSrc(image)} ${galleryMaxWidth(image)}w`}
                             sizes={
                               image.layout === 'wide'
                                 ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
@@ -507,10 +512,10 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             >
               <p className="sr-only" aria-live="polite">
                 {failedOriginal === displayedItems[active].image.src
-                  ? '原图加载失败，当前显示高清预览'
+                  ? '大图加载失败，当前显示高清预览'
                   : loadedOriginal === displayedItems[active].image.src
-                    ? '原图加载完成'
-                    : '正在加载原图'}
+                    ? '大图加载完成'
+                    : '正在加载大图'}
               </p>
               <img
                 src={galleryPreviewSrc(displayedItems[active].image.src, 1800)}

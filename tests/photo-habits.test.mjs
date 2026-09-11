@@ -8,10 +8,8 @@ import {
   parsePhotoMetadata,
 } from '../src/lib/photo-metadata.ts';
 
-test('reads focal length and exposure fields from a real portfolio JPEG', async () => {
-  const file = await readFile(
-    'public/portfolio/urban-pulse/shanghai-zbz-0216.jpg',
-  );
+test('reads focal length and exposure fields from a JPEG with EXIF', async () => {
+  const file = await readFile('tests/fixtures/exif-sample.jpg');
   const source = file.buffer.slice(
     file.byteOffset,
     file.byteOffset + file.byteLength,
@@ -49,9 +47,7 @@ test('builds distributions without counting missing EXIF as zero', () => {
 });
 
 test('reads EXIF from a Fujifilm RAF embedded JPEG and accepts Hasselblad RAW', async () => {
-  const jpeg = await readFile(
-    'public/portfolio/urban-pulse/shanghai-zbz-0216.jpg',
-  );
+  const jpeg = await readFile('tests/fixtures/exif-sample.jpg');
   const raf = Buffer.alloc(128 + jpeg.length);
   raf.write('FUJIFILMCCD-RAW ', 0, 'ascii');
   raf.writeUInt32BE(128, 84);
