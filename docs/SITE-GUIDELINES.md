@@ -108,6 +108,27 @@
 - 只读取核对所需的最少原片，不把 RAW / DNG、XMP 或用户的原始目录复制进网站仓库。
 - 每次新增 EXIF 后，同步更新 `tests/portfolio-gallery.test.mjs` 中的 EXIF 记录总数和该照片的五字段断言，防止以后错配或意外删除。
 
+### 5.2 仓库内图片文件的隐私扫描与清理
+
+灯箱记录干净，不代表仓库中的图片文件干净。`public/portfolio/` 里的原图可能自带与展示无关的私密元数据，必须在提交前扫描并清理。
+
+需要排查的字段：
+
+| 容器         | 字段                                                                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| EXIF 0th IFD | `Artist`（`0x013B`）、`Software`、`DateTime`                                                                                                                                   |
+| EXIF ExifIFD | `CameraOwnerName`（`0xA430`）、`BodySerialNumber`（`0xA431`）、`LensSerialNumber`（`0xA435`）、`ImageUniqueID`（`0xA420`）、`MakerNote`（`0x927C`）、`UserComment`（`0x9286`） |
+| APP1 XMP     | 作者与编辑历史（含 `xmp/extension` 续段）                                                                                                                                      |
+| APP13 IRB    | Photoshop 资源块中的作者信息                                                                                                                                                   |
+
+清理与验证要求：
+
+- 必须原位重写元数据段、只保留白名单标签；`SOS` 之后的图像数据与解码像素逐字节不变。
+- 必须保留 APP2 ICC、DQT、DHT、DRI、APP14、SOF 与重建后的 EXIF；曝光参数、机身型号、拍摄时间等已核实字段不得丢失。
+- 清理后必须逐项验证：① `public/` 全目录不再出现机身序列号、镜头序列号与所有者姓名 ② 被清理文件的解码像素哈希与清理前一致 ③ 曝光与机型字段全部保留。
+- 原件备份不得放进仓库；仓库只保留清理后的展示图。
+- 只使用用户确认过的原片，不把 RAW / DNG、XMP 边车文件或原始目录复制进仓库。
+
 ## 6. 图片资产结构
 
 ```text
@@ -116,6 +137,8 @@ public/portfolio/<series-slug>/      按专题保存原图
 public/portfolio-previews/           画廊响应式预览，脚本生成
 public/hero-previews/                首页主视觉响应式预览，脚本生成
 public/covers/                       首页和专题索引使用的轻量封面
+public/favicon.svg                   站点图标（矢量，主用）
+public/favicon.ico                   站点图标（多尺寸兜底，由脚本生成）
 ```
 
 - 新增或替换原图后必须运行 `npm run previews`。
@@ -129,6 +152,8 @@ public/covers/                       首页和专题索引使用的轻量封面
 - 灯箱先显示已缓存的 `1800px` 预览，再平滑切换到原图，避免黑屏闪烁；移动端控制按钮必须避开设备安全区域。
 - 全局视口必须启用 `viewport-fit=cover`，让 iPhone 刘海屏和圆角安全区域样式真正生效；原图失败时保留高清预览，不显示空白。
 - 专题封面建议为 `2400 × 1500`，并保持在 `1MB` 以内。
+- `public/favicon.ico` 必须存在。浏览器与抓取工具会直接请求站点根路径的 `/favicon.ico`；该文件缺失时 GitHub Pages 会回落到体量很大的 `404.html`（当前约 `442KB`），每次页面加载都会浪费一次大响应。该文件由 [`scripts/generate-favicon.mjs`](../scripts/generate-favicon.mjs) 从 `public/favicon.svg` 生成（`16px` / `32px` / `48px` 三档，PNG 内嵌 ICO），修改图标后运行 `npm run favicon` 重新生成，不要手工编辑。
+- `src/app/layout.tsx` 的 `icons` 必须同时声明 `/favicon.svg` 与 `/favicon.ico`；`scripts/export-github-pages.mjs` 必须显式校验该文件存在并随导出写入 `_site`，不得再使用静默忽略错误的写法。
 
 ## 7. 站内照片工具
 
@@ -299,6 +324,8 @@ git diff --check
 - 所有作品只被引用一次，没有重复照片。
 - 专题年份覆盖真实照片年份。
 - 首页、专题索引、详情页和 404 页面均能导出。
+- `public/favicon.ico` 存在，且导出后 `_site/favicon.ico` 与源文件逐字节一致。
+- `public/` 全目录不含机身序列号、镜头序列号与所有者信息；被清理的原图与清理前解码像素一致。
 - Windows 本机若出现 Workers runtime 启动失败，且已确认目录权限可用，可仅在本次导出进程中移除 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 后重试；不要修改系统代理或以此跳过导出检查。
 - 照片压缩工具仍保留三档预设、EXIF 保留和本地处理约束。
 - 智能命名器仍保留中英文切换、逐张人工修改、批量地点与主题、完整新旧名称预览、连续编号、重名阻断、不压缩默认项、三档压缩和不覆盖原图的 ZIP 下载。
@@ -327,6 +354,8 @@ git diff --check
 - 推荐先运行 `gh run list --repo XLJFZ/XLJFZ.github.io --limit 5` 找到与当前提交对应的运行，再用 `gh run watch <run-id> --exit-status` 等待结果；失败时查看该运行日志并修复，不能反复盲目重跑。
 - 如果 `gh` 尚未登录或当前环境无法调用，可只读查询 [Pages 工作流运行 API](https://api.github.com/repos/XLJFZ/XLJFZ.github.io/actions/workflows/pages.yml/runs)，按 `head_sha` 匹配目标提交，再查询 `/repos/XLJFZ/XLJFZ.github.io/actions/runs/<run-id>` 获取最终状态。这只能用于公开仓库状态核验，不能代替需要身份授权的仓库操作。
 - Actions 成功后必须直接请求受影响的正式网址并确认 HTTP `200`，同时核对关键标题或文案。对于按钮、批处理等客户端功能，还应确认页面引用的新脚本包含目标更新；脚本核对不等同于浏览器交互测试。新增路由还要确认工具索引与 `public/sitemap.xml` 已包含该地址；Actions 成功但正式页面仍是 `404` 时继续等待 Pages 切换，不能提前宣布上线。
+- 导出目录中的 `_headers`（由 vinext 生成）声明了 `/_next/static/*` 使用 `max-age=31536000, immutable`，但 **GitHub Pages 不支持自定义响应头，会忽略该文件**。线上静态资源实际遵循 GitHub Pages 默认策略（约 `max-age=600`，配合 `ETag` 协商缓存），因此带内容哈希的构建产物在 10 分钟窗口内仍可能触发一次条件请求。这是托管平台的限制，不能通过修改前端代码解决。
+- `/favicon.ico` 必须返回 HTTP `200` 且为图标内容。该请求过去会回落到 `404.html`（约 `442KB`），是本项目体积最大的无效响应。
 
 ### 发布后按改动类型核验
 
@@ -359,6 +388,7 @@ git diff --check
 - [ ] 原片/导出图与网站文件是否已建立一对一对应？
 - [ ] 灯箱是否只写入五个允许字段，并排除 GPS、序列号等隐私信息？
 - [ ] 是否同步增加新照片的 EXIF 映射测试？
+- [ ] 是否扫描并清理了图片文件自身的 EXIF / XMP / APP13（机身序列号、镜头序列号、所有者、作者），并确认解码像素未变？
 - [ ] 是否使用用户确认的地点，且没有自行推断？
 - [ ] 是否检查了重复照片？
 - [ ] 是否保持桌面双列等高、移动单列？
@@ -370,6 +400,7 @@ git diff --check
 - [ ] 若新增工具路由，是否同步更新导航、静态导出、站点地图和测试？
 - [ ] 使用公共页脚的短页面是否贴近视口底部，且长页面没有被页脚遮挡？
 - [ ] 是否通过 lint、测试、构建和 Pages 导出？
+- [ ] `public/favicon.ico` 是否与 `public/favicon.svg` 同步，并确实写入 `_site`？
 - [ ] 是否确认对应提交的 GitHub Actions 运行成功，并按第 11 节的改动类型完成远端文档、正式页面或交互核验？
 - [ ] 若修改视觉或布局，是否完成桌面与手机视口检查，或明确记录尚未验收的项目？
 

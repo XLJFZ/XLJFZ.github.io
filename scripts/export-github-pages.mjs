@@ -1,7 +1,13 @@
 import { spawn } from 'node:child_process';
-import { copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { access, copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const projectRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 
 export const routes = [
   '/',
@@ -47,10 +53,19 @@ export async function exportPages({
   }
 
   await writeFile(path.join(outputDir, '.nojekyll'), '', 'utf8');
-  await copyFile(
-    'public/favicon.ico',
-    path.join(outputDir, 'favicon.ico'),
-  ).catch(() => {});
+
+  // favicon.ico 必须是真实存在的资产。过去这里用 .catch(() => {}) 静默吞掉缺失，
+  // 线上 /favicon.ico 因此回落到 441KB 的 404.html。改为显式校验并直接失败，
+  // 让同类问题在本地导出阶段就暴露，而不是等上线后才发现。
+  const faviconSource = path.join(projectRoot, 'public', 'favicon.ico');
+  try {
+    await access(faviconSource, constants.R_OK);
+  } catch {
+    throw new Error(
+      `Missing ${path.relative(projectRoot, faviconSource)}. Run "npm run favicon" to regenerate it.`,
+    );
+  }
+  await copyFile(faviconSource, path.join(outputDir, 'favicon.ico'));
 }
 
 async function waitUntilReady(origin, attempts = 60) {
@@ -86,10 +101,6 @@ async function installMapLibreWorker(projectRoot) {
 }
 
 async function main() {
-  const projectRoot = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '..',
-  );
   const port = process.env.PAGES_EXPORT_PORT ?? '4173';
   const origin = `http://127.0.0.1:${port}`;
   await installMapLibreWorker(projectRoot);

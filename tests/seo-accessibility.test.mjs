@@ -48,6 +48,21 @@ test('the site publishes discovery files for every exported route', async () => 
   }
 });
 
+test('the site ships an ico favicon next to the svg mark', async () => {
+  const [layout, ico] = await Promise.all([
+    readFile('src/app/layout.tsx', 'utf8'),
+    readFile('public/favicon.ico'),
+  ]);
+
+  assert.match(layout, /url: '\/favicon\.svg', type: 'image\/svg\+xml'/);
+  assert.match(layout, /url: '\/favicon\.ico', type: 'image\/x-icon'/);
+
+  // ICO 头结构：reserved=0、type=1（图标）、count>=2（多尺寸）。
+  assert.equal(ico.readUInt16LE(0), 0);
+  assert.equal(ico.readUInt16LE(2), 1);
+  assert.ok(ico.readUInt16LE(4) >= 2);
+});
+
 test('keyboard users can skip repeated navigation and reach page content', async () => {
   const files = [
     'src/app/page.tsx',

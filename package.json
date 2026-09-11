@@ -10,6 +10,7 @@
     "build": "vinext build",
     "export:github-pages": "node scripts/export-github-pages.mjs",
     "previews": "node scripts/generate-gallery-previews.mjs",
+    "favicon": "node scripts/generate-favicon.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "test": "node --test tests/*.test.mjs",
     "lint": "oxlint",

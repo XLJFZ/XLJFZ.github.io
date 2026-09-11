@@ -57,4 +57,12 @@ test('exports every public route as GitHub Pages HTML', async () => {
   }
 
   await stat(path.join(outputDir, '.nojekyll'));
+
+  // favicon.ico 必须随导出产出，且与 public/ 中的源文件逐字节一致；
+  // 缺失时线上 /favicon.ico 会回落到 404.html。
+  const [exportedFavicon, sourceFavicon] = await Promise.all([
+    readFile(path.join(outputDir, 'favicon.ico')),
+    readFile('public/favicon.ico'),
+  ]);
+  assert.deepEqual(exportedFavicon, sourceFavicon);
 });

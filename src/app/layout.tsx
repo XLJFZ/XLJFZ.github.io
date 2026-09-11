@@ -16,7 +16,12 @@ export const metadata: Metadata = {
   title: '迅雷疾风｜建筑与风光摄影',
   description: '专注建筑、城市、旅行与自然风光的个人摄影作品集。',
   alternates: { canonical: '/' },
-  icons: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+  // SVG 为主，ICO 作为不支持 SVG 图标环境的兜底；两者都必须在 public/ 中存在，
+  // 否则浏览器请求 /favicon.ico 会回落到 404.html。
+  icons: [
+    { url: '/favicon.svg', type: 'image/svg+xml' },
+    { url: '/favicon.ico', type: 'image/x-icon', sizes: '16x16 32x32 48x48' },
+  ],
   openGraph: {
     title: '迅雷疾风｜建筑与风光摄影',
     description: '专注建筑、城市、旅行与自然风光的个人摄影作品集。',
