@@ -7,7 +7,7 @@ export default function Home() {
     <main id="top">
       <section
         id="content"
-        className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white"
+        className="relative flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white"
       >
         <SiteHeader />
         <img

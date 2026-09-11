@@ -7,7 +7,7 @@ type SiteHeaderProps = {
 export function SiteHeader({ active }: SiteHeaderProps) {
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#151514]/95 px-5 py-5 text-white shadow-[0_8px_30px_rgba(0,0,0,.08)] backdrop-blur-md md:px-10 md:py-7">
+      <header className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-white/10 bg-gradient-to-b from-white/[0.06] via-white/[0.02] to-transparent bg-[#151514]/70 px-5 py-5 text-white shadow-[0_8px_30px_rgba(0,0,0,.08),inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur-2xl backdrop-saturate-150 md:px-10 md:py-7">
         <a
           href="/"
           className="text-[13px] font-semibold tracking-[0.22em] transition-opacity hover:opacity-60"
