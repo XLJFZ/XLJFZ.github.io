@@ -25,6 +25,11 @@ import * as SunCalc from 'suncalc';
 
 import { Button } from '@/components/ui/button';
 import {
+  createRooftopOverlay,
+  type RooftopScene,
+} from '@/lib/planner-map-overlay';
+import { roofHeight, roofInteriorPoint } from '@/lib/planner-rooftops';
+import {
   bearingDegrees,
   classifyFacadeIllumination,
   classifyLight,
@@ -250,6 +255,17 @@ export function LightPlanner() {
   const [subjectWidth, setSubjectWidth] = useState(35);
   const [cameraHeight, setCameraHeight] = useState(0);
   const [subjectHeight, setSubjectHeight] = useState(0);
+  const [cameraGround, setCameraGround] = useState(0);
+  const [subjectGround, setSubjectGround] = useState(0);
+  const [roofPicking, setRoofPicking] = useState(true);
+  const [roofNotice, setRoofNotice] = useState('');
+  const placementRef = useRef<PlacementMode>('camera');
+  const roofPickingRef = useRef(true);
+  const rooftopScene = useRef<RooftopScene>({
+    enabled: false,
+    camera: { ...initialCamera, altitude: 0, ground: 0, label: '机位' },
+    subject: { ...initialSubject, altitude: 0, ground: 0, label: '被摄物' },
+  });
   const [placeName, setPlaceName] = useState('上海 · 待勘察机位');
   const [mapReady, setMapReady] = useState(false);
   const [mapMode, setMapMode] = useState<MapMode>('2d');
@@ -310,7 +326,11 @@ export function LightPlanner() {
     [cameraPoint, subjectPoint],
   );
   const fov = horizontalFov(sensorWidths[sensor].width, focalLength);
-  const sightline = sightlineGeometry(distance, cameraHeight, subjectHeight);
+  const sightline = sightlineGeometry(
+    distance,
+    cameraGround + cameraHeight,
+    subjectGround + subjectHeight,
+  );
   const tiltLabel =
     sightline.distance === 0
       ? '两点重合，方向未定义'
@@ -391,17 +411,58 @@ export function LightPlanner() {
           setSubjectPoint({ lat: point.lat, lng: point.lng });
         });
         map.on('click', (event: import('maplibre-gl').MapMouseEvent) => {
-          const point = { lat: event.lngLat.lat, lng: event.lngLat.lng };
-          setPlacement((current) => {
-            if (current === 'camera') {
-              camera.setLngLat(event.lngLat);
-              setCameraPoint(point);
-              return 'subject';
+          let point = { lat: event.lngLat.lat, lng: event.lngLat.lng };
+          let height: number | null = null;
+          if (rooftopScene.current.enabled && roofPickingRef.current) {
+            const layers = (map.getStyle().layers ?? [])
+              .filter((layer) => layer.type === 'fill-extrusion')
+              .map((layer) => layer.id);
+            const building = layers.length
+              ? map.queryRenderedFeatures(event.point, { layers })[0]
+              : undefined;
+            if (!building) {
+              setRoofNotice(
+                '未选中三维建筑。请放大地图点击建筑，或关闭“点击建筑取楼顶”后手动放置。',
+              );
+              return;
             }
-            subject.setLngLat(event.lngLat);
+            height = roofHeight(building.properties);
+            const geometry = building.geometry;
+            const rings =
+              geometry.type === 'Polygon'
+                ? geometry.coordinates
+                : geometry.type === 'MultiPolygon'
+                  ? geometry.coordinates[0]
+                  : null;
+            const interior = rings ? roofInteriorPoint(rings) : null;
+            if (!interior || height === null) {
+              setRoofNotice(
+                '这栋建筑缺少可用楼高或轮廓，请关闭楼顶吸附后手动放置并填写高度。',
+              );
+              return;
+            }
+            point = interior;
+          }
+          const ground = map.queryTerrainElevation([point.lng, point.lat]);
+          const current = placementRef.current;
+          if (current === 'camera') {
+            camera.setLngLat([point.lng, point.lat]);
+            setCameraPoint(point);
+            if (height !== null) setCameraHeight(height);
+            setCameraGround(ground ?? 0);
+          } else {
+            subject.setLngLat([point.lng, point.lat]);
             setSubjectPoint(point);
-            return 'camera';
-          });
+            if (height !== null) setSubjectHeight(height);
+            setSubjectGround(ground ?? 0);
+          }
+          setRoofNotice(
+            height !== null
+              ? `已将${current === 'camera' ? '机位' : '被摄物'}放到楼顶参考点，地图估算楼高 ${height.toFixed(1)}m，可手动修正。${ground === null ? '地面海拔暂无数据，按 0m 计算，可补填。' : ''}`
+              : '已放置水平位置，离地高度保持原值；可在右侧填写高度。',
+          );
+          placementRef.current = current === 'camera' ? 'subject' : 'camera';
+          setPlacement(placementRef.current);
         });
         map.on('error', (event) => {
           setMapError(
@@ -443,6 +504,14 @@ export function LightPlanner() {
               'line-dasharray': [2, 2],
             },
           });
+          map.setProjection({ type: 'mercator' });
+          map.addLayer(
+            createRooftopOverlay(
+              map,
+              maplibregl.MercatorCoordinate,
+              () => rooftopScene.current,
+            ),
+          );
           setMapError('');
           setMapReady(true);
           map.resize();
@@ -559,10 +628,12 @@ export function LightPlanner() {
       is3d
         ? {
             source: 'planner-terrain',
-            exaggeration: 1.25,
+            exaggeration: 1,
           }
         : null,
     );
+    if (map.getLayer('planner-rays'))
+      map.setFilter('planner-rays', is3d ? ['!=', ['get', 'width'], 3] : null);
     if (map.getLayer('building-3d')) {
       map.setLayoutProperty(
         'building-3d',
@@ -572,10 +643,53 @@ export function LightPlanner() {
     }
     map.easeTo({
       pitch: is3d ? 62 : 0,
-      bearing: is3d ? cameraBearing : 0,
+      zoom: is3d ? Math.max(map.getZoom(), 16) : map.getZoom(),
+      bearing: is3d
+        ? bearingDegrees(
+            rooftopScene.current.camera,
+            rooftopScene.current.subject,
+          )
+        : 0,
       duration: 850,
     });
-  }, [mapMode, mapReady, cameraBearing]);
+  }, [mapMode, mapReady]);
+
+  useEffect(() => {
+    placementRef.current = placement;
+    roofPickingRef.current = roofPicking;
+    rooftopScene.current = {
+      enabled: mapMode === '3d',
+      camera: {
+        ...cameraPoint,
+        altitude: cameraGround + cameraHeight,
+        ground: cameraGround,
+        label: `机位 · ${cameraHeight}m`,
+      },
+      subject: {
+        ...subjectPoint,
+        altitude: subjectGround + subjectHeight,
+        ground: subjectGround,
+        label: `被摄物 · ${subjectHeight}m`,
+      },
+    };
+    for (const marker of [cameraMarker.current, subjectMarker.current]) {
+      if (!marker) continue;
+      marker.getElement().style.display = mapMode === '3d' ? 'none' : '';
+      marker.setDraggable(mapMode === '2d');
+    }
+    mapRef.current?.triggerRepaint();
+  }, [
+    mapReady,
+    mapMode,
+    cameraPoint,
+    subjectPoint,
+    cameraHeight,
+    subjectHeight,
+    cameraGround,
+    subjectGround,
+    placement,
+    roofPicking,
+  ]);
 
   const useCurrentLocation = () => {
     setGeoError('');
@@ -734,7 +848,7 @@ export function LightPlanner() {
       ],
       [
         '高度 / 俯仰',
-        `机位 ${cameraHeight}m · 目标 ${subjectHeight}m · ${tiltLabel}`,
+        `海拔：机 ${cameraGround + cameraHeight}m / 景 ${subjectGround + subjectHeight}m · ${tiltLabel}`,
       ],
       [
         '判断',
@@ -872,14 +986,25 @@ export function LightPlanner() {
               onClick={() => setMapMode('3d')}
               className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors disabled:opacity-40 ${mapMode === '3d' ? 'bg-[#e6dcc8] text-[#171815]' : 'text-white/65 hover:bg-white/[.08]'}`}
             >
-              <Mountain size={15} /> 三维地形
+              <Mountain size={15} /> 三维楼顶
             </button>
+            {mapMode === '3d' && (
+              <label className="flex items-center gap-2 px-3 py-2 text-xs text-white">
+                <input
+                  type="checkbox"
+                  checked={roofPicking}
+                  onChange={(event) => setRoofPicking(event.target.checked)}
+                />{' '}
+                点击建筑取楼顶
+              </label>
+            )}
           </div>
           <div className="absolute bottom-6 left-4 z-10 max-w-[calc(100%-2rem)] bg-[#171815]/92 px-4 py-3 text-xs leading-5 text-white/62 shadow-xl backdrop-blur md:left-6">
             {mapError || geoError || (
               <>
                 {mapMode === '3d'
-                  ? '三维模式 · 拖动指南针旋转，双指或右键调整视角'
+                  ? roofNotice ||
+                    `点击建筑放置${placement === 'camera' ? '机位' : '被摄物'} · 旋转地图可查看真实高差`
                   : `点击地图放置${placement === 'camera' ? '机位' : '被摄物'} · 标记可拖动`}
               </>
             )}
@@ -998,7 +1123,7 @@ export function LightPlanner() {
               />
             </label>
             <label className="text-xs text-white/42">
-              机位高度 · m
+              机位离地高度 · m
               <input
                 type="number"
                 step="0.1"
@@ -1011,7 +1136,7 @@ export function LightPlanner() {
               />
             </label>
             <label className="text-xs text-white/42">
-              被摄物目标点高度 · m
+              被摄物离地高度 · m
               <input
                 type="number"
                 step="0.1"
@@ -1024,10 +1149,46 @@ export function LightPlanner() {
               />
             </label>
             <p className="col-span-2 text-[11px] leading-5 text-white/40">
-              两端高度使用同一基准。同一地面可填楼顶高度（机位含相机架设高度）；地面海拔不同时填地面海拔
-              + 离地高度。目标点填取景中心高度。默认 0
-              表示等高，不会自动读取楼高。
+              输入楼顶到地面的高度，机位另加相机架设高度。切换“三维楼顶”即可看到标记升高，也可点击有数据的建筑取楼顶参考点；地图楼高仅为估算，需现场核对。
             </p>
+            <details className="col-span-2 text-xs text-white/50">
+              <summary className="cursor-pointer">
+                地面海拔 · 机位 {cameraGround.toFixed(1)}m / 被摄物{' '}
+                {subjectGround.toFixed(1)}m
+              </summary>
+              <p className="mt-2 leading-5">
+                两处地面不等高时请核对并补填。地图点击时尝试读取地形，无数据按
+                0m；计算与三维标记使用地面海拔 + 离地高度。
+              </p>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <label>
+                  机位地面海拔 · m
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={cameraGround}
+                    onChange={(e) => {
+                      if (Number.isFinite(e.target.valueAsNumber))
+                        setCameraGround(e.target.valueAsNumber);
+                    }}
+                    className="mt-2 w-full bg-white/5 p-2"
+                  />
+                </label>
+                <label>
+                  被摄物地面海拔 · m
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={subjectGround}
+                    onChange={(e) => {
+                      if (Number.isFinite(e.target.valueAsNumber))
+                        setSubjectGround(e.target.valueAsNumber);
+                    }}
+                    className="mt-2 w-full bg-white/5 p-2"
+                  />
+                </label>
+              </div>
+            </details>
             <label className="text-xs text-white/42">
               日期
               <input
@@ -1319,7 +1480,7 @@ export function LightPlanner() {
             </text>
           </svg>
           <p className="text-[11px] leading-5 text-white/35">
-            侧面示意不按比例。覆盖宽度按相机瞄准目标中心、目标横向垂直于视线估算。地图标记与扇形仍为平面参考；光线分类按水平方位，未模拟楼宇遮挡、地球曲率或高处地平线变化。
+            侧面示意不按比例。覆盖宽度按相机瞄准目标中心、目标横向垂直于视线估算。三维标记与连线按真实高度投影，为便于规划始终显示，不代表视线无遮挡。扇形与光线分类仍按水平方位，未模拟地球曲率或高处地平线变化。
           </p>
           <div className="mt-1 grid items-center sm:grid-cols-[180px_1fr] lg:grid-cols-1 xl:grid-cols-[180px_1fr]">
             <CompassPlot
