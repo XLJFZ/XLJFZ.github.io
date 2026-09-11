@@ -402,7 +402,17 @@ git diff --check
 
 ### 最近一次已核实的发布记录
 
-以下记录对应 2026-09-11 已发布的“两张例外图片归入 `distant-weather/`”（资产路径迁移），不表示后续提交自动通过：
+以下记录对应 2026-09-12 已发布的「原图移出仓库 + 4096px 预览档」（含 git 历史重写与强制推送，均经所有者事先明确授权），不表示后续提交自动通过：
+
+- 提交：`4e40433968197de1361ae41a0303f6a18d88c176`（`refactor(assets): 原图移出仓库，画廊只发布 4096px 上限的预览图`），99 files changed。该提交先以 `f1ba4fd` 正常推送并部署成功，随后用 `git filter-repo --invert-paths --path public/portfolio --force` 从全部 120 个提交中移除原图路径，重写为 `4e40433` 后强制推送（`f1ba4fd...4e40433 forced update`；main 受保护，按所有者身份绕过规则完成）。
+- Pages 运行：[34630912301](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34630912301)（`f1ba4fd`，`completed / success`）与 [34631761092](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34631761092)（重写后的 `4e40433`，`completed / success`），两次运行 SHA 均与对应提交一致。
+- 内容变化：删除 `public/portfolio/` 下 45 张原图（75.3 MB，已先备份到仓库外并做 SHA-256 抽样核对），新增 43 张最大档预览（三档制：1200 / 1800 / `min(原图宽, 4096)`）；灯箱三档 srcSet、大图与预加载、四个专题封面与站点 `og:image` 全部改读 `portfolio-previews/`；EXIF 解析测试改用合成 fixture；新增「原图不入库」「发布图不超 4096px」两条回归测试。
+- 本地检查：83 项测试、lint、构建与 18 条路由静态导出通过；导出产物核验 HTML 引用原图 0 处、产物中无 `public/portfolio`、`og:image` 均为 `-1800.jpg` 预览。
+- 线上检查：抽查两条原图路径返回 `404`，对应最大档预览与 `og:image` 预览返回 `200`；`/series/` 四个专题页均为 `200` 且页面 HTML 中原图引用 `0`；首页 `200`。
+- 残留风险：历史重写只使旧提交从分支不可达；GitHub 服务端在垃圾回收前仍可能按直接 SHA 返回孤儿提交（实测旧提交 `f1ba4fd` 的 commits API 直查仍为 `200`），CDN 缓存的旧资源短期内也可能命中。如需彻底清除可联系 GitHub Support 请求服务端 GC；后续协作者必须重新 clone 或 `git fetch` 后 `git reset --hard origin/main`，不得在旧历史上继续提交。
+- 本次未做浏览器截图验收；部署成功与线上页面／资产响应核验须分别报告。
+
+以下记录对应 2026-09-11 已发布的“两张例外图片归入 `distant-weather/`”（资产路径迁移），保留作为对照：
 
 - 提交：`141bc3d`（`refactor(assets): 将两张例外图片归入 distant-weather/ 专题目录`），11 files changed，`6` 个重命名相似度均为 `100%`（内容零改动）。
 - [Pages 运行 34618807090](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34618807090)：`completed / success`，耗时 `1m40s`，运行 SHA 与上述提交一致。
