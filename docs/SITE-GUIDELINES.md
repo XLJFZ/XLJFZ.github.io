@@ -107,6 +107,7 @@
 - 不向网站写入或展示 GPS、机身/镜头序列号、所有者信息、编辑历史、完整拍摄时刻等与灯箱展示无关或可能暴露隐私的元数据。
 - 只读取核对所需的最少原片，不把 RAW / DNG、XMP 或用户的原始目录复制进网站仓库。
 - 每次新增 EXIF 后，同步更新 `tests/portfolio-gallery.test.mjs` 中的 EXIF 记录总数和该照片的五字段断言，防止以后错配或意外删除。
+- `Make` / `Model` 标签可以被任何 EXIF 写入工具或手机端处理流程改写，**不能单独作为机身归属的证据**。核实相机型号时还必须交叉检查：文件是否保留原生 `MakerNote`（真实相机 JPEG 通常包含）、像素尺寸是否符合该机型的原生或机内裁切比例、曝光有理数是否为相机固件的常规写法。若只有 `Make` / `Model` 而无 `MakerNote`、且像素比例与该机型不符，应视为**存疑**；在用户确认真实设备之前，不得写入或保留 `camera` 字段，也不得据文件名或编号把它归到某个机型。
 
 ### 5.2 仓库内图片文件的隐私扫描与清理
 
@@ -326,7 +327,10 @@ git diff --check
 - 首页、专题索引、详情页和 404 页面均能导出。
 - `public/favicon.ico` 存在，且导出后 `_site/favicon.ico` 与源文件逐字节一致。
 - `public/` 全目录不含机身序列号、镜头序列号与所有者信息；被清理的原图与清理前解码像素一致。
-- Windows 本机若出现 Workers runtime 启动失败，且已确认目录权限可用，可仅在本次导出进程中移除 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 后重试；不要修改系统代理或以此跳过导出检查。
+- Windows 本机若出现 Workers runtime 启动失败，且已确认目录权限可用，可仅在本次导出进程中移除 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 后重试；不要修改系统代理或以此跳过导出检查。已实测：带代理时 `npm run build` 与 `npm run export:github-pages` 会在 Vite 打印 `Proxy environment variables detected` 之后长时间完全无进展（16 分钟零进度），去掉代理后 build 约 `23s`、export 约 `15s`。因此**构建与导出前先行清空全部代理变量（含小写形式）是常规步骤，不是应急手段**。
+- Windows 本机若 `npm ci` 长时间无任何输出（npm 调试日志停在 `silly idealTree buildDeps`），或报 `EBUSY: resource busy or locked` 并反复重试重命名 `node_modules/<包名>`，应先检查是否存在遗留的 `workerd.exe`：`tasklist /FI "IMAGENAME eq workerd.exe"`，存在则 `taskkill /PID <pid> /F` 后再安装。这些孤儿进程由 `wrangler dev` 派生，在导出脚本结束 dev server 后未被回收，会长期占用 `node_modules/miniflare` 等目录，使安装无限重试。
+- `npm run format` 是**写入模式**（`package.json` 中定义为 `oxfmt`，不带 `--check`），它只负责格式化，**不会因格式问题而失败**，因此它只能作为整理工具，不能当作「格式检查」门禁。
+- 本机 `core.autocrlf=true`，git 检出的工作副本是 CRLF，而 `oxfmt` 会把整个工作区改写为 LF。由于仓库 blob 本身存的是 LF，`git diff --numstat` 不会产生任何真实内容差异（只列出人工修改的文件），但 `git status` 会把大批文件列为已修改，形成噪音。因此：**提交前只显式 `git add <目标文件>`，不要用 `git add -A`；在 `git status` 中看到大量此类「已修改」文件时，先用 `git diff --numstat` 确认真实内容差异**。需要把工作区恢复为检出状态时用 `git checkout -- .`；注意它只会重写 stat 已失效的文件，**刚刚 `git add` 或 amend 过的文件会因 stat 仍新鲜而被跳过、继续保持 LF**（`git checkout-index -f` 同样不会重新应用换行符转换，已实测无效）。要可靠地把单个文件恢复为检出状态，先删除该文件再 `git checkout -- <文件路径>`，然后用 `git ls-files --eol <文件路径>` 确认工作副本显示为 `w/crlf`。不要为此批量重写换行符，也不要把换行符变化混入提交。
 - 照片压缩工具仍保留三档预设、EXIF 保留和本地处理约束。
 - 智能命名器仍保留中英文切换、逐张人工修改、批量地点与主题、完整新旧名称预览、连续编号、重名阻断、不压缩默认项、三档压缩和不覆盖原图的 ZIP 下载。
 - 新增专题时必须同步更新 Pages 导出路由、`public/sitemap.xml` 和相关测试。
@@ -340,6 +344,8 @@ git diff --check
 - 本项目默认只发布到 GitHub；除非用户明确指定其他平台，否则不得同时发布到其他托管服务。
 - GitHub Pages 是默认且唯一的线上发布渠道，公开站点为 `https://xljfz.github.io/`。
 - 自动发布分支为 `main`，当前没有路径过滤，因此仅修改文档的 main 推送也会触发部署。手动触发使用 `workflow_dispatch`，没有自定义输入；正式发布时须选择 `main`，并核对运行记录中的分支。
+- 推送前必须确认本机 git 提交身份，否则 GitHub 会直接拒绝推送并返回 `remote: error: GH007: Your push would publish a private email address`（`! [remote rejected] main -> main`）。这是账号侧的邮箱隐私保护，**不是网络、权限或代理问题**。本仓库历史提交统一使用 GitHub noreply 邮箱，因此提交者应为 `XLJFZ <223385048+XLJFZ@users.noreply.github.com>`；可用 `gh api user` 取 `id` 与 `login` 复核该地址。发现身份不符时，先设置仓库级 `user.name` / `user.email`（不要为此修改全局配置，除非用户明确要求）；尚未推送的提交可用 `git commit --amend --no-edit --author="XLJFZ <223385048+XLJFZ@users.noreply.github.com>"` 修正，`--amend` 会保留原作者日期。不得把真实私人邮箱写入提交，也不得为此重写已经推送的历史。
+- 推送前建议先执行 `git ls-remote origin HEAD`（只读）确认远端 SHA，判断是否可快进，避免盲推。`main` 分支受保护，仓库所有者推送时会回显 `Bypassed rule violations for refs/heads/main: Cannot update this protected ref.` 但仍会成功，这属于正常的保护规则绕过，不是强制推送。
 - 发布流程以 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 为唯一配置源：推送到 `main` 后自动运行，也允许通过 `workflow_dispatch` 手动触发。
 - 工作流使用 `ubuntu-latest` 与 Node.js 22，并启用 npm 缓存；依赖必须通过 `npm ci` 按锁文件安装，不能在发布任务中改用会更新依赖解析结果的安装方式。
 - 工作流只有一个 `deploy` 任务，步骤顺序固定为：检出仓库、配置 Node.js、`npm ci`、`npm run build`、`npm run export:github-pages`、配置 Pages、上传 `_site` artifact、部署 Pages。发布内容不能绕过这条链路另行拼装。
@@ -347,7 +353,7 @@ git diff --check
 - Pages 任务只保留读取仓库内容、写入 Pages 和签发 OIDC 令牌所需的最小权限：`contents: read`、`pages: write`、`id-token: write`。
 - 部署环境固定为 `github-pages`，环境网址取自部署步骤的 `page_url`；构建时 `NEXT_PUBLIC_SITE_URL` 固定为 `https://xljfz.github.io`，以生成一致的公开站点元数据。
 - 并发组固定为 `pages`，`cancel-in-progress: true`；新运行会取消同组仍在执行的旧运行。被取消的运行不能算发布成功，应跟踪实际要发布的最新提交。
-- 当前部署链使用 `actions/checkout@v4`、`actions/setup-node@v4`、`actions/configure-pages@v5`、`actions/upload-pages-artifact@v3` 和 `actions/deploy-pages@v4`。调整 Actions 或 Node 版本、构建命令、发布目录、权限、环境变量或触发条件时，应在同一次修改中同步更新本节。
+- 当前部署链使用 `actions/checkout@v4`、`actions/setup-node@v4`、`actions/configure-pages@v5`、`actions/upload-pages-artifact@v3` 和 `actions/deploy-pages@v4`。调整 Actions 或 Node 版本、构建命令、发布目录、权限、环境变量或触发条件时，应在同一次修改中同步更新本节。截至 2026-09-11 的部署记录显示，这些官方 action 已被强制运行在 Node 24 上并输出 `Node.js 20 is deprecated` 标注（不阻断部署），后续升级 action 或 Node 版本时应一并处理。
 - 不能只看到 `git push` 成功就宣布完成；先用 `git rev-parse HEAD` 记录完整提交 SHA，再确认该工作流运行的 `head_sha` 与目标提交一致，且 `status` 为 `completed`、`conclusion` 为 `success`。其他提交的成功记录或线上已出现新内容，均不能替代本次运行的最终结果。
 - 部署完成后至少抽查受影响的公开页面，确认标题、照片和说明已经上线。
 - 本机已安装 GitHub CLI 时，优先用 `gh` 查询与本次提交对应的 Actions 运行；首次使用先执行 `gh auth status`，未登录时由仓库所有者完成一次 `gh auth login` 网页授权。不得把访问令牌写入仓库、脚本、日志或本文档。
@@ -356,6 +362,8 @@ git diff --check
 - Actions 成功后必须直接请求受影响的正式网址并确认 HTTP `200`，同时核对关键标题或文案。对于按钮、批处理等客户端功能，还应确认页面引用的新脚本包含目标更新；脚本核对不等同于浏览器交互测试。新增路由还要确认工具索引与 `public/sitemap.xml` 已包含该地址；Actions 成功但正式页面仍是 `404` 时继续等待 Pages 切换，不能提前宣布上线。
 - 导出目录中的 `_headers`（由 vinext 生成）声明了 `/_next/static/*` 使用 `max-age=31536000, immutable`，但 **GitHub Pages 不支持自定义响应头，会忽略该文件**。线上静态资源实际遵循 GitHub Pages 默认策略（约 `max-age=600`，配合 `ETag` 协商缓存），因此带内容哈希的构建产物在 10 分钟窗口内仍可能触发一次条件请求。这是托管平台的限制，不能通过修改前端代码解决。
 - `/favicon.ico` 必须返回 HTTP `200` 且为图标内容。该请求过去会回落到 `404.html`（约 `442KB`），是本项目体积最大的无效响应。
+- 对“内容必须与本地一致”的产物（站点图标、被清理过元数据的作品原图、脚本生成的资产），除 HTTP `200` 之外还须做字节级核验：用 `curl -sSL --max-time 180 -o <本地临时文件> <正式网址>` 下载线上文件，再与本地版本比对 SHA-256；**只有哈希一致才能声称“逐字节一致”，体积相同不足以证明**。已清理元数据的图片还应直接从线上文件重新解析 EXIF，确认敏感字段确实不在线上版本中出现——本地干净不等于线上干净。
+- 线上核验须覆盖“未知路径返回 `404`”这一项，确认站点没有把缺失资源静默吞成 `200`。当前 `404` 响应体本身约 `452KB`，属已知的体积问题。
 
 ### 发布后按改动类型核验
 
@@ -371,7 +379,16 @@ git diff --check
 
 ### 最近一次已核实的发布记录
 
-以下记录对应 2026-09-11 已发布的楼顶定位修正，是本次文档更新前的功能发布证据，不表示后续提交自动通过：
+以下记录对应 2026-09-11 已发布的图片隐私清理与 favicon 加固，不表示后续提交自动通过：
+
+- 提交：`a59096d743174d018c1887812ab8a052356c199d`（清理 2 张作品原图残留的 `DateTime` 与 `UserComment`，新增 `public/favicon.ico`，并加固导出时的图标存在性校验）。
+- [Pages 运行 34590539334](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34590539334)：`completed / success`，耗时 `1m12s`，运行 SHA 与上述提交一致。
+- 本地检查：81 项测试、lint、构建与 18 条路由静态导出通过，`git diff --check` 通过；`public/` 共 145 张图，隐私字段命中 `0`。
+- 线上检查：`/`、`/favicon.ico`、`/favicon.svg`、`/sitemap.xml` 与受影响的作品原图均返回 HTTP `200`，未知路径返回 `404`；`/favicon.ico` 为 `999` 字节的 `image/vnd.microsoft.icon`（修复前会回落到约 `442KB` 的 `404.html`）。
+- 字节级核验：下载线上 `favicon.ico` 与其中一张已清理原图，与本地版本比对 SHA-256 **完全一致**；线上原图直接解析 EXIF，`Make`、`Model`、曝光、ISO、焦距与 `DateTimeOriginal` 均保留，`DateTime`、`UserComment`、`MakerNote`、`Artist`、`Software`、相机所有者与序列号字段**全部不存在**。
+- 本次未做浏览器截图验收；部署成功与线上页面／资产响应核验须分别报告。
+
+以下记录对应更早一次的功能发布，保留作为对照：
 
 - 提交：`4d1a59cdaead30fb718c209867da04603ddd1444`（机位与被摄物按三维高度显示，并支持点击建筑取楼顶参考点）。
 - [Pages 运行 34558060570](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34558060570)：`completed / success`，运行 SHA 与上述提交一致。
@@ -402,6 +419,8 @@ git diff --check
 - [ ] 是否通过 lint、测试、构建和 Pages 导出？
 - [ ] `public/favicon.ico` 是否与 `public/favicon.svg` 同步，并确实写入 `_site`？
 - [ ] 是否确认对应提交的 GitHub Actions 运行成功，并按第 11 节的改动类型完成远端文档、正式页面或交互核验？
+- [ ] 推送前是否确认 git 提交身份为仓库约定的 GitHub noreply 邮箱，避免推送被 `GH007` 拒绝？
+- [ ] 若本次改动了站点图标或被清理过元数据的图片，发布后是否做了字节级核验（SHA-256 与本地一致，且线上文件重新解析后不含敏感字段）？
 - [ ] 若修改视觉或布局，是否完成桌面与手机视口检查，或明确记录尚未验收的项目？
 
 ### 隐私检查批量处理补充
