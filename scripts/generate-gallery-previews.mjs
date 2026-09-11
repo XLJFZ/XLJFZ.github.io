@@ -23,6 +23,7 @@ const responsiveCovers = [
       projectRoot,
       'public',
       'portfolio',
+      'distant-weather',
       'dsc-2989-shangri-la.jpg',
     ),
     output: 'distant-weather-1200.jpg',

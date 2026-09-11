@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     description: '专注建筑、城市、旅行与自然风光的个人摄影作品集。',
     images: [
       {
-        url: '/portfolio/dsc-2989-shangri-la.jpg',
+        url: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
         width: 2800,
         height: 1034,
         alt: '晨雾与阳光中的松赞林寺',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '迅雷疾风｜建筑与风光摄影',
     description: '专注建筑、城市、旅行与自然风光的个人摄影作品集。',
-    images: ['/portfolio/dsc-2989-shangri-la.jpg'],
+    images: ['/portfolio/distant-weather/dsc-2989-shangri-la.jpg'],
   },
 };
 

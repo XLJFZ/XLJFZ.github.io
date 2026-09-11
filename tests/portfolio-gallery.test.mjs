@@ -202,14 +202,17 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const shangriLa = portfolioRecord(
     source,
-    '/portfolio/dsc-2989-shangri-la.jpg',
+    '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
   );
   assert.match(
     shangriLa,
     /camera: 'Nikon Z8',[\s\S]*?focalLength: '180mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/160s',[\s\S]*?iso: 'ISO 64'/,
   );
 
-  const deqin = portfolioRecord(source, '/portfolio/zbz-1242-meili.jpg');
+  const deqin = portfolioRecord(
+    source,
+    '/portfolio/distant-weather/zbz-1242-meili.jpg',
+  );
   assert.match(
     deqin,
     /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '68mm',[\s\S]*?aperture: 'f\/4',[\s\S]*?shutterSpeed: '60s',[\s\S]*?iso: 'ISO 64'/,
@@ -445,7 +448,10 @@ test('user-confirmed dates are retained for the identified photographs', async (
 
 test('the Meili photograph uses Deqin as its location label', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
-  const record = portfolioRecord(source, '/portfolio/zbz-1242-meili.jpg');
+  const record = portfolioRecord(
+    source,
+    '/portfolio/distant-weather/zbz-1242-meili.jpg',
+  );
 
   assert.ok(record.includes("caption: '德钦 · 2025'"));
   assert.match(source, /location: '香格里拉 · 德钦 · 甘南 · 平潭 · 宁海'/);
@@ -493,8 +499,8 @@ test('series photographs retain the editorial sequence', async () => {
     '/portfolio/urban-pulse/hong-kong-zbz-7859.jpg',
   ]);
   assertOrdered([
-    '/portfolio/dsc-2989-shangri-la.jpg',
-    '/portfolio/zbz-1242-meili.jpg',
+    '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
+    '/portfolio/distant-weather/zbz-1242-meili.jpg',
     '/portfolio/distant-weather/gannan-dji-0934.jpg',
     '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
     '/portfolio/distant-weather/ninghai-zbz-6273.jpg',

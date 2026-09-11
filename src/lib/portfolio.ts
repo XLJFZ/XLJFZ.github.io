@@ -430,9 +430,9 @@ export const series: Series[] = [
     location: '香格里拉 · 德钦 · 甘南 · 平潭 · 宁海',
     statement:
       '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
-    cover: '/portfolio/dsc-2989-shangri-la.jpg',
+    cover: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
     preview: {
-      path: '/portfolio/dsc-2989-shangri-la.jpg',
+      path: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
       width: 2800,
       height: 1034,
       mobilePath: '/covers/distant-weather-1200.jpg',
@@ -441,7 +441,7 @@ export const series: Series[] = [
     coverPosition: 'center 45%',
     images: [
       {
-        src: '/portfolio/dsc-2989-shangri-la.jpg',
+        src: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
         width: 2800,
         height: 1034,
         alt: '晨光与薄雾中的香格里拉建筑群',
@@ -456,7 +456,7 @@ export const series: Series[] = [
         layout: 'wide',
       },
       {
-        src: '/portfolio/zbz-1242-meili.jpg',
+        src: '/portfolio/distant-weather/zbz-1242-meili.jpg',
         width: 2800,
         height: 2800,
         alt: '星轨下的梅里雪山雪峰',
