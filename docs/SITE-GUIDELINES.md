@@ -4,6 +4,18 @@
 
 最后核对：2026-09-12
 
+## 0. 规则效力标记
+
+修改本文档时必须沿用下面三种标记，避免把历史事实或未完成的工作读成当前约束：
+
+| 标记           | 含义                                         | 写法要求                                               |
+| -------------- | -------------------------------------------- | ------------------------------------------------------ |
+| 【当前约束】   | 现在必须遵守；改动相关代码即应回归           | 默认效力。不带标记的规则一律视为当前约束               |
+| 【历史记录】   | 已发生的决策、发布事实与一次性操作，仅作背景 | 必须写明日期与提交；不得据此推断现状，也不构成长期授权 |
+| 【未完成验收】 | 已裁定或已开工，但没有证据表明已落地         | 必须写明当前实测状态；没有证据时禁止写成"已完成"       |
+
+清理规则：某条【未完成验收】落地后转为【当前约束】并删除状态描述；某条【当前约束】被新决策取代后，应删除旧规则，而不是并列保留两条互相冲突的要求。
+
 ## 1. 网站定位与视觉基调
 
 - 网站是 XLJFZ 的个人摄影作品集，不是通用图片瀑布流或社交相册。
@@ -81,7 +93,7 @@
 - `width`、`height` 必须填写照片的真实像素尺寸，不能填写页面显示尺寸。
 - `alt` 只描述画面中可见的内容，不虚构事件、身份或地理细节。
 - 新文件使用稳定、可读的小写名称：`地点-相机或编号.jpg`。
-- 加图前检查 `public/portfolio` 与 `src/lib/portfolio.ts`，避免重复加入此前的上海、西安或其他照片。
+- 加图前检查仓库外的原图目录与 `src/lib/portfolio.ts`，避免重复加入此前的上海、西安或其他照片。
 
 ### 5.1 EXIF 证据与写入规范
 
@@ -117,7 +129,7 @@
 
 ### 5.2 仓库内图片文件的隐私扫描与清理
 
-灯箱记录干净，不代表仓库中的图片文件干净。`public/portfolio/` 里的原图可能自带与展示无关的私密元数据，必须在提交前扫描并清理。
+灯箱记录干净，不代表图片文件本身干净。准备入库的展示图（预览图与封面）可能自带与展示无关的私密元数据，必须在生成预览之后、提交之前扫描并清理。
 
 需要排查的字段：
 
@@ -146,13 +158,38 @@ public/favicon.svg                   站点图标（矢量，主用）
 public/favicon.ico                   站点图标（多尺寸兜底，由脚本生成）
 ```
 
-- **原图不入库、不随站点发布。** 45 张原图保存在仓库外的 `../backups/portfolio-originals-2026-09-12/`（同名目录按日期递增），git 历史也已用 `git filter-repo` 清除。任何人都不应再把 `public/portfolio/` 加回仓库；`tests/gallery-previews.test.mjs` 会直接断言该目录不存在。
-- 预览图由 [`scripts/generate-gallery-previews.mjs`](../scripts/generate-gallery-previews.mjs) 生成，共三档：`1200px`、`1800px`，以及最大档 `min(原图宽度, MAX_GALLERY_WIDTH)`。`MAX_GALLERY_WIDTH = 4096` 定义在 [`src/lib/portfolio.ts`](../src/lib/portfolio.ts)，灯箱与 `srcSet` 一律通过 `galleryMaxWidth()` / `galleryMaxSrc()` 取该值，不得再直接引用 `image.src`。
-- 原图宽度 ≤ `1800px` 的照片不生成最大档（会与 `1800px` 档重复），此时最大档回落到 `1800px`。
-- 重新生成预览图需要仓库外的原图：`PORTFOLIO_ORIGINALS_DIR="<原图目录>" npm run previews`。目录缺失时脚本会直接报错并提示该变量，不会静默产出空目录。
+### 6.1 资产发布边界（当前约束）
+
+- **原图不入库、不随站点发布。** 45 张原图保存在仓库外的 `../backups/portfolio-originals-2026-09-12/`（同名目录按日期递增），git 历史也已用 `git filter-repo` 清除（过程见 6.4）。任何人都不应再把 `public/portfolio/` 加回仓库；`tests/gallery-previews.test.mjs` 会直接断言该目录不存在。
+- 预览图的目录、档位数与尺寸上限**以当前代码与生成脚本为准**：[`scripts/generate-gallery-previews.mjs`](../scripts/generate-gallery-previews.mjs) 决定档位与编码参数，[`src/lib/portfolio.ts`](../src/lib/portfolio.ts) 决定尺寸上限与取图入口。本节的目录清单是说明而不是约束来源；代码变更后以代码为准，并在同一次修改中修订本节。
+- **禁止恢复旧原图引用**：画廊 `srcSet` 最大档、灯箱大图、相邻图片预加载、专题封面、分享图（OpenGraph / Twitter Card）与静态导出产物，均不得再指向 `public/portfolio/` 下的原图。
+- 不要手工修改生成的预览图，也不要让画廊首屏直接下载最大档。需要改变档位或尺寸时改脚本后重跑 `PORTFOLIO_ORIGINALS_DIR="<原图目录>" npm run previews`。
+- 重新生成预览图需要仓库外的原图。目录缺失时脚本会直接报错并提示该变量，不会静默产出空目录。
+- 当前三档为 `1200px`、`1800px` 与最大档 `min(原图宽度, MAX_GALLERY_WIDTH)`；`MAX_GALLERY_WIDTH = 4096` 定义在 `src/lib/portfolio.ts`，灯箱与 `srcSet` 一律通过 `galleryMaxWidth()` / `galleryMaxSrc()` 取该值，不得再直接引用 `image.src`。原图宽度 ≤ `1800px` 的照片不生成最大档（会与 `1800px` 档重复），此时最大档回落到 `1800px`。
+
+### 6.2 图片调整必须同步检查的位置
+
+移动、重命名、替换或调整任何作品图时，以下六处必须逐个核对。漏一处就会出现 404、旧路径残留或断言失败：
+
+1. **画廊列表**：`src/lib/portfolio.ts` 中该图的 `images[].src`，以及 `src/components/lightbox-gallery.tsx` 中 `galleryPreviewSrc()` 生成的 `srcSet`。
+2. **灯箱**：灯箱大图的来源，以及"先显示已缓存预览、再切换到更大档"的切换与失败回退逻辑。
+3. **预加载**：相邻图片的预加载目标，必须与灯箱使用同一套取图入口，不能单独保留旧路径。
+4. **专题封面**：该专题的 `cover` 与 `preview.path`，以及 `scripts/generate-gallery-previews.mjs` 中 `responsiveCovers` 的 `source` 路径。
+5. **分享图**：`src/app/layout.tsx` 的 `metadata.openGraph.images[0].url` 与 `metadata.twitter.images`。分享图 URL 变更后，已分享到社交平台的旧卡片缓存图会短暂失效，这是公开静态托管无重定向机制导致的，不是故障。
+6. **导出产物**：运行 `npm run export:github-pages` 后扫描 `_site`，汇总 `html` 与 `js` 产物中的全部 `/portfolio…` 引用，逐个确认文件存在且指向预览图。
+
+补充：
+
+- 预览图路径由 `galleryPreviewSrc()` 在**客户端运行时**生成，**导出后的 HTML 中不会出现预览图路径**。因此"在 HTML 里搜不到预览路径"是正常现象，不能据此判断引用断裂。
+- `tests/portfolio-gallery.test.mjs` 的硬编码路径，以及 `tests/seo-accessibility.test.mjs` 中匹配分享图的正则，**在路径中间插入子目录后会失配**，必须一并更新。
+- `portfolio-previews/` 下各档位文件按与源图相同的相对路径迁移。
+- 移动图片一律使用 `git mv`，让 git 识别为**重命名**而不是“删除 + 新增”；提交前用 `git diff --cached --numstat` 确认重命名相似度为 `100%`（即字节未变）。
+- 只移动少数图片时，**不要重跑全量 `npm run previews`**：该脚本会先 `rm -rf` 整个 `portfolio-previews/` 再重新编码全部预览图，可能给无关文件带来 diff。改为只迁移受影响的预览文件即可——脚本输出路径由 `path.relative(sourceRoot, …)` 决定，与手工迁移的结果一致。
+
+### 6.3 其余资产约束
+
 - 首页主视觉同时生成 `1280px` 与 `2200px` 两档预览，浏览器按屏幕宽度选择；移动端禁止直接下载 `3000px` 原图。
 - 首页、专题索引与“下一组作品”的专题封面同时提供 `1200px` 移动版和高分辨率桌面版，必须通过 `srcset` 与 `sizes` 让浏览器按版面选择。
-- 不要手工修改生成的预览图，也不要让画廊首屏直接下载最大档。
 - 长专题首章之后的屏幕外章节使用渐进增强的延迟绘制；必须保留章节锚点与不支持该能力的浏览器回退，不能通过卸载 DOM 破坏灯箱顺序。
 - 章节高亮使用浏览器可见性观察器跟随章节标记，禁止恢复为滚动时持续读取全部章节位置的监听器。
 - 灯箱加载最大档预览图（`min(原图宽度, 4096)`），不再加载原图；相邻两张同样预加载最大档，不再预加载 `image.src`。
@@ -163,21 +200,16 @@ public/favicon.ico                   站点图标（多尺寸兜底，由脚本�
 - `public/favicon.ico` 必须存在。浏览器与抓取工具会直接请求站点根路径的 `/favicon.ico`；该文件缺失时 GitHub Pages 会回落到体量很大的 `404.html`（当前约 `442KB`），每次页面加载都会浪费一次大响应。该文件由 [`scripts/generate-favicon.mjs`](../scripts/generate-favicon.mjs) 从 `public/favicon.svg` 生成（`16px` / `32px` / `48px` 三档，PNG 内嵌 ICO），修改图标后运行 `npm run favicon` 重新生成，不要手工编辑。
 - `src/app/layout.tsx` 的 `icons` 必须同时声明 `/favicon.svg` 与 `/favicon.ico`；`scripts/export-github-pages.mjs` 必须显式校验该文件存在并随导出写入 `_site`，不得再使用静默忽略错误的写法。
 
-- **移动或重命名图片时，必须同步检查以下引用位置**（漏一处就会出现 404 或断言失败）：
-  1. `src/lib/portfolio.ts`：该图的 `images[].src`；若它是专题封面，还要改该专题的 `cover` 与 `preview.path`。
-  2. `src/app/layout.tsx`：若它是 OpenGraph / Twitter Card 分享图，必须同步改 `metadata.openGraph.images[0].url` 与 `metadata.twitter.images`。分享图 URL 变更后，已分享到社交平台的旧卡片缓存图会短暂失效，这是公开静态托管无重定向机制导致的，不是故障。
-  3. `scripts/generate-gallery-previews.mjs`：`responsiveCovers` 里若以该图为源生成专题封面，必须改 `source` 路径。
-  4. `tests/`：`portfolio-gallery.test.mjs` 的硬编码路径，以及 `seo-accessibility.test.mjs` 中匹配分享图的正则——**路径中间插入子目录后，原正则会失配**，必须一并更新。
-  5. `portfolio-previews/` 下对应的 `-1200` / `-1800` 预览文件，按同样的相对路径迁移。
-- 移动图片一律使用 `git mv`，让 git 识别为**重命名**而不是“删除 + 新增”；提交前用 `git diff --cached --numstat` 确认重命名相似度为 `100%`（即字节未变）。
-- 只移动少数图片时，**不要重跑全量 `npm run previews`**：该脚本会先 `rm -rf` 整个 `portfolio-previews/` 再重新编码全部预览图，可能给无关文件带来 diff。改为只迁移受影响的预览文件即可——脚本输出路径由 `path.relative(sourceRoot, …)` 决定，与手工迁移的结果一致。
-- 画廊与灯箱的预览图路径由 `src/components/lightbox-gallery.tsx` 的 `galleryPreviewSrc()` 在**客户端运行时**由 `/portfolio/` 替换生成，**导出后的 HTML 中并不会出现预览图路径**。因此“在 HTML 里搜不到预览路径”是正常现象，不能据此判断引用断裂；核验引用完整性应扫描 `html` 与 `js` 产物、汇总全部 `/portfolio…` 引用后逐个检查文件是否存在。
-- **公开仓库的资产暴露边界**（2026-09-11 排查，2026-09-12 已按 4096px 方案实施）：
-  - 浏览器要显示图片就必须下载它，因此**公开站点无法阻止图片下载**。禁用右键、禁止拖拽、JS 遮罩、防盗链只能挡住不使用开发者工具的人，不能作为主要手段。
-  - GitHub 仓库可见性与站点可见性是两件事：Free 账户的 Pages 只支持**公开仓库**；Pro 才支持个人私有仓库作发布源，**但发布出的站点仍然公开**。私有仓库只能挡住“从仓库批量拖原图”，挡不住从站点下载。
-  - **只在新的提交里删除文件无效，git 历史会永久保留**。真正清除必须用 `git filter-repo` / BFG 重写历史并**强制推送**（会改写全部 commit SHA，须经用户明确授权，且本仓库默认不强推）。
-  - 已实施的收敛：补一档 `min(原图宽度, 4096)` 预览、灯箱与 `srcSet` 改读该档、移除 `public/portfolio/` 全部原图，并重写历史清除原图。可获取的最高分辨率由 `8256px` 降到 `4096px`；仓库中不再存在原图。
-  - 后续新增照片必须沿用同一规则：原图只进仓库外的备份目录，仓库只保留预览图。
+### 6.4 【历史记录】公开仓库的资产暴露边界与历史重写（2026-09-11 排查，2026-09-12 实施）
+
+以下结论解释了 6.1 为何采用"只发布预览图"策略，仅作背景，不构成重复执行的授权：
+
+- 浏览器要显示图片就必须下载它，因此**公开站点无法阻止图片下载**。禁用右键、禁止拖拽、JS 遮罩、防盗链只能挡住不使用开发者工具的人，不能作为主要手段。
+- GitHub 仓库可见性与站点可见性是两件事：Free 账户的 Pages 只支持**公开仓库**；Pro 才支持个人私有仓库作发布源，**但发布出的站点仍然公开**。私有仓库只能挡住"从仓库批量拖原图"，挡不住从站点下载。
+- **只在新的提交里删除文件无效，git 历史会永久保留**。真正清除必须用 `git filter-repo` / BFG 重写历史并**强制推送**（会改写全部 commit SHA，须逐次取得用户明确授权；历史记录中的既往授权不构成长期授权）。
+- 排查当时的暴露面：`public/portfolio/` 原图 45 张约 `75.3 MB`，最大 `8256 × 5504`；而网站实际最高只使用 `1800px` 预览。二者的差距属于未使用的冗余暴露。
+- 已实施的收敛（提交 `4e40433`，详见 11 节发布记录）：补一档 `min(原图宽度, 4096)` 预览、灯箱与 `srcSet` 改读该档、移除 `public/portfolio/` 全部原图，并重写历史清除原图。可获取的最高分辨率由 `8256px` 降到 `4096px`；仓库中不再存在原图。
+- 残留风险：历史重写只使旧提交从分支不可达，GitHub 服务端在垃圾回收前仍可能按直接 SHA 返回孤儿提交，CDN 缓存的旧资源短期内也可能命中。
 
 ## 7. 站内照片工具
 
@@ -342,9 +374,22 @@ git diff --check
 
 以上是提交前的完整本地质量门槛。当前 Pages 工作流只重复执行 `npm ci`、`npm run build` 与 `npm run export:github-pages`，不会执行格式化、lint、测试或 `git diff --check`；不得用一次 Actions 成功代替这些本地检查。运行全项目格式化后必须复核差异，不能把无关文件的纯格式变化混入提交。
 
+### 10.1 工作区与历史操作的安全边界
+
+以下操作会丢弃内容，**执行前必须停一步**：
+
+- 恢复工作区（`git checkout -- .`、`git restore`、删除工作副本文件）或同步被重写的历史（`git fetch` + `git reset --hard origin/main`、把本地对齐到已被 `git filter-repo` / BFG 改写的远端）之前，必须先完成：
+  1. `git status --porcelain` 列出已跟踪改动与未跟踪文件；
+  2. `git diff --numstat` 确认真实内容差异，不要被 CRLF／LF 噪音误导；
+  3. `git stash list` 与 `git log --oneline origin/main..HEAD` 确认是否存在只存在于本地的提交；
+  4. 把上述内容备份到**仓库外**目录，确认备份可读后再继续。
+- **不得自动执行**会丢弃修改或提交的全量恢复与历史改写：`git checkout -- .`、`git reset --hard`、`git clean -fd`、`git push --force`、`git push --force-with-lease`、`git filter-repo`、BFG。确需执行时，先说明影响范围（会丢失哪些提交与文件），取得用户对**该次操作**的明确授权后再执行。
+- 历史发布记录、提交说明或本文档中记载的一次性操作与授权（例如某一次的强制推送、历史重写、临时目录清理）**只代表当时那一次**，不构成长期授权；重复执行前必须重新确认。
+- 远端领先时先 `git fetch`，再用 `git log --oneline HEAD..origin/main` 查看差异，保留双方改动完成整合，不要用丢弃本地修改的方式强行对齐。
+
 检查重点：
 
-- 所有照片都有对应的 `1200px` 与 `1800px` 预览图。
+- 所有照片都有生成脚本产出的各档预览图（当前为 `1200px`、`1800px` 与最大档；档位以脚本为准）。
 - 所有作品只被引用一次，没有重复照片。
 - 专题年份覆盖真实照片年份。
 - 首页、专题索引、详情页和 404 页面均能导出。
@@ -353,7 +398,7 @@ git diff --check
 - Windows 本机若出现 Workers runtime 启动失败，且已确认目录权限可用，可仅在本次导出进程中移除 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 后重试；不要修改系统代理或以此跳过导出检查。已实测：带代理时 `npm run build` 与 `npm run export:github-pages` 会在 Vite 打印 `Proxy environment variables detected` 之后长时间完全无进展（16 分钟零进度），去掉代理后 build 约 `23s`、export 约 `15s`。因此**构建与导出前先行清空全部代理变量（含小写形式）是常规步骤，不是应急手段**。
 - Windows 本机若 `npm ci` 长时间无任何输出（npm 调试日志停在 `silly idealTree buildDeps`），或报 `EBUSY: resource busy or locked` 并反复重试重命名 `node_modules/<包名>`，应先检查是否存在遗留的 `workerd.exe`：`tasklist /FI "IMAGENAME eq workerd.exe"`，存在则 `taskkill /PID <pid> /F` 后再安装。这些孤儿进程由 `wrangler dev` 派生，在导出脚本结束 dev server 后未被回收，会长期占用 `node_modules/miniflare` 等目录，使安装无限重试。
 - `npm run format` 是**写入模式**（`package.json` 中定义为 `oxfmt`，不带 `--check`），它只负责格式化，**不会因格式问题而失败**，因此它只能作为整理工具，不能当作「格式检查」门禁。
-- 本机 `core.autocrlf=true`，git 检出的工作副本是 CRLF，而 `oxfmt` 会把整个工作区改写为 LF。由于仓库 blob 本身存的是 LF，`git diff --numstat` 不会产生任何真实内容差异（只列出人工修改的文件），但 `git status` 会把大批文件列为已修改，形成噪音。因此：**提交前只显式 `git add <目标文件>`，不要用 `git add -A`；在 `git status` 中看到大量此类「已修改」文件时，先用 `git diff --numstat` 确认真实内容差异**。需要把工作区恢复为检出状态时用 `git checkout -- .`；注意它只会重写 stat 已失效的文件，**刚刚 `git add` 或 amend 过的文件会因 stat 仍新鲜而被跳过、继续保持 LF**（`git checkout-index -f` 同样不会重新应用换行符转换，已实测无效）。要可靠地把单个文件恢复为检出状态，先删除该文件再 `git checkout -- <文件路径>`，然后用 `git ls-files --eol <文件路径>` 确认工作副本显示为 `w/crlf`。不要为此批量重写换行符，也不要把换行符变化混入提交。
+- 本机 `core.autocrlf=true`，git 检出的工作副本是 CRLF，而 `oxfmt` 会把整个工作区改写为 LF。由于仓库 blob 本身存的是 LF，`git diff --numstat` 不会产生任何真实内容差异（只列出人工修改的文件），但 `git status` 会把大批文件列为已修改，形成噪音。因此：**提交前只显式 `git add <目标文件>`，不要用 `git add -A`；在 `git status` 中看到大量此类「已修改」文件时，先用 `git diff --numstat` 确认真实内容差异**。需要把工作区恢复为检出状态时用 `git checkout -- .`（**先按 10.1 节确认并备份未提交内容**）；注意它只会重写 stat 已失效的文件，**刚刚 `git add` 或 amend 过的文件会因 stat 仍新鲜而被跳过、继续保持 LF**（`git checkout-index -f` 同样不会重新应用换行符转换，已实测无效）。要可靠地把单个文件恢复为检出状态，先删除该文件再 `git checkout -- <文件路径>`，然后用 `git ls-files --eol <文件路径>` 确认工作副本显示为 `w/crlf`。不要为此批量重写换行符，也不要把换行符变化混入提交。
 - 照片压缩工具仍保留三档预设、EXIF 保留和本地处理约束。
 - 智能命名器仍保留中英文切换、逐张人工修改、批量地点与主题、完整新旧名称预览、连续编号、重名阻断、不压缩默认项、三档压缩和不覆盖原图的 ZIP 下载。
 - 新增专题时必须同步更新 Pages 导出路由、`public/sitemap.xml` 和相关测试。
@@ -400,7 +445,9 @@ git diff --check
 
 浏览器预览不可用时，应明确记录“未完成截图或交互验收”；部署成功、页面响应和代码核验可分别报告，不得合并描述为全部验收通过。
 
-### 最近一次已核实的发布记录
+### 【历史记录】最近一次已核实的发布记录
+
+本节全部记录均为**已发生的事实**，仅作对照与追溯依据。其中记载的一次性操作（历史重写、强制推送等）与当时的授权**只代表那一次**，不构成后续重复执行的长期授权；再次执行前必须按 10.1 节重新取得用户对该次操作的明确同意。
 
 以下记录对应 2026-09-12 已发布的「原图移出仓库 + 4096px 预览档」（含 git 历史重写与强制推送，均经所有者事先明确授权），不表示后续提交自动通过：
 
@@ -461,9 +508,11 @@ git diff --check
 - [ ] `public/favicon.ico` 是否与 `public/favicon.svg` 同步，并确实写入 `_site`？
 - [ ] 是否确认对应提交的 GitHub Actions 运行成功，并按第 11 节的改动类型完成远端文档、正式页面或交互核验？
 - [ ] 推送前是否确认 git 提交身份为仓库约定的 GitHub noreply 邮箱，避免推送被 `GH007` 拒绝？
-- [ ] 若移动或重命名图片，是否同步更新了 `portfolio.ts`、`layout.tsx` 的分享图、预览生成脚本与测试断言，并用 `git mv` 保持了重命名？
-- [ ] 若新增或替换资产，是否确认放入仓库的分辨率没有超过对外展示所需（公开仓库等于公开下载，原图只进仓库外备份目录）？
+- [ ] 若调整图片，是否按 6.2 节逐项核对了画廊列表、灯箱、预加载、专题封面、分享图与导出产物六处，确认没有遗留旧原图路径？
+- [ ] 若移动或重命名图片，是否用 `git mv` 保持了重命名，并用 `git diff --cached --numstat` 确认相似度 `100%`？
+- [ ] 若新增或替换资产，是否只放入展示所需分辨率的预览图，没有把原图加入仓库（公开仓库等于公开下载，原图只进仓库外备份目录）？
 - [ ] 若本次改动了站点图标或被清理过元数据的图片，发布后是否做了字节级核验（SHA-256 与本地一致，且线上文件重新解析后不含敏感字段）？
+- [ ] 若执行过工作区恢复、历史同步或历史重写，是否先按 10.1 节备份了未提交内容，且没有自动使用 `git reset --hard` 或强制推送？
 - [ ] 若修改视觉或布局，是否完成桌面与手机视口检查，或明确记录尚未验收的项目？
 
 ### 隐私检查批量处理补充

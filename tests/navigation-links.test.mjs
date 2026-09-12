@@ -32,7 +32,7 @@ test('internal navigation uses native links in the deployed site', async () => {
 test('the shared site header stays fixed above every page without covering content', async () => {
   const header = await readFile('src/components/site-header.tsx', 'utf8');
   assert.match(header, /fixed inset-x-0 top-0 z-40/);
-  assert.match(header, /backdrop-blur-md/);
+  assert.match(header, /backdrop-blur-2xl/);
   assert.match(header, /h-\[61px\][\s\S]*md:h-\[81px\]/);
   assert.doesNotMatch(header, /mix-blend-difference/);
 });
