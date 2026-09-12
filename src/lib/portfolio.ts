@@ -1,3 +1,5 @@
+import { maximumPreviewWidth } from './preview-policy.mjs';
+
 export type PortfolioImage = {
   src: string;
   width: number;
@@ -35,13 +37,8 @@ export type Series = {
   images: PortfolioImage[];
 };
 
-// 全站对外提供的最高图片宽度。原图不再随站点发布，画廊 srcSet 与灯箱的最大档
-// 一律取 min(原图宽度, MAX_GALLERY_WIDTH)，由 scripts/generate-gallery-previews.mjs 生成。
-export const MAX_GALLERY_WIDTH = 4096;
-
-export function galleryMaxWidth(image: Pick<PortfolioImage, 'width'>) {
-  return Math.min(image.width, MAX_GALLERY_WIDTH);
-}
+// Maximum tier is limited to a 4096px long edge, without enlargement.
+export const galleryMaxWidth = maximumPreviewWidth;
 
 export const series: Series[] = [
   {
@@ -63,7 +60,7 @@ export const series: Series[] = [
     },
     images: [
       {
-        src: '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+        src: '/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-1800.jpg',
         width: 3600,
         height: 2197,
         alt: '夜色中被船舶光轨环绕的重庆江岸',
@@ -79,7 +76,7 @@ export const series: Series[] = [
         chapter: '重庆',
       },
       {
-        src: '/portfolio/urban-pulse/chongqing-zbz-9356.jpg',
+        src: '/portfolio-previews/urban-pulse/chongqing-zbz-9356-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '铁网框景下的重庆高层建筑',
@@ -94,7 +91,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/tokyo-zbz-8136.jpg',
+        src: '/portfolio-previews/urban-pulse/tokyo-zbz-8136-1680.jpg',
         width: 1680,
         height: 2800,
         alt: '电线与街巷之间的东京晴空塔',
@@ -103,7 +100,7 @@ export const series: Series[] = [
         chapter: '东京',
       },
       {
-        src: '/portfolio/urban-pulse/tokyo-zbz-8295.jpg',
+        src: '/portfolio-previews/urban-pulse/tokyo-zbz-8295-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '东京夜间街巷与霓虹招牌',
@@ -111,7 +108,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/tokyo-zbz-8187.jpg',
+        src: '/portfolio-previews/urban-pulse/tokyo-zbz-8187-1800.jpg',
         width: 2800,
         height: 1200,
         alt: '林荫参道尽头的鸟居',
@@ -119,7 +116,7 @@ export const series: Series[] = [
         layout: 'wide',
       },
       {
-        src: '/portfolio/urban-pulse/tokyo-zbz-8379.jpg',
+        src: '/portfolio-previews/urban-pulse/tokyo-zbz-8379-1800.jpg',
         width: 1867,
         height: 2800,
         alt: '东京街道与远处的东京塔',
@@ -127,7 +124,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/tokyo-ochanomizu-trains.jpg',
+        src: '/portfolio-previews/urban-pulse/tokyo-ochanomizu-trains-1800.jpg',
         width: 1866,
         height: 2800,
         alt: '御茶之水多列电车交汇的城市景观',
@@ -135,7 +132,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-8199-1800.jpg',
         width: 2800,
         height: 2041,
         alt: '蓝调夜色中的上海城市天际线与黄浦江',
@@ -150,7 +147,7 @@ export const series: Series[] = [
         chapter: '上海',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-8285.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-8285-1800.jpg',
         width: 1867,
         height: 2800,
         alt: '粉紫朝霞下的上海城市天际线与里弄',
@@ -165,7 +162,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-7973.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-7973-1800.jpg',
         width: 1867,
         height: 2800,
         alt: '洛克·外滩源街区建筑与斜射光影',
@@ -180,7 +177,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-7974.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-7974-1800.jpg',
         width: 8256,
         height: 5504,
         alt: '街口信号灯与红砖建筑构成的上海仰视街景',
@@ -194,7 +191,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-8705.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-8705-1800.jpg',
         width: 2800,
         height: 1655,
         alt: '橙色晚霞笼罩上海城市天际线',
@@ -208,7 +205,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-dji-0314.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-dji-0314-1800.jpg',
         width: 2800,
         height: 1575,
         alt: '蓝调与粉色晚霞下的上海陆家嘴天际线',
@@ -222,7 +219,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-img-150846.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-img-150846-1800.jpg',
         width: 1926,
         height: 2800,
         alt: '雨夜车流光轨掠过上海武康大楼',
@@ -237,7 +234,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-img-150903.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-img-150903-1800.jpg',
         width: 2374,
         height: 2800,
         alt: '晴天下的上海武康大楼与街口车流',
@@ -252,7 +249,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-img-173301.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-img-173301-1800.jpg',
         width: 4096,
         height: 1680,
         alt: '黑白画面中的上海行人与建筑光影',
@@ -267,7 +264,7 @@ export const series: Series[] = [
         layout: 'wide',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-0216.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-0216-1800.jpg',
         width: 5228,
         height: 6369,
         alt: '上海街角阳光下的咖啡馆与自行车',
@@ -282,7 +279,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shanghai-zbz-9081.jpg',
+        src: '/portfolio-previews/urban-pulse/shanghai-zbz-9081-1800.jpg',
         width: 1886,
         height: 2800,
         alt: '上海老街通向陆家嘴高楼的红色车轨',
@@ -290,7 +287,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
+        src: '/portfolio-previews/urban-pulse/guangzhou-zbz-6789-1787.jpg',
         width: 1787,
         height: 2800,
         alt: '广州石室圣心大教堂与街道人群',
@@ -306,7 +303,7 @@ export const series: Series[] = [
         chapter: '广州',
       },
       {
-        src: '/portfolio/urban-pulse/guangzhou-rpx-00040.jpg',
+        src: '/portfolio-previews/urban-pulse/guangzhou-rpx-00040-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '草坡上的行人与广州珠江新城高楼',
@@ -321,7 +318,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/shenzhen-zbz-7358.jpg',
+        src: '/portfolio-previews/urban-pulse/shenzhen-zbz-7358-1800.jpg',
         width: 2057,
         height: 2800,
         alt: '长曝光云层下的深圳城市天际线',
@@ -337,7 +334,7 @@ export const series: Series[] = [
         chapter: '深圳',
       },
       {
-        src: '/portfolio/urban-pulse/nanchang-zbz-1447.jpg',
+        src: '/portfolio-previews/urban-pulse/nanchang-zbz-1447-1800.jpg',
         width: 2800,
         height: 1867,
         alt: '低角度仰望南昌摩天轮座舱',
@@ -345,7 +342,7 @@ export const series: Series[] = [
         chapter: '南昌',
       },
       {
-        src: '/portfolio/urban-pulse/nanchang-zbz-1370.jpg',
+        src: '/portfolio-previews/urban-pulse/nanchang-zbz-1370-1800.jpg',
         width: 1807,
         height: 2800,
         alt: '南昌红谷滩商务区与城市道路',
@@ -353,7 +350,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/hong-kong-zbz-7859.jpg',
+        src: '/portfolio-previews/urban-pulse/hong-kong-zbz-7859-1800.jpg',
         width: 1809,
         height: 2800,
         alt: '香港现代主义白色建筑立面与红色出租车',
@@ -369,7 +366,7 @@ export const series: Series[] = [
         chapter: '香港',
       },
       {
-        src: '/portfolio/urban-pulse/hong-kong-zbz-8030.jpg',
+        src: '/portfolio-previews/urban-pulse/hong-kong-zbz-8030-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '香港中环夜色中的电车站与行人',
@@ -384,7 +381,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/urban-pulse/hong-kong-zbz-8039.jpg',
+        src: '/portfolio-previews/urban-pulse/hong-kong-zbz-8039-1800.jpg',
         width: 2800,
         height: 2000,
         alt: '霓虹招牌与出租车构成的香港夜间街角',
@@ -398,7 +395,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/urban-pulse/hong-kong-victoria-harbour.jpg',
+        src: '/portfolio-previews/urban-pulse/hong-kong-victoria-harbour-1800.jpg',
         width: 2800,
         height: 1750,
         alt: '长曝光下的维多利亚港与香港岛天际线',
@@ -413,7 +410,7 @@ export const series: Series[] = [
         layout: 'wide',
       },
       {
-        src: '/portfolio/urban-pulse/hong-kong-zbz-8171.jpg',
+        src: '/portfolio-previews/urban-pulse/hong-kong-zbz-8171-1800.jpg',
         width: 1867,
         height: 2800,
         alt: '香港夜间道路上的电车与车流光轨',
@@ -440,16 +437,16 @@ export const series: Series[] = [
       '天气改变地景，也改变观看的方式。雾、风和短暂的光，在辽阔尺度中留下难以复现的瞬间。',
     cover: '/portfolio-previews/distant-weather/dsc-2989-shangri-la-1800.jpg',
     preview: {
-      path: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
-      width: 2800,
-      height: 1034,
+      path: '/portfolio-previews/distant-weather/dsc-2989-shangri-la-1800.jpg',
+      width: 1800,
+      height: 665,
       mobilePath: '/covers/distant-weather-1200.jpg',
       mobileWidth: 1200,
     },
     coverPosition: 'center 45%',
     images: [
       {
-        src: '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
+        src: '/portfolio-previews/distant-weather/dsc-2989-shangri-la-1800.jpg',
         width: 2800,
         height: 1034,
         alt: '晨光与薄雾中的香格里拉建筑群',
@@ -464,7 +461,7 @@ export const series: Series[] = [
         layout: 'wide',
       },
       {
-        src: '/portfolio/distant-weather/zbz-1242-meili.jpg',
+        src: '/portfolio-previews/distant-weather/zbz-1242-meili-1800.jpg',
         width: 2800,
         height: 2800,
         alt: '星轨下的梅里雪山雪峰',
@@ -479,7 +476,7 @@ export const series: Series[] = [
         layout: 'medium',
       },
       {
-        src: '/portfolio/distant-weather/gannan-dji-0934.jpg',
+        src: '/portfolio-previews/distant-weather/gannan-dji-0934-1800.jpg',
         width: 2800,
         height: 1866,
         alt: '双彩虹落在甘南山间湖泊与草地之间',
@@ -493,7 +490,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
+        src: '/portfolio-previews/distant-weather/pingtan-dsc-5082-1800.jpg',
         width: 2800,
         height: 1750,
         alt: '夜色中发出蓝光的平潭海浪',
@@ -507,7 +504,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/distant-weather/pingtan-dsc-5328.jpg',
+        src: '/portfolio-previews/distant-weather/pingtan-dsc-5328-1800.jpg',
         width: 2800,
         height: 1750,
         alt: '蓝色荧光海浪的俯视画面',
@@ -521,7 +518,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/distant-weather/pingtan-zbz-2955.jpg',
+        src: '/portfolio-previews/distant-weather/pingtan-zbz-2955-1800.jpg',
         width: 2800,
         height: 1884,
         alt: '蓝色荧光海浪与礁石',
@@ -535,7 +532,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
+        src: '/portfolio-previews/distant-weather/ninghai-zbz-6273-1800.jpg',
         width: 2800,
         height: 1867,
         alt: '金色云海中的宁海风力发电机与近景花朵',
@@ -549,7 +546,7 @@ export const series: Series[] = [
         },
       },
       {
-        src: '/portfolio/distant-weather/ninghai-zbz-6289.jpg',
+        src: '/portfolio-previews/distant-weather/ninghai-zbz-6289-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '晨光穿过宁海云海、山脊与茶园',
@@ -585,7 +582,7 @@ export const series: Series[] = [
     coverPosition: 'center 38%',
     images: [
       {
-        src: '/portfolio/textures-of-time/datong-zbz-3752.jpg',
+        src: '/portfolio-previews/textures-of-time/datong-zbz-3752-1800.jpg',
         width: 2000,
         height: 2800,
         alt: '洞窟光线中的大同石刻造像',
@@ -593,7 +590,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/textures-of-time/yingxian-zbz-4640.jpg',
+        src: '/portfolio-previews/textures-of-time/yingxian-zbz-4640-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '林木环绕的应县木塔',
@@ -601,7 +598,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/textures-of-time/jingdezhen-zbz-9983.jpg',
+        src: '/portfolio-previews/textures-of-time/jingdezhen-zbz-9983-1800.jpg',
         width: 2240,
         height: 2800,
         alt: '景德镇街头龙形表演道具的细节',
@@ -609,7 +606,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/textures-of-time/huizhou-zbz-6156.jpg',
+        src: '/portfolio-previews/textures-of-time/huizhou-zbz-6156-1800.jpg',
         width: 5504,
         height: 8256,
         alt: '徽州夜色中鱼灯、烟花与水面倒影',
@@ -624,7 +621,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/textures-of-time/xian-zbz-0868.jpg',
+        src: '/portfolio-previews/textures-of-time/xian-zbz-0868-1800.jpg',
         width: 4683,
         height: 6336,
         alt: '涂满文字的鲸鱼装置与窗前人物',
@@ -639,7 +636,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/textures-of-time/xian-zbz-0861.jpg',
+        src: '/portfolio-previews/textures-of-time/xian-zbz-0861-1800.jpg',
         width: 5504,
         height: 6880,
         alt: '窗帘与室内陈设交叠的午后光线',
@@ -654,7 +651,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/textures-of-time/huizhou-zbz-5682.jpg',
+        src: '/portfolio-previews/textures-of-time/huizhou-zbz-5682-1800.jpg',
         width: 7630,
         height: 5504,
         alt: '徽州街巷人群托举鱼灯巡游的瞬间',
@@ -689,7 +686,7 @@ export const series: Series[] = [
     },
     images: [
       {
-        src: '/portfolio/nearby-moments/football-zbz-8440.jpg',
+        src: '/portfolio-previews/nearby-moments/football-zbz-8440-1800.jpg',
         width: 5504,
         height: 8256,
         alt: '球场上手持足球准备发球的球员背影',
@@ -704,7 +701,7 @@ export const series: Series[] = [
         layout: 'portrait',
       },
       {
-        src: '/portfolio/nearby-moments/cat-img-20240724.jpg',
+        src: '/portfolio-previews/nearby-moments/cat-img-20240724-1800.jpg',
         width: 2732,
         height: 4096,
         alt: '柔和光线中凝视远处的灰猫特写',

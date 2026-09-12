@@ -166,7 +166,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const chongqingNight = portfolioRecord(
     source,
-    '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+    '/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-1800.jpg',
   );
   assert.match(
     chongqingNight,
@@ -175,7 +175,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const chongqingPortrait = portfolioRecord(
     source,
-    '/portfolio/urban-pulse/chongqing-zbz-9356.jpg',
+    '/portfolio-previews/urban-pulse/chongqing-zbz-9356-1800.jpg',
   );
   assert.match(
     chongqingPortrait,
@@ -184,7 +184,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const cat = portfolioRecord(
     source,
-    '/portfolio/nearby-moments/cat-img-20240724.jpg',
+    '/portfolio-previews/nearby-moments/cat-img-20240724-1800.jpg',
   );
   assert.match(
     cat,
@@ -193,7 +193,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const gannan = portfolioRecord(
     source,
-    '/portfolio/distant-weather/gannan-dji-0934.jpg',
+    '/portfolio-previews/distant-weather/gannan-dji-0934-1800.jpg',
   );
   assert.match(
     gannan,
@@ -202,7 +202,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const shangriLa = portfolioRecord(
     source,
-    '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
+    '/portfolio-previews/distant-weather/dsc-2989-shangri-la-1800.jpg',
   );
   assert.match(
     shangriLa,
@@ -211,7 +211,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const deqin = portfolioRecord(
     source,
-    '/portfolio/distant-weather/zbz-1242-meili.jpg',
+    '/portfolio-previews/distant-weather/zbz-1242-meili-1800.jpg',
   );
   assert.match(
     deqin,
@@ -220,23 +220,23 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const verifiedDistantWeatherExif = [
     [
-      '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
+      '/portfolio-previews/distant-weather/pingtan-dsc-5082-1800.jpg',
       /camera: 'Sony α7 IV',[\s\S]*?focalLength: '26mm',[\s\S]*?aperture: 'f\/2\.8',[\s\S]*?shutterSpeed: '1\/10s',[\s\S]*?iso: 'ISO 12800'/,
     ],
     [
-      '/portfolio/distant-weather/pingtan-dsc-5328.jpg',
+      '/portfolio-previews/distant-weather/pingtan-dsc-5328-1800.jpg',
       /camera: 'Sony α7 IV',[\s\S]*?focalLength: '28mm',[\s\S]*?aperture: 'f\/2\.8',[\s\S]*?shutterSpeed: '1\/50s',[\s\S]*?iso: 'ISO 10000'/,
     ],
     [
-      '/portfolio/distant-weather/pingtan-zbz-2955.jpg',
+      '/portfolio-previews/distant-weather/pingtan-zbz-2955-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '50mm',[\s\S]*?aperture: 'f\/1\.8',[\s\S]*?shutterSpeed: '1\/20s',[\s\S]*?iso: 'ISO 20000'/,
     ],
     [
-      '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
+      '/portfolio-previews/distant-weather/ninghai-zbz-6273-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '130mm',[\s\S]*?aperture: 'f\/8',[\s\S]*?shutterSpeed: '1\/500s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/distant-weather/ninghai-zbz-6289.jpg',
+      '/portfolio-previews/distant-weather/ninghai-zbz-6289-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '70mm',[\s\S]*?aperture: 'f\/8',[\s\S]*?shutterSpeed: '1\/400s',[\s\S]*?iso: 'ISO 64'/,
     ],
   ];
@@ -247,35 +247,35 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const verifiedSouthChinaExif = [
     [
-      '/portfolio/urban-pulse/guangzhou-rpx-00040.jpg',
+      '/portfolio-previews/urban-pulse/guangzhou-rpx-00040-1800.jpg',
       /camera: 'Sony α6700',[\s\S]*?focalLength: '14mm（等效 21mm）',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\/1000s',[\s\S]*?iso: 'ISO 100'/,
     ],
     [
-      '/portfolio/urban-pulse/shenzhen-zbz-7358.jpg',
+      '/portfolio-previews/urban-pulse/shenzhen-zbz-7358-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '17mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\.6s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/hong-kong-victoria-harbour.jpg',
+      '/portfolio-previews/urban-pulse/hong-kong-victoria-harbour-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '33mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '413s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/hong-kong-zbz-7859.jpg',
+      '/portfolio-previews/urban-pulse/hong-kong-zbz-7859-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '14mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/250s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/hong-kong-zbz-8171.jpg',
+      '/portfolio-previews/urban-pulse/hong-kong-zbz-8171-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '33mm',[\s\S]*?aperture: 'f\/13',[\s\S]*?shutterSpeed: '10s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
+      '/portfolio-previews/urban-pulse/guangzhou-zbz-6789-1787.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '49mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/200s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/hong-kong-zbz-8039.jpg',
+      '/portfolio-previews/urban-pulse/hong-kong-zbz-8039-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '25mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '1\/8s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/hong-kong-zbz-8030.jpg',
+      '/portfolio-previews/urban-pulse/hong-kong-zbz-8030-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '25mm',[\s\S]*?aperture: 'f\/4',[\s\S]*?shutterSpeed: '1\/40s',[\s\S]*?iso: 'ISO 800'/,
     ],
   ];
@@ -286,31 +286,31 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   const verifiedShanghaiExif = [
     [
-      '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-zbz-8199-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '15mm',[\s\S]*?aperture: 'f\/5\.6',[\s\S]*?shutterSpeed: '5s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/shanghai-zbz-8285.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-zbz-8285-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '20mm',[\s\S]*?aperture: 'f\/6\.3',[\s\S]*?shutterSpeed: '10s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/shanghai-zbz-7973.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-zbz-7973-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '28mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/160s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/shanghai-zbz-8705.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-zbz-8705-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '20mm',[\s\S]*?aperture: 'f\/7\.1',[\s\S]*?shutterSpeed: '1\/4s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/shanghai-dji-0314.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-dji-0314-1800.jpg',
       /camera: 'DJI FC8282',[\s\S]*?focalLength: '7mm（等效 24mm）',[\s\S]*?aperture: 'f\/1\.7',[\s\S]*?shutterSpeed: '1\/10s',[\s\S]*?iso: 'ISO 3200'/,
     ],
     [
-      '/portfolio/urban-pulse/shanghai-img-150846.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-img-150846-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '30mm',[\s\S]*?aperture: 'f\/8',[\s\S]*?shutterSpeed: '5s',[\s\S]*?iso: 'ISO 64'/,
     ],
     [
-      '/portfolio/urban-pulse/shanghai-img-150903.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-img-150903-1800.jpg',
       /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '24mm',[\s\S]*?aperture: 'f\/10',[\s\S]*?shutterSpeed: '1\/5s',[\s\S]*?iso: 'ISO 64'/,
     ],
   ];
@@ -376,7 +376,7 @@ test('the Chongqing hero uses the highest published web export', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const record = portfolioRecord(
     source,
-    '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
+    '/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-1800.jpg',
   );
   const asset = await stat(
     'public/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-3600.jpg',
@@ -403,7 +403,9 @@ test('every portfolio asset is referenced once and no photographs are duplicated
   );
   const referenceBases = new Set(
     references.map((reference) =>
-      reference.replace(/^\/portfolio\//, '').replace(/\.jpg$/, ''),
+      reference
+        .replace(/^\/portfolio-previews\//, '')
+        .replace(/-\d+\.jpg$/, ''),
     ),
   );
 
@@ -434,19 +436,31 @@ test('user-confirmed dates are retained for the identified photographs', async (
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const confirmedCaptions = [
     [
-      '/portfolio/urban-pulse/shanghai-img-173301.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-img-173301-1800.jpg',
       "caption: '上海 · 2022'",
     ],
-    ['/portfolio/urban-pulse/shanghai-zbz-0216.jpg', "caption: '上海 · 2025'"],
-    ['/portfolio/urban-pulse/shanghai-zbz-9081.jpg', "caption: '上海 · 2024'"],
-    ['/portfolio/urban-pulse/nanchang-zbz-1447.jpg', "caption: '南昌 · 2024'"],
-    ['/portfolio/urban-pulse/nanchang-zbz-1370.jpg', "caption: '南昌 · 2024'"],
     [
-      '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
+      '/portfolio-previews/urban-pulse/shanghai-zbz-0216-1800.jpg',
+      "caption: '上海 · 2025'",
+    ],
+    [
+      '/portfolio-previews/urban-pulse/shanghai-zbz-9081-1800.jpg',
+      "caption: '上海 · 2024'",
+    ],
+    [
+      '/portfolio-previews/urban-pulse/nanchang-zbz-1447-1800.jpg',
+      "caption: '南昌 · 2024'",
+    ],
+    [
+      '/portfolio-previews/urban-pulse/nanchang-zbz-1370-1800.jpg',
+      "caption: '南昌 · 2024'",
+    ],
+    [
+      '/portfolio-previews/distant-weather/ninghai-zbz-6273-1800.jpg',
       "caption: '宁海 · 2024'",
     ],
     [
-      '/portfolio/distant-weather/ninghai-zbz-6289.jpg',
+      '/portfolio-previews/distant-weather/ninghai-zbz-6289-1800.jpg',
       "caption: '宁海 · 2024'",
     ],
   ];
@@ -461,7 +475,7 @@ test('the Meili photograph uses Deqin as its location label', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const record = portfolioRecord(
     source,
-    '/portfolio/distant-weather/zbz-1242-meili.jpg',
+    '/portfolio-previews/distant-weather/zbz-1242-meili-1800.jpg',
   );
 
   assert.ok(record.includes("caption: '德钦 · 2025'"));
@@ -482,7 +496,7 @@ test('nearby moments pairs the two confirmed portrait photographs', async () => 
 
   assert.match(
     source,
-    /slug: 'nearby-moments',[\s\S]*?location: '上海 · 西安'[\s\S]*?football-zbz-8440\.jpg[\s\S]*?caption: '上海 · 2023'[\s\S]*?cat-img-20240724\.jpg[\s\S]*?caption: '西安 · 2024'/,
+    /slug: 'nearby-moments',[\s\S]*?location: '上海 · 西安'[\s\S]*?football-zbz-8440-1800\.jpg[\s\S]*?caption: '上海 · 2023'[\s\S]*?cat-img-20240724-1800\.jpg[\s\S]*?caption: '西安 · 2024'/,
   );
 });
 
@@ -500,29 +514,29 @@ test('series photographs retain the editorial sequence', async () => {
   };
 
   assertOrdered([
-    '/portfolio/urban-pulse/chongqing-zbz-9292-hq.jpg',
-    '/portfolio/urban-pulse/tokyo-zbz-8136.jpg',
-    '/portfolio/urban-pulse/shanghai-zbz-8199.jpg',
-    '/portfolio/urban-pulse/shanghai-zbz-7974.jpg',
-    '/portfolio/urban-pulse/guangzhou-zbz-6789.jpg',
-    '/portfolio/urban-pulse/shenzhen-zbz-7358.jpg',
-    '/portfolio/urban-pulse/nanchang-zbz-1447.jpg',
-    '/portfolio/urban-pulse/hong-kong-zbz-7859.jpg',
+    '/portfolio-previews/urban-pulse/chongqing-zbz-9292-hq-1800.jpg',
+    '/portfolio-previews/urban-pulse/tokyo-zbz-8136-1680.jpg',
+    '/portfolio-previews/urban-pulse/shanghai-zbz-8199-1800.jpg',
+    '/portfolio-previews/urban-pulse/shanghai-zbz-7974-1800.jpg',
+    '/portfolio-previews/urban-pulse/guangzhou-zbz-6789-1787.jpg',
+    '/portfolio-previews/urban-pulse/shenzhen-zbz-7358-1800.jpg',
+    '/portfolio-previews/urban-pulse/nanchang-zbz-1447-1800.jpg',
+    '/portfolio-previews/urban-pulse/hong-kong-zbz-7859-1800.jpg',
   ]);
   assertOrdered([
-    '/portfolio/distant-weather/dsc-2989-shangri-la.jpg',
-    '/portfolio/distant-weather/zbz-1242-meili.jpg',
-    '/portfolio/distant-weather/gannan-dji-0934.jpg',
-    '/portfolio/distant-weather/pingtan-dsc-5082.jpg',
-    '/portfolio/distant-weather/ninghai-zbz-6273.jpg',
+    '/portfolio-previews/distant-weather/dsc-2989-shangri-la-1800.jpg',
+    '/portfolio-previews/distant-weather/zbz-1242-meili-1800.jpg',
+    '/portfolio-previews/distant-weather/gannan-dji-0934-1800.jpg',
+    '/portfolio-previews/distant-weather/pingtan-dsc-5082-1800.jpg',
+    '/portfolio-previews/distant-weather/ninghai-zbz-6273-1800.jpg',
   ]);
   assertOrdered([
-    '/portfolio/textures-of-time/datong-zbz-3752.jpg',
-    '/portfolio/textures-of-time/yingxian-zbz-4640.jpg',
-    '/portfolio/textures-of-time/jingdezhen-zbz-9983.jpg',
-    '/portfolio/textures-of-time/huizhou-zbz-6156.jpg',
-    '/portfolio/textures-of-time/xian-zbz-0868.jpg',
-    '/portfolio/textures-of-time/xian-zbz-0861.jpg',
-    '/portfolio/textures-of-time/huizhou-zbz-5682.jpg',
+    '/portfolio-previews/textures-of-time/datong-zbz-3752-1800.jpg',
+    '/portfolio-previews/textures-of-time/yingxian-zbz-4640-1800.jpg',
+    '/portfolio-previews/textures-of-time/jingdezhen-zbz-9983-1800.jpg',
+    '/portfolio-previews/textures-of-time/huizhou-zbz-6156-1800.jpg',
+    '/portfolio-previews/textures-of-time/xian-zbz-0868-1800.jpg',
+    '/portfolio-previews/textures-of-time/xian-zbz-0861-1800.jpg',
+    '/portfolio-previews/textures-of-time/huizhou-zbz-5682-1800.jpg',
   ]);
 });

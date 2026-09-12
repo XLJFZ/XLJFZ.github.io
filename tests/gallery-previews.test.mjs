@@ -1,79 +1,52 @@
 import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
-import path from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
+import {
+  maximumPreviewWidth,
+  previewWidths,
+  MAX_PREVIEW_EDGE,
+} from '../src/lib/preview-policy.mjs';
+import { filesUnder } from '../scripts/check-published-assets.mjs';
 
-// 与 src/lib/portfolio.ts 的 MAX_GALLERY_WIDTH 保持一致。
-const MAX_GALLERY_WIDTH = 4096;
+test('preview tiers constrain the long edge and never enlarge small originals', () => {
+  assert.equal(maximumPreviewWidth({ width: 4000, height: 6000 }), 2730);
+  assert.equal(maximumPreviewWidth({ width: 6000, height: 4000 }), 4096);
+  assert.deepEqual(previewWidths({ width: 800, height: 1200 }), [800]);
+  assert.deepEqual(previewWidths({ width: 1680, height: 1120 }), [1200, 1680]);
+});
 
-async function listImages(directory) {
-  const { readdir } = await import('node:fs/promises');
-  const entries = await readdir(directory, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries.map(async (entry) => {
-      const target = path.join(directory, entry.name);
-      if (entry.isDirectory()) return listImages(target);
-      return /\.(jpe?g|png|webp)$/i.test(entry.name) ? [target] : [];
-    }),
-  );
-  return nested.flat();
-}
-
-test('every gallery photograph has responsive high-quality previews', async () => {
-  const [portfolio, gallery] = await Promise.all([
-    readFile('src/lib/portfolio.ts', 'utf8'),
-    readFile('src/components/lightbox-gallery.tsx', 'utf8'),
-  ]);
+test('every photograph has correctly described responsive previews', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const records = [
-    ...new Map(
-      [
-        ...portfolio.matchAll(
-          /src: '(\/portfolio\/[^']+)',\s*\n\s*width: (\d+)/g,
-        ),
-      ].map((match) => [match[1], Number(match[2])]),
+    ...source.matchAll(
+      /src: '(\/portfolio-previews\/[^']+)',\s*width: (\d+),\s*height: (\d+)/g,
     ),
   ];
-
   assert.equal(records.length, 45);
-  assert.match(gallery, /srcSet=/);
-  assert.match(gallery, /galleryPreviewSrc\(image\.src\)\} 1200w/);
-  assert.match(gallery, /galleryPreviewSrc\(image\.src, 1800\)\} 1800w/);
-  assert.match(
-    gallery,
-    /\$\{galleryMaxSrc\(image\)\} \$\{galleryMaxWidth\(image\)\}w/,
-  );
-  assert.match(gallery, /sizes=/);
-
-  for (const [source, width] of records) {
-    const previewBase = source
-      .replace('/portfolio/', 'public/portfolio-previews/')
-      .replace(/\.[^.]+$/, '');
-    const maxWidth = Math.min(width, MAX_GALLERY_WIDTH);
-    const tiers = maxWidth > 1800 ? [1200, 1800, maxWidth] : [1200, 1800];
-    for (const tier of tiers) {
-      const preview = `${previewBase}-${tier}.jpg`;
-      assert.ok((await stat(path.normalize(preview))).size > 0, preview);
+  for (const [, src, w, h] of records) {
+    assert.ok((await stat(`public${src}`)).size > 0);
+    for (const width of previewWidths({ width: +w, height: +h })) {
+      const file = `public${src.replace(/-\d+\.jpg$/, `-${width}.jpg`)}`;
+      const m = await sharp(file).metadata();
+      assert.equal(m.width, width, file);
+      assert.ok(Math.max(m.width, m.height) <= MAX_PREVIEW_EDGE, file);
+      assert.ok(
+        Math.abs(m.height - (width * Number(h)) / Number(w)) <= 1,
+        file,
+      );
     }
   }
 });
 
-test('full-resolution originals are never published with the site', async () => {
-  await assert.rejects(
-    stat('public/portfolio'),
-    'public/portfolio must not exist: only derived previews ship with the site',
-  );
+test('original gallery and hero assets are absent from public', async () => {
+  await assert.rejects(stat('public/portfolio'));
+  await assert.rejects(stat('public/hero-zbz-2714.jpg'));
 });
 
-test('published gallery images never exceed the maximum published width', async () => {
-  const files = await listImages('public/portfolio-previews');
-  assert.ok(files.length > 0, 'expected generated previews');
-
-  for (const file of files) {
-    const metadata = await sharp(file).metadata();
-    assert.ok(
-      metadata.width <= MAX_GALLERY_WIDTH,
-      `${file} is ${metadata.width}px wide`,
-    );
+test('all gallery previews obey the long-edge limit', async () => {
+  for (const file of await filesUnder('public/portfolio-previews')) {
+    const m = await sharp(file).metadata();
+    assert.ok(Math.max(m.width, m.height) <= MAX_PREVIEW_EDGE, file);
   }
 });

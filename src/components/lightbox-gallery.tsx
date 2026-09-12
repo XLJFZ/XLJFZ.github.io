@@ -14,6 +14,7 @@ import {
   useTemporaryStatus,
 } from '@/components/temporary-status';
 import { galleryMaxWidth, type PortfolioImage } from '@/lib/portfolio';
+import { previewWidths } from '@/lib/preview-policy.mjs';
 import { cn } from '@/lib/utils';
 
 type GalleryItem = { image: PortfolioImage; sourceIndex: number };
@@ -39,16 +40,16 @@ function pairedWidth(row: GalleryItem[], itemIndex: number) {
   return `${((equalHeight * image.width * 100) / image.height).toFixed(4)}%`;
 }
 
-function galleryPreviewSrc(src: string, width = 1200) {
-  if (!src.startsWith('/portfolio/')) return src;
-  return src
-    .replace('/portfolio/', '/portfolio-previews/')
-    .replace(/\.[^.]+$/, `-${width}.jpg`);
+function galleryPreviewSrc(image: PortfolioImage, width = 1200) {
+  return image.src.replace(
+    /-\d+\.jpg$/,
+    `-${Math.min(width, galleryMaxWidth(image))}.jpg`,
+  );
 }
 
-// 站点不再发布原图，最大档取 min(原图宽度, MAX_GALLERY_WIDTH) 的预览图。
+// Maximum tier uses the shared long-edge policy.
 function galleryMaxSrc(image: PortfolioImage) {
-  return galleryPreviewSrc(image.src, galleryMaxWidth(image));
+  return galleryPreviewSrc(image, galleryMaxWidth(image));
 }
 
 function imageKey(src: string) {
@@ -56,7 +57,7 @@ function imageKey(src: string) {
     src
       .split('/')
       .pop()
-      ?.replace(/\.[^.]+$/, '') ?? src
+      ?.replace(/-\d+\.jpg$/, '') ?? src
   );
 }
 
@@ -139,7 +140,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
         window.history.state && typeof window.history.state === 'object'
           ? window.history.state
           : {};
-      const nextState = { ...currentState, portfolioLightbox: true };
+      const nextState = {
+        ...currentState,
+        portfolioLightbox:
+          historyMode === 'push' || currentState.portfolioLightbox === true,
+      };
       if (historyMode === 'push') {
         window.history.pushState(nextState, '', url);
       } else {
@@ -202,11 +207,18 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (active === null) return;
-      if (event.key === 'ArrowLeft') prev();
-      if (event.key === 'ArrowRight') next();
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        prev();
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        next();
+      }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // The dialog focus manager handles arrow keys during bubbling.
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
   }, [active, next, prev]);
 
   useEffect(() => {
@@ -215,7 +227,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       const index =
         (active + offset + displayedItems.length) % displayedItems.length;
       const preload = new window.Image();
-      preload.src = displayedItems[index].image.src;
+      preload.src = galleryMaxSrc(displayedItems[index].image);
     }
   }, [active, displayedItems]);
 
@@ -413,8 +425,13 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                           aria-label={`放大查看：${image.alt}`}
                         >
                           <img
-                            src={galleryPreviewSrc(image.src)}
-                            srcSet={`${galleryPreviewSrc(image.src)} 1200w, ${galleryPreviewSrc(image.src, 1800)} 1800w, ${galleryMaxSrc(image)} ${galleryMaxWidth(image)}w`}
+                            src={galleryPreviewSrc(image)}
+                            srcSet={previewWidths(image)
+                              .map(
+                                (width) =>
+                                  `${galleryPreviewSrc(image, width)} ${width}w`,
+                              )
+                              .join(', ')}
                             sizes={
                               image.layout === 'wide'
                                 ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
@@ -518,7 +535,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                     : '正在加载大图'}
               </p>
               <img
-                src={galleryPreviewSrc(displayedItems[active].image.src, 1800)}
+                src={galleryPreviewSrc(displayedItems[active].image, 1800)}
                 width={displayedItems[active].image.width}
                 height={displayedItems[active].image.height}
                 alt=""
@@ -528,7 +545,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
               />
               <img
                 key={displayedItems[active].image.src}
-                src={displayedItems[active].image.src}
+                src={galleryMaxSrc(displayedItems[active].image)}
                 width={displayedItems[active].image.width}
                 height={displayedItems[active].image.height}
                 alt={displayedItems[active].image.alt}

@@ -38,3 +38,16 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# Originals remain outside the public repository
+/public/portfolio/
+/public/hero-zbz-2714.jpg
+*.dng
+*.raw
+*.nef
+*.arw
+*.cr2
+*.cr3
+*.raf
+*.3fr
+*.xmp

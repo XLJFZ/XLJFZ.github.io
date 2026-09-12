@@ -262,6 +262,13 @@ a {
     contain-intrinsic-size: auto 1200px;
   }
 
+  @media (max-width: 767px) {
+    .gallery-chapter-deferred {
+      /* Only reserve height: an intrinsic width inflates the mobile gallery. */
+      contain-intrinsic-width: auto none;
+    }
+  }
+
   @media (min-width: 768px) {
     .gallery-chapter-deferred {
       contain-intrinsic-size: auto 1800px;

@@ -142,11 +142,9 @@
 
 清理与验证要求：
 
-- 必须原位重写元数据段、只保留白名单标签；`SOS` 之后的图像数据与解码像素逐字节不变。
-- 必须保留 APP2 ICC、DQT、DHT、DRI、APP14、SOF 与重建后的 EXIF；曝光参数、机身型号、拍摄时间等已核实字段不得丢失。
-- 清理后必须逐项验证：① `public/` 全目录不再出现机身序列号、镜头序列号与所有者姓名 ② 被清理文件的解码像素哈希与清理前一致 ③ 曝光与机型字段全部保留。
-- 原件备份不得放进仓库；仓库只保留清理后的展示图。
-- 只使用用户确认过的原片，不把 RAW / DNG、XMP 边车文件或原始目录复制进仓库。
+- 展示副本不携带 EXIF / XMP / IPTC / 注释，允许 ICC 色彩配置；五项摄影参数保存在已核实的作品数据中，不依赖图片内嵌元数据。
+- 需要缩放时从仓库外原片生成副本；若仅清理元数据，则使用无损元数据处理并核对解码像素不变，不覆盖原件。
+- 本地与导出产物均须通过资产检查，隐私相关发布需复查线上文件。
 
 ## 6. 图片资产结构
 
@@ -158,58 +156,31 @@ public/favicon.svg                   站点图标（矢量，主用）
 public/favicon.ico                   站点图标（多尺寸兜底，由脚本生成）
 ```
 
-### 6.1 资产发布边界（当前约束）
+### 6.1 发布边界与尺寸
 
-- **原图不入库、不随站点发布。** 45 张原图保存在仓库外的 `../backups/portfolio-originals-2026-09-12/`（同名目录按日期递增），git 历史也已用 `git filter-repo` 清除（过程见 6.4）。任何人都不应再把 `public/portfolio/` 加回仓库；`tests/gallery-previews.test.mjs` 会直接断言该目录不存在。
-- 预览图的目录、档位数与尺寸上限**以当前代码与生成脚本为准**：[`scripts/generate-gallery-previews.mjs`](../scripts/generate-gallery-previews.mjs) 决定档位与编码参数，[`src/lib/portfolio.ts`](../src/lib/portfolio.ts) 决定尺寸上限与取图入口。本节的目录清单是说明而不是约束来源；代码变更后以代码为准，并在同一次修改中修订本节。
-- **禁止恢复旧原图引用**：画廊 `srcSet` 最大档、灯箱大图、相邻图片预加载、专题封面、分享图（OpenGraph / Twitter Card）与静态导出产物，均不得再指向 `public/portfolio/` 下的原图。
-- 不要手工修改生成的预览图，也不要让画廊首屏直接下载最大档。需要改变档位或尺寸时改脚本后重跑 `PORTFOLIO_ORIGINALS_DIR="<原图目录>" npm run previews`。
-- 重新生成预览图需要仓库外的原图。目录缺失时脚本会直接报错并提示该变量，不会静默产出空目录。
-- 当前三档为 `1200px`、`1800px` 与最大档 `min(原图宽度, MAX_GALLERY_WIDTH)`；`MAX_GALLERY_WIDTH = 4096` 定义在 `src/lib/portfolio.ts`，灯箱与 `srcSet` 一律通过 `galleryMaxWidth()` / `galleryMaxSrc()` 取该值，不得再直接引用 `image.src`。原图宽度 ≤ `1800px` 的照片不生成最大档（会与 `1800px` 档重复），此时最大档回落到 `1800px`。
+- 原图保存在仓库外；禁止发布旧原图目录、首页原图与 RAW / DNG / XMP 等文件。历史对象与缓存的处理见 [历史记录](RELEASE-HISTORY.md)，不属于常规发布。
+- 4096px 指**长边**上限，等比例缩放、不放大小图。统一算法位于 [preview-policy.mjs](../src/lib/preview-policy.mjs)。常规宽度为 1200、1800 及受长边限制的最大宽度；小图按实际宽度去重，srcSet 描述符必须等于文件像素宽度。
+- 作品数据直接引用 portfolio-previews 中的展示副本；原始宽高用于构图和计算，禁止恢复旧原图 URL。
+- 发布副本不携带 EXIF、XMP、IPTC 或注释元数据，允许 ICC 色彩配置。网站数据中已核实的五项摄影参数独立保存。
 
-### 6.2 图片调整必须同步检查的位置
+### 6.2 生成与变更
 
-移动、重命名、替换或调整任何作品图时，以下六处必须逐个核对。漏一处就会出现 404、旧路径残留或断言失败：
+- 设置 PORTFOLIO_ORIGINALS_DIR 指向仓库外原图目录后运行 npm run previews。脚本先核对全部原图及尺寸，在暂存目录生成完成后才替换预览目录，旧预览保留在 outputs 中供恢复。
+- 不用已有低清预览替代原图重新压缩。目录缺失或对应关系不明确时停止生成并报告；原件不修改。
+- 首页仅使用 hero-previews 的 1280 / 2200 两档。首页主图与编辑式封面不由画廊生成脚本重编码；变更需另行核对原片并生成副本。
+- 图片路径或尺寸变化需同步检查：作品数据、画廊 srcSet、灯箱、相邻预加载、专题封面、首页主图、分享图、测试与静态产物。路径迁移不要求重编码；字节相同才能声称内容未变。
+- 灯箱深链接使用不含预览档位的作品标识，迁移尺寸后应保持旧分享链接可用。
 
-1. **画廊列表**：`src/lib/portfolio.ts` 中该图的 `images[].src`，以及 `src/components/lightbox-gallery.tsx` 中 `galleryPreviewSrc()` 生成的 `srcSet`。
-2. **灯箱**：灯箱大图的来源，以及"先显示已缓存预览、再切换到更大档"的切换与失败回退逻辑。
-3. **预加载**：相邻图片的预加载目标，必须与灯箱使用同一套取图入口，不能单独保留旧路径。
-4. **专题封面**：该专题的 `cover` 与 `preview.path`，以及 `scripts/generate-gallery-previews.mjs` 中 `responsiveCovers` 的 `source` 路径。
-5. **分享图**：`src/app/layout.tsx` 的 `metadata.openGraph.images[0].url` 与 `metadata.twitter.images`。分享图 URL 变更后，已分享到社交平台的旧卡片缓存图会短暂失效，这是公开静态托管无重定向机制导致的，不是故障。
-6. **导出产物**：运行 `npm run export:github-pages` 后扫描 `_site`，汇总 `html` 与 `js` 产物中的全部 `/portfolio…` 引用，逐个确认文件存在且指向预览图。
+### 6.3 自动发布检查
 
-补充：
-
-- 预览图路径由 `galleryPreviewSrc()` 在**客户端运行时**生成，**导出后的 HTML 中不会出现预览图路径**。因此"在 HTML 里搜不到预览路径"是正常现象，不能据此判断引用断裂。
-- `tests/portfolio-gallery.test.mjs` 的硬编码路径，以及 `tests/seo-accessibility.test.mjs` 中匹配分享图的正则，**在路径中间插入子目录后会失配**，必须一并更新。
-- `portfolio-previews/` 下各档位文件按与源图相同的相对路径迁移。
-- 移动图片一律使用 `git mv`，让 git 识别为**重命名**而不是“删除 + 新增”；提交前用 `git diff --cached --numstat` 确认重命名相似度为 `100%`（即字节未变）。
-- 只移动少数图片时，**不要重跑全量 `npm run previews`**：该脚本会先 `rm -rf` 整个 `portfolio-previews/` 再重新编码全部预览图，可能给无关文件带来 diff。改为只迁移受影响的预览文件即可——脚本输出路径由 `path.relative(sourceRoot, …)` 决定，与手工迁移的结果一致。
-
-### 6.3 其余资产约束
-
-- 首页主视觉同时生成 `1280px` 与 `2200px` 两档预览，浏览器按屏幕宽度选择；移动端禁止直接下载 `3000px` 原图。
-- 首页、专题索引与“下一组作品”的专题封面同时提供 `1200px` 移动版和高分辨率桌面版，必须通过 `srcset` 与 `sizes` 让浏览器按版面选择。
-- 长专题首章之后的屏幕外章节使用渐进增强的延迟绘制；必须保留章节锚点与不支持该能力的浏览器回退，不能通过卸载 DOM 破坏灯箱顺序。
-- 章节高亮使用浏览器可见性观察器跟随章节标记，禁止恢复为滚动时持续读取全部章节位置的监听器。
-- 灯箱加载最大档预览图（`min(原图宽度, 4096)`），不再加载原图；相邻两张同样预加载最大档，不再预加载 `image.src`。
-- 灯箱先显示已缓存的 `1800px` 预览，再平滑切换到最大档，避免黑屏闪烁；移动端控制按钮必须避开设备安全区域。
-- 全局视口必须启用 `viewport-fit=cover`，让 iPhone 刘海屏和圆角安全区域样式真正生效；最大档失败时保留高清预览，不显示空白。
-- `tests/fixtures/exif-sample.jpg` 是合成的 EXIF 测试样本，由 [`scripts/generate-exif-fixture.mjs`](../scripts/generate-exif-fixture.mjs) 生成（8×8 灰底 JPEG + 最小 EXIF）。EXIF 解析测试只能用它，不得再依赖 `public/portfolio` 下的真实照片——原图已不在仓库，且把真实元数据写进测试样本会引入隐私字段。
-- 专题封面建议为 `2400 × 1500`，并保持在 `1MB` 以内。
-- `public/favicon.ico` 必须存在。浏览器与抓取工具会直接请求站点根路径的 `/favicon.ico`；该文件缺失时 GitHub Pages 会回落到体量很大的 `404.html`（当前约 `442KB`），每次页面加载都会浪费一次大响应。该文件由 [`scripts/generate-favicon.mjs`](../scripts/generate-favicon.mjs) 从 `public/favicon.svg` 生成（`16px` / `32px` / `48px` 三档，PNG 内嵌 ICO），修改图标后运行 `npm run favicon` 重新生成，不要手工编辑。
-- `src/app/layout.tsx` 的 `icons` 必须同时声明 `/favicon.svg` 与 `/favicon.ico`；`scripts/export-github-pages.mjs` 必须显式校验该文件存在并随导出写入 `_site`，不得再使用静默忽略错误的写法。
-
-### 6.4 【历史记录】公开仓库的资产暴露边界与历史重写（2026-09-11 排查，2026-09-12 实施）
-
-以下结论解释了 6.1 为何采用"只发布预览图"策略，仅作背景，不构成重复执行的授权：
-
-- 浏览器要显示图片就必须下载它，因此**公开站点无法阻止图片下载**。禁用右键、禁止拖拽、JS 遮罩、防盗链只能挡住不使用开发者工具的人，不能作为主要手段。
-- GitHub 仓库可见性与站点可见性是两件事：Free 账户的 Pages 只支持**公开仓库**；Pro 才支持个人私有仓库作发布源，**但发布出的站点仍然公开**。私有仓库只能挡住"从仓库批量拖原图"，挡不住从站点下载。
-- **只在新的提交里删除文件无效，git 历史会永久保留**。真正清除必须用 `git filter-repo` / BFG 重写历史并**强制推送**（会改写全部 commit SHA，须逐次取得用户明确授权；历史记录中的既往授权不构成长期授权）。
-- 排查当时的暴露面：`public/portfolio/` 原图 45 张约 `75.3 MB`，最大 `8256 × 5504`；而网站实际最高只使用 `1800px` 预览。二者的差距属于未使用的冗余暴露。
-- 已实施的收敛（提交 `4e40433`，详见 11 节发布记录）：补一档 `min(原图宽度, 4096)` 预览、灯箱与 `srcSet` 改读该档、移除 `public/portfolio/` 全部原图，并重写历史清除原图。可获取的最高分辨率由 `8256px` 降到 `4096px`；仓库中不再存在原图。
-- 残留风险：历史重写只使旧提交从分支不可达，GitHub 服务端在垃圾回收前仍可能按直接 SHA 返回孤儿提交，CDN 缓存的旧资源短期内也可能命中。
+- npm run check:assets 检查 Git 跟踪的原片类型、public 中的禁用路径、可解析图片的真实长边、描述性元数据、源代码旧引用及画廊各档位存在性。无法解码则失败，日志只报文件与类别，不打印元数据值。
+- npm run check:assets -- --export 对 _site 重复检查，必须在上传产物前通过。检查不能识别所有伪装成 JPEG 的原图，也不会清理远端历史或缓存；原图与发布副本的来源仍需人工确认。
+- EXIF 测试使用合成 fixture，不把真实敏感照片加入测试。
+- 专题封面保持既有构图，提供移动和桌面尺寸。灯箱先显示预览再加载最大档，失败时保留可见图像。
+- 手机画廊外层限定可用宽度；延迟章节只预留高度，不以占位宽度撑大页面。桌面规则保持独立。
+- 延迟绘制保留章节 DOM、锚点和不支持浏览器的回退；章节高亮使用观察器，避免滚动时连续测量全页。
+- 灯箱保留安全区域、失败预览回退与相邻最大档预加载，视口启用 viewport-fit=cover。
+- favicon.svg 与 favicon.ico 必须同步，导出校验文件存在；线上核验响应类型与必要的 SHA-256。
 
 ## 7. 站内照片工具
 
@@ -355,7 +326,7 @@ public/favicon.ico                   站点图标（多尺寸兜底，由脚本�
 2. 检查照片是否已经存在，并在任何缩放、压缩或重新导出之前，读取真实像素尺寸、EXIF 时间和灯箱需要的五个参数。
 3. 建立原片/导出图与网站文件的明确对应；按 5.1 节的证据规则处理缺失字段和型号名称。
 4. 根据本文件的分类原则确定专题；地点不确定时不猜。
-5. 将经选择的高质量展示图放入仓库外的原图目录（当前为 `../backups/portfolio-originals-2026-09-12/<series-slug>/`）；**不要放进仓库的 `public/portfolio/`**，也不要复制 RAW / DNG 原片或旁车文件。
+5. 将经选择的高质量展示图放入仓库外的原图目录（实际位置由用户确认，并通过 PORTFOLIO_ORIGINALS_DIR 指定）；**不要放进仓库的 `public/portfolio/`**，也不要复制 RAW / DNG 原片或旁车文件。
 6. 在 `src/lib/portfolio.ts` 中添加记录与已核实的 `exif` 字段，并调整专题地点、年份和编辑顺序。
 7. 为新照片增加记录测试，然后运行 `PORTFOLIO_ORIGINALS_DIR="<原图目录>" npm run previews` 生成所有响应式预览（含最大档）。
 8. 在真实桌面视口检查同行顶边、底边和章节节奏；在手机视口检查单列和横向溢出，并在灯箱中核对 EXIF 顺序与文案。
@@ -364,11 +335,13 @@ public/favicon.ico                   站点图标（多尺寸兜底，由脚本�
 ## 10. 必须通过的质量检查
 
 ```bash
-npm run format
+npx oxfmt --check <本次修改的文本文件>
 npm run lint
 npm test
+npm run check:assets
 npm run build
 npm run export:github-pages
+npm run check:assets -- --export
 git diff --check
 ```
 
@@ -394,11 +367,8 @@ git diff --check
 - 专题年份覆盖真实照片年份。
 - 首页、专题索引、详情页和 404 页面均能导出。
 - `public/favicon.ico` 存在，且导出后 `_site/favicon.ico` 与源文件逐字节一致。
-- `public/` 全目录不含机身序列号、镜头序列号与所有者信息；被清理的原图与清理前解码像素一致。
-- Windows 本机若出现 Workers runtime 启动失败，且已确认目录权限可用，可仅在本次导出进程中移除 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 后重试；不要修改系统代理或以此跳过导出检查。已实测：带代理时 `npm run build` 与 `npm run export:github-pages` 会在 Vite 打印 `Proxy environment variables detected` 之后长时间完全无进展（16 分钟零进度），去掉代理后 build 约 `23s`、export 约 `15s`。因此**构建与导出前先行清空全部代理变量（含小写形式）是常规步骤，不是应急手段**。
-- Windows 本机若 `npm ci` 长时间无任何输出（npm 调试日志停在 `silly idealTree buildDeps`），或报 `EBUSY: resource busy or locked` 并反复重试重命名 `node_modules/<包名>`，应先检查是否存在遗留的 `workerd.exe`：`tasklist /FI "IMAGENAME eq workerd.exe"`，存在则 `taskkill /PID <pid> /F` 后再安装。这些孤儿进程由 `wrangler dev` 派生，在导出脚本结束 dev server 后未被回收，会长期占用 `node_modules/miniflare` 等目录，使安装无限重试。
+- `public/` 全目录不含机身序列号、镜头序列号与所有者信息；元数据清理副本须核对像素一致，缩放生成的副本检查尺寸与构图。
 - `npm run format` 是**写入模式**（`package.json` 中定义为 `oxfmt`，不带 `--check`），它只负责格式化，**不会因格式问题而失败**，因此它只能作为整理工具，不能当作「格式检查」门禁。
-- 本机 `core.autocrlf=true`，git 检出的工作副本是 CRLF，而 `oxfmt` 会把整个工作区改写为 LF。由于仓库 blob 本身存的是 LF，`git diff --numstat` 不会产生任何真实内容差异（只列出人工修改的文件），但 `git status` 会把大批文件列为已修改，形成噪音。因此：**提交前只显式 `git add <目标文件>`，不要用 `git add -A`；在 `git status` 中看到大量此类「已修改」文件时，先用 `git diff --numstat` 确认真实内容差异**。需要把工作区恢复为检出状态时用 `git checkout -- .`（**先按 10.1 节确认并备份未提交内容**）；注意它只会重写 stat 已失效的文件，**刚刚 `git add` 或 amend 过的文件会因 stat 仍新鲜而被跳过、继续保持 LF**（`git checkout-index -f` 同样不会重新应用换行符转换，已实测无效）。要可靠地把单个文件恢复为检出状态，先删除该文件再 `git checkout -- <文件路径>`，然后用 `git ls-files --eol <文件路径>` 确认工作副本显示为 `w/crlf`。不要为此批量重写换行符，也不要把换行符变化混入提交。
 - 照片压缩工具仍保留三档预设、EXIF 保留和本地处理约束。
 - 智能命名器仍保留中英文切换、逐张人工修改、批量地点与主题、完整新旧名称预览、连续编号、重名阻断、不压缩默认项、三档压缩和不覆盖原图的 ZIP 下载。
 - 新增专题时必须同步更新 Pages 导出路由、`public/sitemap.xml` 和相关测试。
@@ -407,83 +377,16 @@ git diff --check
 
 ## 11. GitHub Pages 发布
 
-本节于 2026-09-05 对照远端 `main` 的工作流文件核对。工作流名称为 `Deploy GitHub Pages`；[运行记录与手动触发入口](https://github.com/XLJFZ/XLJFZ.github.io/actions/workflows/pages.yml) 用于查看执行结果，[工作流源文件](https://github.com/XLJFZ/XLJFZ.github.io/blob/main/.github/workflows/pages.yml) 用于核对配置。当前文件 Git blob 为 `e2bdedc9f1d7a3be554c696eeb7e92c2f9a72795`，仅作为本次核对依据，后续以实际文件为准。
-
-- 本项目默认只发布到 GitHub；除非用户明确指定其他平台，否则不得同时发布到其他托管服务。
-- GitHub Pages 是默认且唯一的线上发布渠道，公开站点为 `https://xljfz.github.io/`。
-- 自动发布分支为 `main`，当前没有路径过滤，因此仅修改文档的 main 推送也会触发部署。手动触发使用 `workflow_dispatch`，没有自定义输入；正式发布时须选择 `main`，并核对运行记录中的分支。
-- 推送前必须确认本机 git 提交身份，否则 GitHub 会直接拒绝推送并返回 `remote: error: GH007: Your push would publish a private email address`（`! [remote rejected] main -> main`）。这是账号侧的邮箱隐私保护，**不是网络、权限或代理问题**。本仓库历史提交统一使用 GitHub noreply 邮箱，因此提交者应为 `XLJFZ <223385048+XLJFZ@users.noreply.github.com>`；可用 `gh api user` 取 `id` 与 `login` 复核该地址。发现身份不符时，先设置仓库级 `user.name` / `user.email`（不要为此修改全局配置，除非用户明确要求）；尚未推送的提交可用 `git commit --amend --no-edit --author="XLJFZ <223385048+XLJFZ@users.noreply.github.com>"` 修正，`--amend` 会保留原作者日期。不得把真实私人邮箱写入提交，也不得为此重写已经推送的历史。
-- 推送前建议先执行 `git ls-remote origin HEAD`（只读）确认远端 SHA，判断是否可快进，避免盲推。`main` 分支受保护，仓库所有者推送时会回显 `Bypassed rule violations for refs/heads/main: Cannot update this protected ref.` 但仍会成功，这属于正常的保护规则绕过，不是强制推送。
-- 发布流程以 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 为唯一配置源：推送到 `main` 后自动运行，也允许通过 `workflow_dispatch` 手动触发。
-- 工作流使用 `ubuntu-latest` 与 Node.js 22，并启用 npm 缓存；依赖必须通过 `npm ci` 按锁文件安装，不能在发布任务中改用会更新依赖解析结果的安装方式。
-- 工作流只有一个 `deploy` 任务，步骤顺序固定为：检出仓库、配置 Node.js、`npm ci`、`npm run build`、`npm run export:github-pages`、配置 Pages、上传 `_site` artifact、部署 Pages。发布内容不能绕过这条链路另行拼装。
-- Actions 中没有单独的 lint 与测试步骤，因此推送前必须完成第 10 节的本地检查；若以后把这些检查加入工作流，应在同一次修改中同步更新第 10 节与本节。
-- Pages 任务只保留读取仓库内容、写入 Pages 和签发 OIDC 令牌所需的最小权限：`contents: read`、`pages: write`、`id-token: write`。
-- 部署环境固定为 `github-pages`，环境网址取自部署步骤的 `page_url`；构建时 `NEXT_PUBLIC_SITE_URL` 固定为 `https://xljfz.github.io`，以生成一致的公开站点元数据。
-- 并发组固定为 `pages`，`cancel-in-progress: true`；新运行会取消同组仍在执行的旧运行。被取消的运行不能算发布成功，应跟踪实际要发布的最新提交。
-- 当前部署链使用 `actions/checkout@v4`、`actions/setup-node@v4`、`actions/configure-pages@v5`、`actions/upload-pages-artifact@v3` 和 `actions/deploy-pages@v4`。调整 Actions 或 Node 版本、构建命令、发布目录、权限、环境变量或触发条件时，应在同一次修改中同步更新本节。截至 2026-09-11 的部署记录显示，这些官方 action 已被强制运行在 Node 24 上并输出 `Node.js 20 is deprecated` 标注（不阻断部署），后续升级 action 或 Node 版本时应一并处理。
-- 不能只看到 `git push` 成功就宣布完成；先用 `git rev-parse HEAD` 记录完整提交 SHA，再确认该工作流运行的 `head_sha` 与目标提交一致，且 `status` 为 `completed`、`conclusion` 为 `success`。其他提交的成功记录或线上已出现新内容，均不能替代本次运行的最终结果。
-- 部署完成后至少抽查受影响的公开页面，确认标题、照片和说明已经上线。
-- 本机已安装 GitHub CLI 时，优先用 `gh` 查询与本次提交对应的 Actions 运行；首次使用先执行 `gh auth status`，未登录时由仓库所有者完成一次 `gh auth login` 网页授权。不得把访问令牌写入仓库、脚本、日志或本文档。
-- 推荐先运行 `gh run list --repo XLJFZ/XLJFZ.github.io --limit 5` 找到与当前提交对应的运行，再用 `gh run watch <run-id> --exit-status` 等待结果；失败时查看该运行日志并修复，不能反复盲目重跑。
-- 如果 `gh` 尚未登录或当前环境无法调用，可只读查询 [Pages 工作流运行 API](https://api.github.com/repos/XLJFZ/XLJFZ.github.io/actions/workflows/pages.yml/runs)，按 `head_sha` 匹配目标提交，再查询 `/repos/XLJFZ/XLJFZ.github.io/actions/runs/<run-id>` 获取最终状态。这只能用于公开仓库状态核验，不能代替需要身份授权的仓库操作。
-- Actions 成功后必须直接请求受影响的正式网址并确认 HTTP `200`，同时核对关键标题或文案。对于按钮、批处理等客户端功能，还应确认页面引用的新脚本包含目标更新；脚本核对不等同于浏览器交互测试。新增路由还要确认工具索引与 `public/sitemap.xml` 已包含该地址；Actions 成功但正式页面仍是 `404` 时继续等待 Pages 切换，不能提前宣布上线。
-- 导出目录中的 `_headers`（由 vinext 生成）声明了 `/_next/static/*` 使用 `max-age=31536000, immutable`，但 **GitHub Pages 不支持自定义响应头，会忽略该文件**。线上静态资源实际遵循 GitHub Pages 默认策略（约 `max-age=600`，配合 `ETag` 协商缓存），因此带内容哈希的构建产物在 10 分钟窗口内仍可能触发一次条件请求。这是托管平台的限制，不能通过修改前端代码解决。
-- `/favicon.ico` 必须返回 HTTP `200` 且为图标内容。该请求过去会回落到 `404.html`（约 `442KB`），是本项目体积最大的无效响应。
-- 对“内容必须与本地一致”的产物（站点图标、被清理过元数据的作品原图、脚本生成的资产），除 HTTP `200` 之外还须做字节级核验：用 `curl -sSL --max-time 180 -o <本地临时文件> <正式网址>` 下载线上文件，再与本地版本比对 SHA-256；**只有哈希一致才能声称“逐字节一致”，体积相同不足以证明**。已清理元数据的图片还应直接从线上文件重新解析 EXIF，确认敏感字段确实不在线上版本中出现——本地干净不等于线上干净。
-- 线上核验须覆盖“未知路径返回 `404`”这一项，确认站点没有把缺失资源静默吞成 `200`。当前 `404` 响应体本身约 `452KB`，属已知的体积问题。
-
-### 发布后按改动类型核验
-
-下表是本项目的验收要求，不是 `pages.yml` 中自动执行的步骤。所有类型均须先匹配本次提交 SHA，并等待 Pages 运行最终成功。
-
-| 改动类型         | 发布后核验                                                         | 不能据此宣称                           |
-| ---------------- | ------------------------------------------------------------------ | -------------------------------------- |
-| 仅文档           | 核对远端 `main` 的目标文档内容，抽查正式站点正常响应               | 网站新增了页面功能                     |
-| 功能或客户端代码 | 核对受影响路由、页面引用的新脚本与关键功能；执行必要交互验证       | 仅凭 HTTP 200 或脚本文字就认定交互正常 |
-| 视觉或布局       | 在桌面和手机视口查看受影响页面；工具页覆盖空状态、处理中和结果状态 | 仅凭构建成功就认定视觉验收通过         |
-
-浏览器预览不可用时，应明确记录“未完成截图或交互验收”；部署成功、页面响应和代码核验可分别报告，不得合并描述为全部验收通过。
-
-### 【历史记录】最近一次已核实的发布记录
-
-本节全部记录均为**已发生的事实**，仅作对照与追溯依据。其中记载的一次性操作（历史重写、强制推送等）与当时的授权**只代表那一次**，不构成后续重复执行的长期授权；再次执行前必须按 10.1 节重新取得用户对该次操作的明确同意。
-
-以下记录对应 2026-09-12 已发布的「原图移出仓库 + 4096px 预览档」（含 git 历史重写与强制推送，均经所有者事先明确授权），不表示后续提交自动通过：
-
-- 提交：`4e40433968197de1361ae41a0303f6a18d88c176`（`refactor(assets): 原图移出仓库，画廊只发布 4096px 上限的预览图`），99 files changed。该提交先以 `f1ba4fd` 正常推送并部署成功，随后用 `git filter-repo --invert-paths --path public/portfolio --force` 从全部 120 个提交中移除原图路径，重写为 `4e40433` 后强制推送（`f1ba4fd...4e40433 forced update`；main 受保护，按所有者身份绕过规则完成）。
-- Pages 运行：[34630912301](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34630912301)（`f1ba4fd`，`completed / success`）与 [34631761092](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34631761092)（重写后的 `4e40433`，`completed / success`），两次运行 SHA 均与对应提交一致。
-- 内容变化：删除 `public/portfolio/` 下 45 张原图（75.3 MB，已先备份到仓库外并做 SHA-256 抽样核对），新增 43 张最大档预览（三档制：1200 / 1800 / `min(原图宽, 4096)`）；灯箱三档 srcSet、大图与预加载、四个专题封面与站点 `og:image` 全部改读 `portfolio-previews/`；EXIF 解析测试改用合成 fixture；新增「原图不入库」「发布图不超 4096px」两条回归测试。
-- 本地检查：83 项测试、lint、构建与 18 条路由静态导出通过；导出产物核验 HTML 引用原图 0 处、产物中无 `public/portfolio`、`og:image` 均为 `-1800.jpg` 预览。
-- 线上检查：抽查两条原图路径返回 `404`，对应最大档预览与 `og:image` 预览返回 `200`；`/series/` 四个专题页均为 `200` 且页面 HTML 中原图引用 `0`；首页 `200`。
-- 残留风险：历史重写只使旧提交从分支不可达；GitHub 服务端在垃圾回收前仍可能按直接 SHA 返回孤儿提交（实测旧提交 `f1ba4fd` 的 commits API 直查仍为 `200`），CDN 缓存的旧资源短期内也可能命中。如需彻底清除可联系 GitHub Support 请求服务端 GC；后续协作者必须重新 clone 或 `git fetch` 后 `git reset --hard origin/main`，不得在旧历史上继续提交。
-- 本次未做浏览器截图验收；部署成功与线上页面／资产响应核验须分别报告。
-
-以下记录对应 2026-09-11 已发布的“两张例外图片归入 `distant-weather/`”（资产路径迁移），保留作为对照：
-
-- 提交：`141bc3d`（`refactor(assets): 将两张例外图片归入 distant-weather/ 专题目录`），11 files changed，`6` 个重命名相似度均为 `100%`（内容零改动）。
-- [Pages 运行 34618807090](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34618807090)：`completed / success`，耗时 `1m40s`，运行 SHA 与上述提交一致。
-- 本地检查：81 项测试、lint、构建与 18 条路由静态导出通过，`git diff --check` 通过；全站 `135` 条图片引用缺失 `0`，`90` 个预览图未被引用 `0`。
-- 线上检查：新路径 `/portfolio/distant-weather/dsc-2989-shangri-la.jpg` 与 `…/zbz-1242-meili.jpg` 均返回 `200` 且 SHA-256 与本地一致；两条旧路径返回 `404`（预期）；`og:image` 已指向新路径；首页旧路径残留 `0`。
-- 本次未做浏览器截图验收；部署成功与线上页面／资产响应核验须分别报告。
-
-以下记录对应同日更早发布的图片隐私清理与 favicon 加固，保留作为对照：
-
-- 提交：`a59096d743174d018c1887812ab8a052356c199d`（清理 2 张作品原图残留的 `DateTime` 与 `UserComment`，新增 `public/favicon.ico`，并加固导出时的图标存在性校验）。
-- [Pages 运行 34590539334](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34590539334)：`completed / success`，耗时 `1m12s`，运行 SHA 与上述提交一致。
-- 本地检查：81 项测试、lint、构建与 18 条路由静态导出通过，`git diff --check` 通过；`public/` 共 145 张图，隐私字段命中 `0`。
-- 线上检查：`/`、`/favicon.ico`、`/favicon.svg`、`/sitemap.xml` 与受影响的作品原图均返回 HTTP `200`，未知路径返回 `404`；`/favicon.ico` 为 `999` 字节的 `image/vnd.microsoft.icon`（修复前会回落到约 `442KB` 的 `404.html`）。
-- 字节级核验：下载线上 `favicon.ico` 与其中一张已清理原图，与本地版本比对 SHA-256 **完全一致**；线上原图直接解析 EXIF，`Make`、`Model`、曝光、ISO、焦距与 `DateTimeOriginal` 均保留，`DateTime`、`UserComment`、`MakerNote`、`Artist`、`Software`、相机所有者与序列号字段**全部不存在**。
-- 本次未做浏览器截图验收；部署成功与线上页面／资产响应核验须分别报告。
-
-以下记录对应更早一次的功能发布，保留作为对照：
-
-- 提交：`4d1a59cdaead30fb718c209867da04603ddd1444`（机位与被摄物按三维高度显示，并支持点击建筑取楼顶参考点）。
-- [Pages 运行 34558060570](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/34558060570)：`completed / success`，运行 SHA 与上述提交一致。
-- 本地检查：80 项测试、lint、构建和 18 条路由静态导出通过，修改文件格式检查及 `git diff --check` 通过。
-- 本地浏览器：验证两栋建筑分别取到地图估算 285m、178m 楼顶；手动输入 80m、120m 后标记与俯仰角同步更新；二维／三维切换保留高度。手机 390 × 844 视口确认楼顶吸附选项不再遮挡三维按钮。
-- 线上检查：光线规划器返回 HTTP 200；页面及其实际引用的新版脚本包含“三维楼顶”、离地高度输入、楼顶吸附与三维投影实现；远端维护文档已更新。
-- 线上浏览器打开超时，未完成生产环境的点击和截图验收；本地交互验证、线上页面／脚本核验与部署成功须分别报告。
+- 默认只发布到 GitHub Pages，站点为 https://xljfz.github.io/。配置以 [.github/workflows/pages.yml](../.github/workflows/pages.yml) 为准。
+- main 推送与 workflow_dispatch 触发；相同 pages 并发组的新运行会取消旧运行。跟踪目标完整 SHA，不能将取消或其他提交的成功算作本次结果。
+- 工作流顺序：检出、Node 22、npm ci、源资产检查、build、静态导出、产物资产检查、上传 _site、部署。权限保持 contents: read、pages: write、id-token: write。lint 与测试目前仍需本地执行。
+- 推送前检查远端差异和工作区，保留双方修改；仅显式暂存本次文件。提交身份使用项目约定的 GitHub noreply 邮箱，不公开私人邮箱，不修改全局身份。
+- 明确得到发布授权后正常提交推送；工作区恢复、历史重写和强制推送遵守 §10.1。
+- 部署完成须匹配 head_sha，且 status=completed、conclusion=success。再抽查受影响的公开页面、资产、标题与链接，未知路径应返回 404。
+- 视觉改动需在桌面与手机查看，交互改动需实际操作；HTTP 200、构建成功或脚本文字不能代替交互验收。
+- 对声称与本地一致的资产做 SHA-256 比对；涉及隐私时重新检查线上文件元数据。
+- 如浏览器或网络不可用，分开报告已完成的检查和未完成的验收，不概括为全部通过。
+- 历史发布证据见 [发布记录](RELEASE-HISTORY.md)，Windows 与网络排障见 [排障文档](TROUBLESHOOTING.md)。
 
 ## 12. 修改前快速检查表
 
@@ -513,6 +416,7 @@ git diff --check
 - [ ] 若新增或替换资产，是否只放入展示所需分辨率的预览图，没有把原图加入仓库（公开仓库等于公开下载，原图只进仓库外备份目录）？
 - [ ] 若本次改动了站点图标或被清理过元数据的图片，发布后是否做了字节级核验（SHA-256 与本地一致，且线上文件重新解析后不含敏感字段）？
 - [ ] 若执行过工作区恢复、历史同步或历史重写，是否先按 10.1 节备份了未提交内容，且没有自动使用 `git reset --hard` 或强制推送？
+- [ ] 是否通过源资产和导出产物检查，并确认长边上限为 4096px？
 - [ ] 若修改视觉或布局，是否完成桌面与手机视口检查，或明确记录尚未验收的项目？
 
 ### 隐私检查批量处理补充
@@ -536,12 +440,10 @@ git diff --check
 
 - 工具正文的小字通过 `data-tool-content` 限定范围，辅助文字默认 14px、行高 1.6；通过收紧装饰留白与适度提亮灰字保持层级，不再靠缩小说明文字容纳内容。导航与摄影画廊不受该规则影响。
 
-### 标题断行与手机目录（2026-09-05 复查）
+### 标题断行与手机目录
 
 - 长工具标题按语义分行，禁止尾部单字孤立一行。裁切页固定分为“社交平台裁切 / 预览器”，行高 1.08。
 - 手机工具目录（小于 768px）不设置卡片最小高度，使用内容自然撑高；卡片内边距 22px，标题区上间距 24px，说明上间距 16px，底部信息上间距 24px。辅助字号维持 14px。
 - 桌面 3×3 目录规则保持独立，不以缩小辅助文字来压缩手机卡片。
-- 修复提交 `a693b5baf19fb157e3956b91b96ae806de7e3630` 已部署成功：[Pages 运行 33951731218](https://github.com/XLJFZ/XLJFZ.github.io/actions/runs/33951731218)。
-- 已用正式页面截图复查：1280×720 裁切标题按语义两行显示；390×844 手机目录留白收紧且无可见文字重叠。这里只验收这两项修复，不能代替全站及处理结果状态的验收。
 
 - 工具目录卡片说明文字固定为 16px、行高 1.65，与标题至少间隔 16px，灰阶为白色 72%。较矮桌面视口允许自然滚动，不能为一屏九卡压缩说明字号或标题间距；此项优先于此前的一屏密度规则。

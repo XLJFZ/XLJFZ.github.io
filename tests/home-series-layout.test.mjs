@@ -28,7 +28,7 @@ test('the homepage hero serves responsive high-quality renditions', async () => 
 
   assert.match(source, /hero-zbz-2714-1280\.jpg 1280w/);
   assert.match(source, /hero-zbz-2714-2200\.jpg 2200w/);
-  assert.match(source, /hero-zbz-2714\.jpg 3000w/);
+  assert.doesNotMatch(source, /\/hero-zbz-2714\.jpg/);
   assert.match(source, /sizes="100vw"/);
   assert.match(source, /loading="eager"/);
 
