@@ -7,7 +7,7 @@ export default function Home() {
     <main id="top">
       <section
         id="content"
-        className="relative flex min-h-[100svh] items-end overflow-hidden bg-neutral-950 text-white"
+        className="relative flex min-h-[100svh] flex-col overflow-hidden bg-neutral-950 text-white"
       >
         <SiteHeader />
         <img
@@ -24,33 +24,26 @@ export default function Home() {
           style={{ filter: 'saturate(1.14) contrast(1.02)' }}
         />
         <div
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,18,.3)_0%,transparent_38%,rgba(8,10,18,.82)_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,18,.18)_0%,transparent_35%,rgba(8,10,18,.18)_52%,rgba(8,10,18,.72)_78%,rgba(8,10,18,.88)_100%)]"
           aria-hidden="true"
         />
-        <div
-          className="absolute inset-x-5 bottom-[7.5rem] z-10 h-px bg-white/20 md:inset-x-10 md:bottom-[9.25rem]"
-          aria-hidden="true"
-        />
-        <div className="relative z-10 grid w-full gap-8 px-5 pb-8 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:pb-11">
-          <div className="max-w-3xl">
-            <p className="mb-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.28em] text-white/65">
-              <span className="inline-block h-px w-8 bg-white/45" />
-              风光 · 建筑 · 在路上
-            </p>
-            <h1 className="text-[clamp(2.7rem,5.6vw,5.6rem)] font-medium leading-[0.95] tracking-[-0.045em]">
-              风从群山来
-            </h1>
-            <p className="mt-5 max-w-md text-xs font-light leading-6 text-white/62 md:text-sm">
-              在抵达与离开之间，记录光线、天气和地景短暂相遇的瞬间。
-            </p>
-          </div>
-          <div className="flex items-end justify-between gap-8 md:flex-col md:items-end">
-            <p className="text-[10px] tracking-[0.15em] text-white/50">
-              德钦 · 雪达湖 · 2025
-            </p>
+        <div className="relative z-10 mx-auto mt-auto w-full max-w-[1600px] px-5 pb-5 pt-40 md:px-10 md:pb-7 md:pt-52">
+          <div className="grid gap-7 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
+            <div className="max-w-3xl">
+              <p className="mb-4 flex items-center gap-3 text-xs tracking-[.18em] text-white/75">
+                <span className="inline-block h-px w-8 bg-white/45" />
+                风光 · 建筑 · 在路上
+              </p>
+              <h1 className="text-[clamp(2.5rem,5.6vw,5.6rem)] font-medium leading-[1.12] tracking-[-0.035em]">
+                风从群山来
+              </h1>
+              <p className="mt-5 max-w-md text-sm font-light leading-7 text-white/80">
+                在抵达与离开之间，记录光线、天气和地景短暂相遇的瞬间。
+              </p>
+            </div>
             <a
               href="/series/"
-              className="group flex items-center gap-5 border-b border-white/35 pb-2 text-xs tracking-[0.14em] transition-colors hover:border-white hover:text-white"
+              className="group inline-flex min-h-11 w-fit items-center gap-8 border-b border-white/45 pb-2 text-sm tracking-[.12em] transition-colors hover:border-white md:mb-1"
             >
               浏览作品{' '}
               <span
@@ -61,11 +54,32 @@ export default function Home() {
               </span>
             </a>
           </div>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-white/25 pt-3 md:mt-10 md:pt-4">
+            <p className="text-xs leading-6 tracking-[.08em] text-white/70">
+              德钦 · 雪达湖 · 2025
+            </p>
+            <a
+              href="#selected-series"
+              className="group inline-flex min-h-11 items-center gap-3 text-xs tracking-[.1em] text-white/80 transition-colors hover:text-white"
+            >
+              向下探索{' '}
+              <span
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-y-1 motion-reduce:transform-none"
+              >
+                ↓
+              </span>
+            </a>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-32">
-        <div className="mb-16 grid gap-7 border-t border-foreground/10 pt-5 md:grid-cols-[1fr_1.2fr] md:items-start">
+      <section
+        id="selected-series"
+        aria-label="精选系列"
+        className="mx-auto w-full max-w-[1600px] scroll-mt-20 px-5 py-14 md:scroll-mt-28 md:px-10 md:py-20"
+      >
+        <div className="mb-10 grid gap-7 md:mb-14 md:grid-cols-[1fr_1.2fr] md:items-start">
           <p className="text-xs leading-5 tracking-[0.16em] text-foreground/65">
             精选系列 · 01—{String(series.length).padStart(2, '0')}
           </p>
