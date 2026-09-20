@@ -153,29 +153,42 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative grid gap-12 overflow-hidden bg-[#181817] px-5 py-20 text-white md:grid-cols-2 md:px-10 md:py-28">
-        <div
-          className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/[.035] blur-3xl"
-          aria-hidden="true"
-        />
-        <div>
-          <p className="mb-5 text-[10px] tracking-[.22em] text-white/38">
-            合作与委托
-          </p>
-          <h2 className="text-[clamp(2.4rem,5vw,4.6rem)] font-medium leading-[.98] tracking-[-.05em]">
-            让影像保持呼吸
-          </h2>
-        </div>
-        <div className="max-w-lg md:self-end md:justify-self-end">
-          <p className="font-light leading-8 text-white/62">
-            可承接建筑、风光、旅行与编辑类拍摄。若你有一个等待被看见的地点，欢迎来信。
-          </p>
-          <a
-            href="mailto:zbzzzzzzz@qq.com"
-            className="mt-8 inline-flex border-b border-white/35 pb-2 text-sm tracking-[.1em] transition-colors hover:border-white"
-          >
-            发起合作 →
-          </a>
+      <section
+        aria-labelledby="collaboration-title"
+        className="border-t border-white/10 bg-[#181817] text-white"
+      >
+        <div className="mx-auto grid w-full max-w-[1600px] gap-9 px-5 py-14 md:grid-cols-[1.1fr_.9fr] md:items-end md:gap-12 md:px-10 md:py-20 lg:gap-20">
+          <div>
+            <p className="mb-5 text-xs tracking-[.16em] text-white/65">
+              合作与委托
+            </p>
+            <h2
+              id="collaboration-title"
+              className="text-[clamp(2rem,4vw,4.25rem)] font-medium leading-[1.2] tracking-[-.04em]"
+            >
+              让影像保持呼吸
+            </h2>
+            <p className="mt-6 text-xs leading-6 tracking-[.12em] text-white/65">
+              建筑 · 风光 · 旅行 · 编辑
+            </p>
+          </div>
+          <div className="w-full max-w-lg md:justify-self-end">
+            <p className="text-sm font-light leading-7 text-white/75 md:text-base md:leading-8">
+              若你有一个等待被看见的地点，欢迎来信。聊聊你的想法，让我们从一次交流开始。
+            </p>
+            <a
+              href="mailto:zbzzzzzzz@qq.com"
+              className="group mt-6 inline-flex min-h-12 items-center justify-between gap-10 border border-white/30 bg-white/5 px-5 py-3 text-sm tracking-[.1em] transition-colors hover:border-white/65 hover:bg-white/10 md:mt-7"
+            >
+              发起合作{' '}
+              <span
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-x-1 motion-reduce:transform-none"
+              >
+                ↗
+              </span>
+            </a>
+          </div>
         </div>
       </section>
       <SiteFooter />
