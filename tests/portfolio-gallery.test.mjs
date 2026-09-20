@@ -152,7 +152,10 @@ test('lightbox caption and sequence share one collision-free footer row', async 
   const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
 
   assert.match(gallery, /flex items-end justify-between gap-5 md:inset-x-7/);
-  assert.match(gallery, /className="shrink-0 text-\[10px\]/);
+  assert.match(
+    gallery,
+    /className="shrink-0 text-xs tracking-\[\.08em\] text-white\/70"/,
+  );
 });
 
 test('lightbox shows only verified EXIF metadata when it is available', async () => {
@@ -161,7 +164,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
 
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
-  assert.match(gallery, /text-white\/38/);
+  assert.match(gallery, /text-white\/65/);
   assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 34);
 
   const chongqingNight = portfolioRecord(

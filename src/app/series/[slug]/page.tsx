@@ -51,7 +51,7 @@ export default async function SeriesPage({ params }: Props) {
         className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16"
       >
         <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-foreground/45">
+          <p className="text-xs leading-6 tracking-[.12em] text-foreground/65">
             {item.category} · {item.englishTitle}
           </p>
           <h1 className="mt-4 text-[clamp(2.8rem,6.5vw,6.2rem)] font-medium leading-[.94] tracking-[-0.055em]">
@@ -62,17 +62,17 @@ export default async function SeriesPage({ params }: Props) {
           <p className="text-sm font-light leading-7 text-foreground/65">
             {item.statement}
           </p>
-          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-foreground/10 pt-4 text-xs">
+          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-foreground/10 pt-4 text-sm leading-6">
             <div className="col-span-2">
-              <dt className="text-foreground/40">地点</dt>
+              <dt className="text-foreground/65">地点</dt>
               <dd className="mt-1">{item.location}</dd>
             </div>
             <div>
-              <dt className="text-foreground/40">年份</dt>
+              <dt className="text-foreground/65">年份</dt>
               <dd className="mt-1">{item.year}</dd>
             </div>
             <div>
-              <dt className="text-foreground/40">作品</dt>
+              <dt className="text-foreground/65">作品</dt>
               <dd className="mt-1">{item.images.length} 幅</dd>
             </div>
           </dl>
@@ -86,13 +86,13 @@ export default async function SeriesPage({ params }: Props) {
         className="group mx-auto my-20 grid max-w-[1480px] gap-8 border-y border-foreground/10 px-5 py-10 sm:px-8 md:grid-cols-[.75fr_1.25fr] md:items-end md:px-10 md:py-14 lg:px-14 xl:px-16"
       >
         <div className="md:pb-1">
-          <p className="text-[10px] uppercase tracking-[.22em] text-foreground/40">
+          <p className="text-xs leading-5 tracking-[.12em] text-foreground/65">
             下一组作品
           </p>
           <h2 className="mt-3 text-4xl font-medium tracking-[-.05em] md:text-6xl">
             {next.title}
           </h2>
-          <p className="mt-4 flex items-center gap-4 text-xs tracking-[0.12em] text-foreground/50">
+          <p className="mt-4 flex items-center gap-4 text-sm leading-6 tracking-[.05em] text-foreground/65">
             {next.englishTitle}
             <span className="text-xl transition-transform group-hover:translate-x-2">
               →

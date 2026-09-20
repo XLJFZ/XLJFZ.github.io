@@ -296,7 +296,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           className="sticky top-0 z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
         >
           <div className="mx-auto flex max-w-[1480px] items-center gap-4 sm:gap-6">
-            <span className="shrink-0 text-[9px] tracking-[0.18em] text-foreground/38 tabular-nums">
+            <span className="shrink-0 text-xs tracking-[.08em] text-foreground/65 tabular-nums">
               章节 {String(activeChapter + 1).padStart(2, '0')}/
               {String(sections.length).padStart(2, '0')}
             </span>
@@ -313,18 +313,18 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                       }
                       onClick={() => setActiveChapter(sectionIndex)}
                       className={cn(
-                        'group flex shrink-0 items-baseline gap-2 py-1 text-[10px] tracking-[0.14em] transition-colors hover:text-foreground',
+                        'group flex shrink-0 items-baseline gap-2 py-1 text-xs tracking-[.08em] transition-colors hover:text-foreground',
                         activeChapter === sectionIndex
                           ? 'text-foreground'
-                          : 'text-foreground/45',
+                          : 'text-foreground/65',
                       )}
                     >
                       <span
                         className={cn(
-                          'text-[8px] transition-colors group-hover:text-foreground/45',
+                          'text-[11px] transition-colors group-hover:text-foreground/75',
                           activeChapter === sectionIndex
-                            ? 'text-foreground/55'
-                            : 'text-foreground/25',
+                            ? 'text-foreground/75'
+                            : 'text-foreground/55',
                         )}
                       >
                         {String(sectionIndex + 1).padStart(2, '0')}
@@ -363,10 +363,10 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 data-chapter-index={sectionIndex}
                 className="mb-8 flex items-center gap-4 border-t border-foreground/10 pt-4 md:mb-12"
               >
-                <span className="text-[10px] tracking-[0.2em] text-foreground/35">
+                <span className="text-xs tracking-[.1em] text-foreground/65">
                   {String(sectionIndex + 1).padStart(2, '0')}
                 </span>
-                <h2 className="text-xs font-normal tracking-[0.18em] text-foreground/58">
+                <h2 className="text-sm font-normal tracking-[.08em] text-foreground/75">
                   {section.label}
                 </h2>
               </div>
@@ -447,11 +447,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                           />
                         </button>
                         {image.caption && (
-                          <figcaption className="flex items-baseline justify-between gap-4 pt-3 text-[11px] leading-5 tracking-[0.13em] text-foreground/58 md:pt-4">
+                          <figcaption className="flex items-baseline justify-between gap-4 pt-3 text-xs leading-6 tracking-[.05em] text-foreground/70 md:pt-4">
                             <span>{image.caption}</span>
                             <span
                               aria-label={`第 ${displayIndex + 1} 幅，共 ${displayedItems.length} 幅`}
-                              className="shrink-0 text-[9px] tracking-[0.18em] text-foreground/28"
+                              className="shrink-0 text-xs tracking-[.08em] text-foreground/55"
                             >
                               {String(displayIndex + 1).padStart(2, '0')} /{' '}
                               {String(displayedItems.length).padStart(2, '0')}
@@ -608,18 +608,18 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           {active !== null && (
             <div className="pointer-events-none absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end justify-between gap-5 md:inset-x-7">
               <div className="min-w-0">
-                <p className="text-[11px] leading-5 tracking-[0.13em] text-white/70">
+                <p className="text-xs leading-6 tracking-[.05em] text-white/80">
                   {displayedItems[active].image.caption}
                 </p>
                 {exifSummary(displayedItems[active].image) && (
-                  <p className="mt-0.5 truncate text-[9px] leading-4 tracking-[0.08em] text-white/38 md:text-[10px]">
+                  <p className="mt-0.5 truncate text-[11px] leading-5 tracking-[.03em] text-white/65">
                     {exifSummary(displayedItems[active].image)}
                   </p>
                 )}
               </div>
               <p
                 aria-live="polite"
-                className="shrink-0 text-[10px] tracking-[0.2em] text-white/65"
+                className="shrink-0 text-xs tracking-[.08em] text-white/70"
               >
                 {String(active + 1).padStart(2, '0')} /{' '}
                 {String(displayedItems.length).padStart(2, '0')}

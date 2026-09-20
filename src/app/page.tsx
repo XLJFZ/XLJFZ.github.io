@@ -66,7 +66,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-32">
         <div className="mb-16 grid gap-7 border-t border-foreground/10 pt-5 md:grid-cols-[1fr_1.2fr] md:items-start">
-          <p className="text-[10px] tracking-[0.24em] text-foreground/45">
+          <p className="text-xs leading-5 tracking-[0.16em] text-foreground/65">
             精选系列 · 01—{String(series.length).padStart(2, '0')}
           </p>
           <p className="max-w-xl text-lg font-light leading-8 tracking-[-0.02em] md:justify-self-end md:text-xl md:leading-9">
@@ -106,24 +106,24 @@ export default function Home() {
                   </span>
                 </div>
                 <div className={index % 2 ? 'md:order-1' : ''}>
-                  <div className="flex items-center justify-between border-t border-foreground/10 pt-3 text-[10px] tracking-[.18em] text-foreground/40">
-                    <span>
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-foreground/10 pt-3 text-xs leading-5 tracking-[.08em] text-foreground/65">
+                    <span className="whitespace-nowrap">
                       {String(index + 1).padStart(2, '0')} · {item.category}
                       {' · '}
                       {item.images.length} 幅
                     </span>
-                    <span>{item.year}</span>
+                    <span className="whitespace-nowrap">{item.year}</span>
                   </div>
-                  <h2 className="mt-5 text-4xl font-medium leading-none tracking-[-.05em] md:text-5xl">
+                  <h2 className="mt-5 text-4xl font-medium leading-tight tracking-[-.05em] md:text-[clamp(1.5rem,3vw,3rem)]">
                     {item.title}
                   </h2>
-                  <p className="mt-3 text-xs tracking-[.1em] text-foreground/45">
+                  <p className="mt-3 text-sm leading-6 tracking-[.05em] text-foreground/65">
                     {item.englishTitle}
                   </p>
-                  <p className="mt-6 max-w-sm text-sm font-light leading-7 text-foreground/55">
+                  <p className="mt-6 max-w-sm text-sm font-light leading-7 text-foreground/70">
                     {item.statement}
                   </p>
-                  <p className="mt-4 text-[10px] tracking-[.14em] text-foreground/35">
+                  <p className="mt-4 text-xs leading-6 tracking-[.05em] text-foreground/65">
                     {item.location}
                   </p>
                   <span className="mt-7 inline-flex items-center gap-4 text-xs tracking-[.1em]">
