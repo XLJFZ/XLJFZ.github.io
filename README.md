@@ -66,13 +66,12 @@ Requires Node.js `22.13.0` or later.
 
 ```bash
 npm ci
-npm run previews
 npm run dev
 ```
 
-新增或替换作品后，先运行 `npm run previews` 生成画廊响应式预览；灯箱仍使用原始照片。
+仓库已包含展示预览，普通开发无需重新生成图片。新增或替换作品时，先设置 `PORTFOLIO_ORIGINALS_DIR` 指向仓库外的原图目录，再运行 `npm run previews`。画廊与灯箱均使用展示预览，原图不随站点发布。
 
-After adding or replacing photographs, run `npm run previews` to regenerate responsive gallery previews. The lightbox continues to use the original files.
+Committed previews are sufficient for local development. Regeneration requires external originals via `PORTFOLIO_ORIGINALS_DIR`. Both the gallery and lightbox use published previews; originals are not published.
 
 构建项目：
 
@@ -90,7 +89,7 @@ npm run export:github-pages
 Every push to the `main` branch triggers GitHub Actions to build and deploy the site to GitHub Pages.
 
 ```bash
-git add .
+git add <changed-files>
 git commit -m "Update portfolio"
 git push origin main
 ```
@@ -102,13 +101,18 @@ src/app/                     页面与路由 / Pages and routes
 src/components/              网站组件 / Site components
 src/components/ui/           实际使用的基础组件 / Used UI primitives
 src/lib/portfolio.ts         作品集数据 / Portfolio data
-public/portfolio/            摄影作品 / Photography assets
-public/portfolio-previews/   响应式画廊预览 / Responsive gallery previews
+public/portfolio-previews/   画廊与灯箱预览 / Gallery and lightbox previews
+public/hero-previews/        首页预览 / Hero previews
+public/covers/               专题封面 / Series covers
 scripts/                     预览生成与 Pages 导出 / Preview generation and Pages export
 tests/                       自动检查 / Automated checks
-docs/SITE-GUIDELINES.md      网站维护规范 / Site maintenance guidelines
+docs/README.md               文档导航 / Documentation index
+docs/REPOSITORY-GUIDE.md      目录与归档约定 / Repository organization
+docs/SITE-GUIDELINES.md       网站维护规范 / Site maintenance guidelines
 .github/workflows/pages.yml  自动部署流程 / Deployment workflow
 ```
+
+本地构建目录、缓存和 `outputs/` 不提交。文件归属、脚本用途及临时产物约定见[仓库导航](docs/REPOSITORY-GUIDE.md)。
 
 ## 版权声明 / Copyright
 
