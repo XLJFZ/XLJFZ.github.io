@@ -126,6 +126,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [activeChapter, setActiveChapter] = useState(0);
   const [hasUsedChapterAnchor, setHasUsedChapterAnchor] = useState(false);
   const [active, setActive] = useState<number | null>(null);
+  const [loadedPreview, setLoadedPreview] = useState<string | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
   const {
@@ -135,6 +136,31 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   } = useTemporaryStatus();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const suppressBackdropClick = useRef(false);
+  const previewPreloads = useRef(new Map<string, HTMLImageElement>());
+
+  const preloadLightboxPreview = useCallback((image: PortfolioImage) => {
+    const src = galleryPreviewSrc(image, 1800);
+    const cached = previewPreloads.current.get(src);
+    if (cached) {
+      previewPreloads.current.delete(src);
+      previewPreloads.current.set(src, cached);
+      return;
+    }
+    const preload = new window.Image();
+    preload.decoding = 'async';
+    preload.fetchPriority = 'auto';
+    preload.src = src;
+    previewPreloads.current.set(src, preload);
+    while (previewPreloads.current.size > 4) {
+      const oldest = previewPreloads.current.keys().next().value;
+      if (!oldest) break;
+      previewPreloads.current.delete(oldest);
+    }
+    void preload.decode().catch(() => {
+      previewPreloads.current.delete(src);
+      // The visible image retains its normal load/error fallback.
+    });
+  }, []);
 
   const showImage = useCallback(
     (index: number, historyMode: 'push' | 'replace' = 'replace') => {
@@ -235,10 +261,9 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     for (const offset of [-1, 1]) {
       const index =
         (active + offset + displayedItems.length) % displayedItems.length;
-      const preload = new window.Image();
-      preload.src = galleryMaxSrc(displayedItems[index].image);
+      preloadLightboxPreview(displayedItems[index].image);
     }
-  }, [active, displayedItems]);
+  }, [active, displayedItems, preloadLightboxPreview]);
 
   useEffect(() => {
     if (!hasChapters) return;
@@ -446,6 +471,9 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                       >
                         <button
                           type="button"
+                          onPointerEnter={() => preloadLightboxPreview(image)}
+                          onPointerDown={() => preloadLightboxPreview(image)}
+                          onFocus={() => preloadLightboxPreview(image)}
                           onClick={() => showImage(displayIndex, 'push')}
                           className="group block w-full cursor-zoom-in overflow-hidden bg-[#292824] shadow-[0_18px_55px_rgba(0,0,0,.22)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground/70"
                           aria-label={`放大查看：${image.alt}`}
@@ -567,31 +595,42 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 height={displayedItems[active].image.height}
                 alt=""
                 aria-hidden="true"
-                data-lightbox-interactive
-                className="absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]"
-              />
-              <img
-                key={displayedItems[active].image.src}
-                src={galleryMaxSrc(displayedItems[active].image)}
-                width={displayedItems[active].image.width}
-                height={displayedItems[active].image.height}
-                alt={displayedItems[active].image.alt}
                 decoding="async"
                 fetchPriority="high"
                 onLoad={() =>
-                  setLoadedOriginal(displayedItems[active].image.src)
+                  setLoadedPreview(displayedItems[active].image.src)
                 }
                 onError={() =>
-                  setFailedOriginal(displayedItems[active].image.src)
+                  setLoadedPreview(displayedItems[active].image.src)
                 }
                 data-lightbox-interactive
-                className={cn(
-                  'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
-                  loadedOriginal === displayedItems[active].image.src
-                    ? 'opacity-100'
-                    : 'opacity-0',
-                )}
+                className="absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]"
               />
+              {loadedPreview === displayedItems[active].image.src &&
+                failedOriginal !== displayedItems[active].image.src && (
+                  <img
+                    key={displayedItems[active].image.src}
+                    src={galleryMaxSrc(displayedItems[active].image)}
+                    width={displayedItems[active].image.width}
+                    height={displayedItems[active].image.height}
+                    alt={displayedItems[active].image.alt}
+                    decoding="async"
+                    fetchPriority="low"
+                    onLoad={() =>
+                      setLoadedOriginal(displayedItems[active].image.src)
+                    }
+                    onError={() =>
+                      setFailedOriginal(displayedItems[active].image.src)
+                    }
+                    data-lightbox-interactive
+                    className={cn(
+                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                      loadedOriginal === displayedItems[active].image.src
+                        ? 'opacity-100'
+                        : 'opacity-0',
+                    )}
+                  />
+                )}
             </div>
           )}
           <button
