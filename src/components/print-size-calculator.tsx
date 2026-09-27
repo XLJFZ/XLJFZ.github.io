@@ -73,7 +73,8 @@ export function PrintSizeCalculator() {
             {[150, 200, 240, 300].map((value) => (
               <label
                 key={value}
-                className={`cursor-pointer border px-2 py-3 text-center text-sm tabular-nums transition-colors ${dpi === value ? 'border-white/55 bg-white/[.08] text-white' : 'border-white/10 text-white/45 hover:border-white/25'}`}
+                data-selected={dpi === value}
+                className={`print-choice relative cursor-pointer border px-2 py-3 text-center text-sm tabular-nums transition-colors ${dpi === value ? 'border-white/55 bg-white/[.08] text-white' : 'border-white/10 text-white/45 hover:border-white/25'}`}
               >
                 <input
                   className="sr-only"
@@ -124,7 +125,8 @@ export function PrintSizeCalculator() {
               {(['portrait', 'landscape'] as const).map((value) => (
                 <label
                   key={value}
-                  className={`flex h-12 cursor-pointer items-center border px-4 text-sm transition-colors ${orientation === value ? 'border-white/55 bg-white/[.08]' : 'border-white/10 text-white/45'}`}
+                  data-selected={orientation === value}
+                  className={`print-choice relative flex h-12 cursor-pointer items-center border px-4 text-sm transition-colors ${orientation === value ? 'border-white/55 bg-white/[.08] text-white' : 'border-white/10 text-white/45'}`}
                 >
                   <input
                     className="sr-only"

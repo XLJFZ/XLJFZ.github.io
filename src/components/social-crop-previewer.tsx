@@ -332,7 +332,7 @@ export function SocialCropPreviewer() {
                         type="button"
                         disabled={working}
                         onClick={() => downloadOne(ratio)}
-                        className="flex size-9 shrink-0 items-center justify-center border border-white/10 text-white/48 transition-colors hover:border-white/30 hover:text-white"
+                        className="flex size-11 shrink-0 items-center justify-center border border-white/10 text-white/48 transition-colors hover:border-white/30 hover:text-white"
                         aria-label={`导出 ${ratio.label}`}
                       >
                         <Download className="size-4" />
@@ -368,7 +368,7 @@ export function SocialCropPreviewer() {
                   onClick={() =>
                     setSelectedIds(new Set(ratios.map((ratio) => ratio.id)))
                   }
-                  className="hover:text-white"
+                  className="inline-flex min-h-11 items-center px-1 hover:text-white"
                 >
                   全选
                 </button>
@@ -376,7 +376,7 @@ export function SocialCropPreviewer() {
                   type="button"
                   disabled={working}
                   onClick={() => setSelectedIds(new Set())}
-                  className="hover:text-white"
+                  className="inline-flex min-h-11 items-center px-1 hover:text-white"
                 >
                   清空
                 </button>
@@ -427,7 +427,7 @@ export function SocialCropPreviewer() {
                   setPositions({});
                   setError('');
                 }}
-                className="mt-3 flex items-center gap-2 text-xs text-white/45 hover:text-white"
+                className="mt-2 flex min-h-11 items-center gap-2 text-xs text-white/45 hover:text-white"
               >
                 <RotateCcw className="size-3.5" />
                 重置所有位置
@@ -436,7 +436,7 @@ export function SocialCropPreviewer() {
                 type="button"
                 disabled={working}
                 onClick={() => inputRef.current?.click()}
-                className="mt-3 text-xs text-white/45 hover:text-white"
+                className="mt-2 inline-flex min-h-11 items-center text-xs text-white/45 hover:text-white"
               >
                 换一张照片
               </button>
@@ -454,7 +454,7 @@ export function SocialCropPreviewer() {
                   />
                   <Button
                     variant="ghost"
-                    className="h-9 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
+                    className="min-h-11 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
                     onClick={() => controller.current?.abort()}
                   >
                     取消导出

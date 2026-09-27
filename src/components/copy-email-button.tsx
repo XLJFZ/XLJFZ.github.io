@@ -17,14 +17,14 @@ export function CopyEmailButton({
   children?: ReactNode;
   className?: string;
 }) {
-  const { message, showStatus } = useTemporaryStatus();
+  const { message, showStatus, dismissStatus } = useTemporaryStatus();
 
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(EMAIL);
       showStatus(`邮箱已复制 · ${EMAIL}`);
     } catch {
-      showStatus(`复制失败，请手动复制：${EMAIL}`, 'error', 4000);
+      showStatus('复制失败，请选中下方邮箱地址后手动复制。', 'error', 0, EMAIL);
     }
   };
 
@@ -40,9 +40,9 @@ export function CopyEmailButton({
         )}
         aria-label={`复制邮箱 ${EMAIL}`}
       >
-        {children}
+        {message?.tone === 'default' && !message.leaving ? '已复制' : children}
       </Button>
-      <TemporaryStatus message={message} />
+      <TemporaryStatus message={message} onDismiss={dismissStatus} />
     </>
   );
 }

@@ -287,7 +287,7 @@ export function ExifPrivacyChecker() {
               </p>
               <button
                 type="button"
-                className="flex items-center gap-2 text-sm text-white/45 transition-colors hover:text-white"
+                className="flex min-h-11 items-center gap-2 text-sm text-white/45 transition-colors hover:text-white"
                 onClick={clear}
                 disabled={isWorking}
               >
@@ -392,7 +392,7 @@ export function ExifPrivacyChecker() {
                 />
                 <Button
                   variant="ghost"
-                  className="h-9 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
+                  className="min-h-11 rounded-none px-0 text-xs text-white/60 hover:bg-transparent hover:text-white"
                   onClick={() => controller.current?.abort()}
                 >
                   取消处理

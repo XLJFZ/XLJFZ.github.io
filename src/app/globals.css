@@ -123,6 +123,18 @@ html {
 .lightbox-fade[data-ending-style] {
   transition-duration: 160ms;
 }
+.temporary-status {
+  opacity: 1;
+  transition: opacity 160ms var(--interaction-ease);
+}
+.temporary-status[data-leaving='true'] {
+  opacity: 0;
+}
+@starting-style {
+  .temporary-status {
+    opacity: 0;
+  }
+}
 /* Keep Safari input focus from zooming the page; pinch zoom remains available. */
 @media (any-pointer: coarse) {
   [data-tool-content]
@@ -262,6 +274,23 @@ img {
   height: 20px;
   accent-color: #d8c19b;
   cursor: ew-resize;
+}
+.print-choice:has(input:focus-visible) {
+  outline: 2px solid #d8c19b;
+  outline-offset: 2px;
+}
+.print-choice[data-selected='true'] {
+  box-shadow: inset 0 0 0 1px rgba(216, 193, 155, 0.7);
+}
+.print-choice[data-selected='true']::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d8c19b;
 }
 .maplibregl-map {
   font-family: var(--font-cjk), var(--font-sans), Arial, sans-serif;

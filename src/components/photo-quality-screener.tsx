@@ -273,12 +273,14 @@ export function PhotoQualityScreener() {
           <div className="mt-auto flex flex-wrap gap-3 pt-8">
             <Button
               disabled={!files.length || working}
+              className="min-h-11"
               onClick={() => void run()}
             >
               开始本地分析
             </Button>
             <Button
               variant="outline"
+              className="min-h-11"
               onClick={() => {
                 setFiles([]);
                 setResults([]);

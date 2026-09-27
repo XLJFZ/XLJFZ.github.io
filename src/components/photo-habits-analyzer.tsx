@@ -317,7 +317,7 @@ export function PhotoHabitsAnalyzer({
             {files.length > 0 && (
               <button
                 type="button"
-                className="mt-3 flex items-center gap-2 text-sm text-white/42 transition-colors hover:text-white"
+                className="mt-2 flex min-h-11 items-center gap-2 text-sm text-white/42 transition-colors hover:text-white"
                 onClick={clear}
                 disabled={isWorking}
               >

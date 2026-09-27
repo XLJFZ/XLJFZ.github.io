@@ -98,6 +98,7 @@ test('long galleries expose editorial chapters without breaking orientation pair
     '深圳',
     '南昌',
     '香港',
+    '北京',
   ]) {
     assert.match(portfolio, new RegExp(`chapter: '${chapter}'`));
   }
@@ -163,7 +164,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/65/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 34);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 44);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -540,4 +541,68 @@ test('series photographs retain the editorial sequence', async () => {
     '/portfolio-previews/textures-of-time/xian-zbz-0861-1800.jpg',
     '/portfolio-previews/textures-of-time/huizhou-zbz-5682-1800.jpg',
   ]);
+});
+
+test('Beijing photographs retain their verified dimensions, dates, and exposure data', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+  const records = [
+    ['9255', 'urban-pulse', 5111, 7155, '25.5mm', 'f/7.1', '1/20s', 'ISO 64'],
+    [
+      '9496',
+      'textures-of-time',
+      4826,
+      6033,
+      '18mm',
+      'f/7.1',
+      '1/200s',
+      'ISO 64',
+    ],
+    ['9525', 'urban-pulse', 8256, 5504, '14mm', 'f/7.1', '1/320s', 'ISO 64'],
+    ['9533', 'urban-pulse', 5504, 8256, '17mm', 'f/7.1', '1/13s', 'ISO 64'],
+    ['9542', 'urban-pulse', 5453, 7634, '14mm', 'f/6.3', '1/6s', 'ISO 64'],
+    ['9556', 'urban-pulse', 4537, 6398, '14mm', 'f/6.3', '1/10s', 'ISO 64'],
+    ['9579', 'urban-pulse', 4966, 7542, '36mm', 'f/6.3', '1/15s', 'ISO 640'],
+    [
+      '9633-hdr',
+      'urban-pulse',
+      5504,
+      8256,
+      '15.5mm',
+      'f/7.1',
+      '1/640s',
+      'ISO 64',
+    ],
+    ['9649', 'urban-pulse', 8256, 5504, '14mm', 'f/7.1', '1/125s', 'ISO 64'],
+    ['9670', 'urban-pulse', 5504, 8256, '14mm', 'f/6.3', '1/4s', 'ISO 500'],
+  ];
+
+  for (const [
+    id,
+    series,
+    width,
+    height,
+    focalLength,
+    aperture,
+    shutterSpeed,
+    iso,
+  ] of records) {
+    const record = portfolioRecord(
+      source,
+      `/portfolio-previews/${series}/beijing-zbz-${id}-1800.jpg`,
+    );
+    assert.ok(
+      record.includes(`width: ${width},\n        height: ${height}`),
+      id,
+    );
+    for (const detail of [
+      "caption: '北京 · 2026'",
+      "camera: 'Nikon Z7 II'",
+      `focalLength: '${focalLength}'`,
+      `aperture: '${aperture}'`,
+      `shutterSpeed: '${shutterSpeed}'`,
+      `iso: '${iso}'`,
+    ]) {
+      assert.ok(record.includes(detail), `${id}: missing ${detail}`);
+    }
+  }
 });

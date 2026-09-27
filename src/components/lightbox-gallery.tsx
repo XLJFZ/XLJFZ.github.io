@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Link2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Link2, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -128,7 +128,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [active, setActive] = useState<number | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
-  const { message: copyStatus, showStatus } = useTemporaryStatus();
+  const {
+    message: copyStatus,
+    showStatus,
+    dismissStatus,
+  } = useTemporaryStatus();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const suppressBackdropClick = useRef(false);
 
@@ -183,7 +187,12 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       await navigator.clipboard.writeText(url.toString());
       showStatus(`作品链接已复制 · ${displayedItems[active].image.caption}`);
     } catch {
-      showStatus('复制失败，请从浏览器地址栏复制当前链接。', 'error', 4000);
+      showStatus(
+        '复制失败，请选中下方作品链接后手动复制。',
+        'error',
+        0,
+        url.toString(),
+      );
     }
   }, [active, displayedItems, showStatus]);
 
@@ -601,7 +610,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             aria-label="复制当前作品链接"
             className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
           >
-            <Link2 />
+            {copyStatus?.tone === 'default' && !copyStatus.leaving ? (
+              <Check aria-hidden="true" />
+            ) : (
+              <Link2 aria-hidden="true" />
+            )}
           </button>
           <button
             type="button"
@@ -644,9 +657,9 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
               </p>
             </div>
           )}
+          <TemporaryStatus message={copyStatus} onDismiss={dismissStatus} />
         </DialogContent>
       </Dialog>
-      <TemporaryStatus message={copyStatus} />
     </>
   );
 }
