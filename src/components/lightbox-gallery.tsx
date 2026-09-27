@@ -285,7 +285,24 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     const currentLink = document.querySelector(
       'nav[aria-label="专题章节"] [aria-current="location"]',
     );
-    currentLink?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    if (!(currentLink instanceof HTMLElement)) return;
+    const track = currentLink.parentElement;
+    if (!track) return;
+    const linkBounds = currentLink.getBoundingClientRect();
+    const trackBounds = track.getBoundingClientRect();
+    if (
+      linkBounds.left < trackBounds.left ||
+      linkBounds.right > trackBounds.right
+    ) {
+      // Only move the chapter strip; scrollIntoView can also move the page.
+      track.scrollBy({
+        left:
+          linkBounds.left -
+          trackBounds.left -
+          (trackBounds.width - linkBounds.width) / 2,
+        behavior: 'instant',
+      });
+    }
   }, [activeChapter]);
 
   return (
@@ -293,7 +310,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       {hasChapters && (
         <nav
           aria-label="专题章节"
-          className="sticky top-0 z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
+          className="gallery-chapter-nav sticky z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-0.5 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
         >
           <div className="mx-auto flex max-w-[1480px] items-center gap-4 sm:gap-6">
             <span className="shrink-0 text-xs tracking-[.08em] text-foreground/65 tabular-nums">
@@ -313,7 +330,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                       }
                       onClick={() => setActiveChapter(sectionIndex)}
                       className={cn(
-                        'group flex shrink-0 items-baseline gap-2 py-1 text-xs tracking-[.08em] transition-colors hover:text-foreground',
+                        'site-nav-link group flex min-h-11 shrink-0 items-center gap-2 text-xs tracking-[.08em] transition-colors hover:text-foreground',
                         activeChapter === sectionIndex
                           ? 'text-foreground'
                           : 'text-foreground/65',
@@ -351,7 +368,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
             id={section.label ? `chapter-${sectionIndex + 1}` : undefined}
             data-chapter-index={section.label ? sectionIndex : undefined}
             className={cn(
-              'scroll-mt-20',
+              'gallery-chapter',
               sectionIndex > 0 &&
                 !hasUsedChapterAnchor &&
                 'gallery-chapter-deferred',
@@ -472,6 +489,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
         onOpenChange={(open) => !open && closeLightbox()}
       >
         <DialogContent
+          motion="fade"
           showCloseButton={false}
           overlayClassName="bg-black backdrop-blur-none"
           style={{

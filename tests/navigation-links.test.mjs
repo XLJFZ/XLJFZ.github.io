@@ -33,7 +33,12 @@ test('the shared site header stays fixed above every page without covering conte
   const header = await readFile('src/components/site-header.tsx', 'utf8');
   assert.match(header, /fixed inset-x-0 top-0 z-40/);
   assert.match(header, /backdrop-blur-2xl/);
-  assert.match(header, /h-\[61px\][\s\S]*md:h-\[81px\]/);
+  const styles = await readFile('src/app/globals.css', 'utf8');
+  assert.match(header, /site-header-spacer/);
+  assert.match(
+    styles,
+    /\.site-header,\s*\.site-header-spacer\s*\{\s*height: var\(--site-header-height\)/,
+  );
   assert.doesNotMatch(header, /mix-blend-difference/);
 });
 
@@ -74,7 +79,10 @@ test('desktop tool directory fits all nine cards in one viewport', async () => {
   assert.match(page, /tools-index-grid/);
   assert.equal((page.match(/index:\s*'\d{2}'/g) ?? []).length, 9);
   assert.match(styles, /@media \(min-width: 1280px\)/);
-  assert.match(styles, /height:\s*calc\(100svh - 81px\)/);
+  assert.match(
+    styles,
+    /height:\s*calc\(100svh - var\(--site-header-height\)\)/,
+  );
   assert.match(styles, /grid-template-rows:\s*repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(styles, /\.tools-index-card\s*{[^}]*min-height:\s*0/s);
   assert.match(

@@ -80,10 +80,8 @@ test('long galleries expose editorial chapters without breaking orientation pair
     gallery,
     /第 \$\{sectionIndex \+ 1\} 章，共 \$\{sections\.length\} 章/,
   );
-  assert.match(
-    gallery,
-    /scrollIntoView\({ block: 'nearest', inline: 'center' }\)/,
-  );
+  assert.match(gallery, /track\.scrollBy\(/);
+  assert.doesNotMatch(gallery, /currentLink\??\.scrollIntoView\(/);
   assert.match(
     gallery,
     /sectionIndex > 0 &&[\s\S]*?!hasUsedChapterAnchor &&[\s\S]*?'gallery-chapter-deferred'/,

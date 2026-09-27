@@ -198,6 +198,7 @@ export function PhotoQualityScreener() {
   return (
     <section
       id="content"
+      data-tool-controls
       className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col px-5 py-8 md:px-10 md:py-12"
     >
       <div className="grid gap-8 border-t border-white/12 pt-5 lg:grid-cols-[.8fr_1.2fr] lg:items-end">

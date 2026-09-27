@@ -50,6 +50,88 @@
 
 html {
   scroll-behavior: smooth;
+  --site-header-height: calc(56px + env(safe-area-inset-top, 0px));
+  --chapter-nav-height: 50px;
+  --interaction-ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (min-width: 768px) {
+  html {
+    --site-header-height: calc(65px + env(safe-area-inset-top, 0px));
+  }
+}
+.site-header,
+.site-header-spacer {
+  height: var(--site-header-height);
+}
+.site-header {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 768px) {
+  .site-header {
+    padding-left: max(40px, env(safe-area-inset-left, 0px));
+    padding-right: max(40px, env(safe-area-inset-right, 0px));
+  }
+}
+.gallery-chapter-nav {
+  top: var(--site-header-height);
+  height: var(--chapter-nav-height);
+}
+.gallery-chapter {
+  scroll-margin-top: calc(
+    var(--site-header-height) + var(--chapter-nav-height) + 16px
+  );
+}
+
+/* A small opacity change also works on large upload controls without shrinking content. */
+:is(
+  [data-slot='button'],
+  button[data-lightbox-interactive],
+  [data-tool-content] button:not(.maplibregl-map button),
+  [data-tool-controls] button,
+  .site-nav-link
+) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition-property:
+    color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 140ms;
+  transition-timing-function: var(--interaction-ease);
+}
+:is(
+    [data-slot='button'],
+    button[data-lightbox-interactive],
+    [data-tool-content] button:not(.maplibregl-map button),
+    [data-tool-controls] button,
+    .site-nav-link
+  ):not(:disabled):not([aria-disabled='true']):active {
+  opacity: 0.65;
+}
+.lightbox-fade {
+  opacity: 1;
+  transition: opacity 200ms var(--interaction-ease);
+}
+.lightbox-fade[data-starting-style],
+.lightbox-fade[data-ending-style] {
+  opacity: 0;
+}
+.lightbox-fade[data-ending-style] {
+  transition-duration: 160ms;
+}
+/* Keep Safari input focus from zooming the page; pinch zoom remains available. */
+@media (any-pointer: coarse) {
+  [data-tool-content]
+    :is(
+      input:not([type='range']):not([type='checkbox']):not([type='radio']):not(
+          [type='file']
+        ),
+      textarea,
+      select
+    ) {
+    font-size: 16px;
+  }
 }
 body {
   margin: 0;
@@ -69,7 +151,7 @@ main#top > footer {
 /* Keep the complete 3 × 3 tool directory visible in a desktop viewport. */
 @media (min-width: 1280px) {
   .tools-index-content {
-    height: calc(100svh - 81px);
+    height: calc(100svh - var(--site-header-height));
     min-height: 620px;
     padding-top: 24px;
     padding-bottom: 24px;
@@ -506,7 +588,7 @@ a {
 @media (min-width: 1280px) {
   .tools-index-content {
     height: auto;
-    min-height: calc(100svh - 81px);
+    min-height: calc(100svh - var(--site-header-height));
   }
   .tools-index-grid {
     grid-template-rows: repeat(3, minmax(205px, auto));
