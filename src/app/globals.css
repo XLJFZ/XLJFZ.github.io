@@ -63,6 +63,9 @@ html {
 .site-header-spacer {
   height: var(--site-header-height);
 }
+.selected-series-anchor {
+  scroll-margin-top: calc(var(--site-header-height) - 1px);
+}
 .site-header {
   padding-top: env(safe-area-inset-top, 0px);
   padding-left: max(20px, env(safe-area-inset-left, 0px));

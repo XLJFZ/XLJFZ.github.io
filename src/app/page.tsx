@@ -77,7 +77,7 @@ export default function Home() {
       <section
         id="selected-series"
         aria-label="精选系列"
-        className="mx-auto w-full max-w-[1600px] scroll-mt-20 px-5 py-14 md:scroll-mt-28 md:px-10 md:py-20"
+        className="selected-series-anchor mx-auto w-full max-w-[1600px] px-5 py-14 md:px-10 md:py-20"
       >
         <div className="mb-10 grid gap-7 md:mb-14 md:grid-cols-[1fr_1.2fr] md:items-start">
           <p className="text-xs leading-5 tracking-[0.16em] text-foreground/65">
