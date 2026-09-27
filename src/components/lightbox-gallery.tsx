@@ -1,7 +1,14 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Check, ChevronLeft, ChevronRight, Link2, X } from 'lucide-react';
 import {
   Dialog,
@@ -19,6 +26,10 @@ import { cn } from '@/lib/utils';
 
 type GalleryItem = { image: PortfolioImage; sourceIndex: number };
 type GallerySection = { label?: string; rows: GalleryItem[][] };
+type PreviewPreload = {
+  image: HTMLImageElement;
+  ready: Promise<void>;
+};
 
 function imageOrientation(image: PortfolioImage) {
   return image.height >= image.width ? 'portrait' : 'landscape';
@@ -129,6 +140,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [loadedPreview, setLoadedPreview] = useState<string | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
+  const [originalRequest, setOriginalRequest] = useState<string | null>(null);
   const {
     message: copyStatus,
     showStatus,
@@ -136,34 +148,43 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   } = useTemporaryStatus();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const suppressBackdropClick = useRef(false);
-  const previewPreloads = useRef(new Map<string, HTMLImageElement>());
+  const previewPreloads = useRef(new Map<string, PreviewPreload>());
+  const activeIndex = useRef<number | null>(null);
+  const requestedIndex = useRef<number | null>(null);
+  const navigationToken = useRef(0);
 
-  const preloadLightboxPreview = useCallback((image: PortfolioImage) => {
-    const src = galleryPreviewSrc(image, 1800);
-    const cached = previewPreloads.current.get(src);
-    if (cached) {
-      previewPreloads.current.delete(src);
-      previewPreloads.current.set(src, cached);
-      return;
-    }
-    const preload = new window.Image();
-    preload.decoding = 'async';
-    preload.fetchPriority = 'auto';
-    preload.src = src;
-    previewPreloads.current.set(src, preload);
-    while (previewPreloads.current.size > 4) {
-      const oldest = previewPreloads.current.keys().next().value;
-      if (!oldest) break;
-      previewPreloads.current.delete(oldest);
-    }
-    void preload.decode().catch(() => {
-      previewPreloads.current.delete(src);
-      // The visible image retains its normal load/error fallback.
-    });
-  }, []);
+  const preloadLightboxPreview = useCallback(
+    (image: PortfolioImage, priority: 'auto' | 'high' = 'auto') => {
+      const src = galleryPreviewSrc(image, 1800);
+      const cached = previewPreloads.current.get(src);
+      if (cached) {
+        cached.image.fetchPriority = priority;
+        previewPreloads.current.delete(src);
+        previewPreloads.current.set(src, cached);
+        return cached.ready;
+      }
+      const preload = new window.Image();
+      preload.decoding = 'async';
+      preload.fetchPriority = priority;
+      preload.src = src;
+      const entry: PreviewPreload = {
+        image: preload,
+        // Navigation waits for decode, so React never swaps to an undecoded frame.
+        ready: preload.decode().catch(() => undefined),
+      };
+      previewPreloads.current.set(src, entry);
+      while (previewPreloads.current.size > 4) {
+        const oldest = previewPreloads.current.keys().next().value;
+        if (!oldest) break;
+        previewPreloads.current.delete(oldest);
+      }
+      return entry.ready;
+    },
+    [],
+  );
 
-  const showImage = useCallback(
-    (index: number, historyMode: 'push' | 'replace' = 'replace') => {
+  const commitImage = useCallback(
+    (index: number, historyMode: 'push' | 'replace') => {
       const url = new URL(window.location.href);
       url.searchParams.set('image', imageKey(displayedItems[index].image.src));
       const currentState =
@@ -180,12 +201,35 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       } else {
         window.history.replaceState(nextState, '', url);
       }
-      setActive(index);
+      activeIndex.current = index;
+      requestedIndex.current = index;
+      startTransition(() => setActive(index));
     },
     [displayedItems],
   );
 
+  const showImage = useCallback(
+    (index: number, historyMode: 'push' | 'replace' = 'replace') => {
+      requestedIndex.current = index;
+      const token = ++navigationToken.current;
+      if (activeIndex.current === null) {
+        commitImage(index, historyMode);
+        return;
+      }
+      void preloadLightboxPreview(displayedItems[index].image, 'high').then(
+        () => {
+          if (token !== navigationToken.current) return;
+          commitImage(index, historyMode);
+        },
+      );
+    },
+    [commitImage, displayedItems, preloadLightboxPreview],
+  );
+
   const closeLightbox = useCallback(() => {
+    navigationToken.current += 1;
+    activeIndex.current = null;
+    requestedIndex.current = null;
     if (window.history.state?.portfolioLightbox) {
       window.history.back();
       return;
@@ -198,11 +242,13 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   const prev = useCallback(() => {
     if (active === null) return;
-    showImage((active - 1 + displayedItems.length) % displayedItems.length);
+    const current = requestedIndex.current ?? active;
+    showImage((current - 1 + displayedItems.length) % displayedItems.length);
   }, [active, displayedItems.length, showImage]);
   const next = useCallback(() => {
     if (active === null) return;
-    showImage((active + 1) % displayedItems.length);
+    const current = requestedIndex.current ?? active;
+    showImage((current + 1) % displayedItems.length);
   }, [active, displayedItems.length, showImage]);
 
   const copyCurrentImageLink = useCallback(async () => {
@@ -226,13 +272,19 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     const syncFromUrl = () => {
       const key = new URL(window.location.href).searchParams.get('image');
       if (!key) {
+        navigationToken.current += 1;
+        activeIndex.current = null;
+        requestedIndex.current = null;
         setActive(null);
         return;
       }
       const index = displayedItems.findIndex(
         ({ image }) => imageKey(image.src) === key,
       );
-      setActive(index >= 0 ? index : null);
+      const nextIndex = index >= 0 ? index : null;
+      activeIndex.current = nextIndex;
+      requestedIndex.current = nextIndex;
+      setActive(nextIndex);
     };
     syncFromUrl();
     window.addEventListener('popstate', syncFromUrl);
@@ -261,9 +313,30 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     for (const offset of [-1, 1]) {
       const index =
         (active + offset + displayedItems.length) % displayedItems.length;
-      preloadLightboxPreview(displayedItems[index].image);
+      void preloadLightboxPreview(displayedItems[index].image);
     }
   }, [active, displayedItems, preloadLightboxPreview]);
+
+  useEffect(() => {
+    if (active === null) return;
+    const src = displayedItems[active].image.src;
+    let idleId: number | undefined;
+    const settleTimer = window.setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(() => setOriginalRequest(src), {
+          timeout: 1200,
+        });
+      } else {
+        setOriginalRequest(src);
+      }
+    }, 650);
+    return () => {
+      window.clearTimeout(settleTimer);
+      if (idleId !== undefined && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+    };
+  }, [active, displayedItems]);
 
   useEffect(() => {
     if (!hasChapters) return;
@@ -597,9 +670,13 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 aria-hidden="true"
                 decoding="async"
                 fetchPriority="high"
-                onLoad={() =>
-                  setLoadedPreview(displayedItems[active].image.src)
-                }
+                onLoad={(event) => {
+                  const src = displayedItems[active].image.src;
+                  void event.currentTarget
+                    .decode()
+                    .catch(() => undefined)
+                    .then(() => setLoadedPreview(src));
+                }}
                 onError={() =>
                   setLoadedPreview(displayedItems[active].image.src)
                 }
@@ -607,6 +684,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 className="absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]"
               />
               {loadedPreview === displayedItems[active].image.src &&
+                originalRequest === displayedItems[active].image.src &&
                 failedOriginal !== displayedItems[active].image.src && (
                   <img
                     key={displayedItems[active].image.src}
@@ -616,9 +694,17 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                     alt={displayedItems[active].image.alt}
                     decoding="async"
                     fetchPriority="low"
-                    onLoad={() =>
-                      setLoadedOriginal(displayedItems[active].image.src)
-                    }
+                    onLoad={(event) => {
+                      const src = displayedItems[active].image.src;
+                      void event.currentTarget
+                        .decode()
+                        .catch(() => undefined)
+                        .then(() => {
+                          if (activeIndex.current === active) {
+                            setLoadedOriginal(src);
+                          }
+                        });
+                    }}
                     onError={() =>
                       setFailedOriginal(displayedItems[active].image.src)
                     }
