@@ -137,7 +137,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
   const [activeChapter, setActiveChapter] = useState(0);
   const [hasUsedChapterAnchor, setHasUsedChapterAnchor] = useState(false);
   const [active, setActive] = useState<number | null>(null);
-  const [loadedPreview, setLoadedPreview] = useState<string | null>(null);
+  const [visible, setVisible] = useState<number | null>(null);
+  const [detailRequest, setDetailRequest] = useState<string | null>(null);
+  const [loadedDetail, setLoadedDetail] = useState<string | null>(null);
+  const [failedDetail, setFailedDetail] = useState<string | null>(null);
+  const [navigationReady, setNavigationReady] = useState<string | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
   const [originalRequest, setOriginalRequest] = useState<string | null>(null);
@@ -155,7 +159,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   const preloadLightboxPreview = useCallback(
     (image: PortfolioImage, priority: 'auto' | 'high' = 'auto') => {
-      const src = galleryPreviewSrc(image, 1800);
+      const src = galleryPreviewSrc(image, 1200);
       const cached = previewPreloads.current.get(src);
       if (cached) {
         cached.image.fetchPriority = priority;
@@ -169,11 +173,11 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       preload.src = src;
       const entry: PreviewPreload = {
         image: preload,
-        // Navigation waits for decode, so React never swaps to an undecoded frame.
+        // Navigation uses the lighter tier so the next decoded frame is ready quickly.
         ready: preload.decode().catch(() => undefined),
       };
       previewPreloads.current.set(src, entry);
-      while (previewPreloads.current.size > 4) {
+      while (previewPreloads.current.size > 8) {
         const oldest = previewPreloads.current.keys().next().value;
         if (!oldest) break;
         previewPreloads.current.delete(oldest);
@@ -210,16 +214,18 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   const showImage = useCallback(
     (index: number, historyMode: 'push' | 'replace' = 'replace') => {
+      const wasClosed = activeIndex.current === null;
       requestedIndex.current = index;
       const token = ++navigationToken.current;
-      if (activeIndex.current === null) {
-        commitImage(index, historyMode);
+      commitImage(index, historyMode);
+      if (wasClosed) {
+        setVisible(index);
         return;
       }
       void preloadLightboxPreview(displayedItems[index].image, 'high').then(
         () => {
           if (token !== navigationToken.current) return;
-          commitImage(index, historyMode);
+          startTransition(() => setVisible(index));
         },
       );
     },
@@ -230,6 +236,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     navigationToken.current += 1;
     activeIndex.current = null;
     requestedIndex.current = null;
+    setVisible(null);
     if (window.history.state?.portfolioLightbox) {
       window.history.back();
       return;
@@ -275,6 +282,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
         navigationToken.current += 1;
         activeIndex.current = null;
         requestedIndex.current = null;
+        setVisible(null);
         setActive(null);
         return;
       }
@@ -284,6 +292,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       const nextIndex = index >= 0 ? index : null;
       activeIndex.current = nextIndex;
       requestedIndex.current = nextIndex;
+      setVisible(nextIndex);
       setActive(nextIndex);
     };
     syncFromUrl();
@@ -310,12 +319,37 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
 
   useEffect(() => {
     if (active === null || displayedItems.length < 2) return;
-    for (const offset of [-1, 1]) {
-      const index =
-        (active + offset + displayedItems.length) % displayedItems.length;
-      void preloadLightboxPreview(displayedItems[index].image);
-    }
+    let cancelled = false;
+    const preloadOffsets = (offsets: number[], priority: 'auto' | 'high') =>
+      Promise.all(
+        offsets.map((offset) => {
+          const index =
+            (active + offset + displayedItems.length) % displayedItems.length;
+          return preloadLightboxPreview(displayedItems[index].image, priority);
+        }),
+      );
+    const preloads = preloadOffsets([-1, 1], 'high').then(() => {
+      if (cancelled) return;
+      return preloadOffsets([-2, 2], 'auto');
+    });
+    void preloads.then(() => {
+      if (!cancelled && activeIndex.current === active) {
+        setNavigationReady(displayedItems[active].image.src);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [active, displayedItems, preloadLightboxPreview]);
+
+  useEffect(() => {
+    if (active === null) return;
+    const src = displayedItems[active].image.src;
+    if (visible !== active) return;
+    if (navigationReady !== src) return;
+    const detailTimer = window.setTimeout(() => setDetailRequest(src), 180);
+    return () => window.clearTimeout(detailTimer);
+  }, [active, displayedItems, navigationReady, visible]);
 
   useEffect(() => {
     if (active === null) return;
@@ -324,12 +358,12 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
     const settleTimer = window.setTimeout(() => {
       if ('requestIdleCallback' in window) {
         idleId = window.requestIdleCallback(() => setOriginalRequest(src), {
-          timeout: 1200,
+          timeout: 1800,
         });
       } else {
         setOriginalRequest(src);
       }
-    }, 650);
+    }, 1400);
     return () => {
       window.clearTimeout(settleTimer);
       if (idleId !== undefined && 'cancelIdleCallback' in window) {
@@ -411,6 +445,8 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
       });
     }
   }, [activeChapter]);
+
+  const visibleItem = visible === null ? null : displayedItems[visible];
 
   return (
     <>
@@ -647,71 +683,100 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
           <DialogDescription className="sr-only">
             使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接
           </DialogDescription>
-          {active !== null && (
+          {active !== null && visibleItem && (
             <div
               className="relative h-full w-full"
               aria-busy={
-                loadedOriginal !== displayedItems[active].image.src &&
-                failedOriginal !== displayedItems[active].image.src
+                active !== visible ||
+                (loadedOriginal !== visibleItem.image.src &&
+                  failedOriginal !== visibleItem.image.src)
               }
             >
               <p className="sr-only" aria-live="polite">
-                {failedOriginal === displayedItems[active].image.src
-                  ? '大图加载失败，当前显示高清预览'
-                  : loadedOriginal === displayedItems[active].image.src
-                    ? '大图加载完成'
-                    : '正在加载大图'}
+                {active !== visible
+                  ? '正在加载下一幅作品'
+                  : failedOriginal === visibleItem.image.src
+                    ? '大图加载失败，当前显示高清预览'
+                    : loadedOriginal === visibleItem.image.src
+                      ? '大图加载完成'
+                      : '正在加载大图'}
               </p>
               <img
-                src={galleryPreviewSrc(displayedItems[active].image, 1800)}
-                width={displayedItems[active].image.width}
-                height={displayedItems[active].image.height}
-                alt=""
-                aria-hidden="true"
+                src={galleryPreviewSrc(visibleItem.image, 1200)}
+                width={visibleItem.image.width}
+                height={visibleItem.image.height}
+                alt={visibleItem.image.alt}
                 decoding="async"
                 fetchPriority="high"
-                onLoad={(event) => {
-                  const src = displayedItems[active].image.src;
-                  void event.currentTarget
-                    .decode()
-                    .catch(() => undefined)
-                    .then(() => setLoadedPreview(src));
-                }}
-                onError={() =>
-                  setLoadedPreview(displayedItems[active].image.src)
-                }
+                data-lightbox-current
                 data-lightbox-interactive
-                className="absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]"
+                className={cn(
+                  'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-150 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                  active === visible ? 'opacity-100' : 'opacity-60',
+                )}
               />
-              {loadedPreview === displayedItems[active].image.src &&
-                originalRequest === displayedItems[active].image.src &&
-                failedOriginal !== displayedItems[active].image.src && (
+              {active === visible &&
+                detailRequest === visibleItem.image.src &&
+                failedDetail !== visibleItem.image.src && (
                   <img
-                    key={displayedItems[active].image.src}
-                    src={galleryMaxSrc(displayedItems[active].image)}
-                    width={displayedItems[active].image.width}
-                    height={displayedItems[active].image.height}
-                    alt={displayedItems[active].image.alt}
+                    key={`${visibleItem.image.src}-detail`}
+                    src={galleryPreviewSrc(visibleItem.image, 1800)}
+                    width={visibleItem.image.width}
+                    height={visibleItem.image.height}
+                    alt=""
+                    aria-hidden="true"
                     decoding="async"
-                    fetchPriority="low"
+                    fetchPriority="high"
                     onLoad={(event) => {
-                      const src = displayedItems[active].image.src;
+                      const src = visibleItem.image.src;
                       void event.currentTarget
                         .decode()
                         .catch(() => undefined)
                         .then(() => {
-                          if (activeIndex.current === active) {
+                          if (activeIndex.current === visible) {
+                            setLoadedDetail(src);
+                          }
+                        });
+                    }}
+                    onError={() => setFailedDetail(visibleItem.image.src)}
+                    data-lightbox-interactive
+                    className={cn(
+                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-200 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                      loadedDetail === visibleItem.image.src
+                        ? 'opacity-100'
+                        : 'opacity-0',
+                    )}
+                  />
+                )}
+              {active === visible &&
+                loadedDetail === visibleItem.image.src &&
+                originalRequest === visibleItem.image.src &&
+                failedOriginal !== visibleItem.image.src && (
+                  <img
+                    key={visibleItem.image.src}
+                    src={galleryMaxSrc(visibleItem.image)}
+                    width={visibleItem.image.width}
+                    height={visibleItem.image.height}
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                    fetchPriority="low"
+                    onLoad={(event) => {
+                      const src = visibleItem.image.src;
+                      void event.currentTarget
+                        .decode()
+                        .catch(() => undefined)
+                        .then(() => {
+                          if (activeIndex.current === visible) {
                             setLoadedOriginal(src);
                           }
                         });
                     }}
-                    onError={() =>
-                      setFailedOriginal(displayedItems[active].image.src)
-                    }
+                    onError={() => setFailedOriginal(visibleItem.image.src)}
                     data-lightbox-interactive
                     className={cn(
                       'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
-                      loadedOriginal === displayedItems[active].image.src
+                      loadedOriginal === visibleItem.image.src
                         ? 'opacity-100'
                         : 'opacity-0',
                     )}
@@ -773,13 +838,15 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                   </p>
                 )}
               </div>
-              <p
-                aria-live="polite"
-                className="shrink-0 text-xs tracking-[.08em] text-white/70"
-              >
-                {String(active + 1).padStart(2, '0')} /{' '}
-                {String(displayedItems.length).padStart(2, '0')}
-              </p>
+              <div className="flex shrink-0 items-center gap-3 text-xs tracking-[.08em] text-white/70">
+                {active !== visible && (
+                  <span className="text-[10px] text-white/55">加载中</span>
+                )}
+                <p aria-live="polite">
+                  {String(active + 1).padStart(2, '0')} /{' '}
+                  {String(displayedItems.length).padStart(2, '0')}
+                </p>
+              </div>
             </div>
           )}
           <TemporaryStatus message={copyStatus} onDismiss={dismissStatus} />
