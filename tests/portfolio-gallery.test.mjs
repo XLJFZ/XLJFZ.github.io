@@ -153,7 +153,7 @@ test('lightbox caption and sequence share one collision-free footer row', async 
   assert.match(gallery, /flex items-end justify-between gap-5 md:inset-x-7/);
   assert.match(
     gallery,
-    /className="shrink-0 text-xs tracking-\[\.08em\] text-white\/70"/,
+    /className="flex shrink-0 items-center gap-3 text-xs tracking-\[\.08em\] text-white\/70"[\s\S]*?<p aria-live="polite">/,
   );
 });
 
