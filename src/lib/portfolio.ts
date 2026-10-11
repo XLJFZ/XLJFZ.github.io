@@ -6,7 +6,7 @@ export type PortfolioImage = {
   height: number;
   alt: string;
   caption?: string;
-  layout?: 'portrait' | 'medium' | 'wide';
+  layout?: 'portrait' | 'medium' | 'wide' | 'feature';
   chapter?: string;
   exif?: {
     camera?: string;
@@ -52,7 +52,7 @@ export const series: Series[] = [
       深圳: '云层的流动掠过天际线，建筑保持清晰的轮廓。时间被拉长，城市也显出更安静的一面。',
       南昌: '仰望摩天轮的座舱，再沿城市道路望向远处。弧线与直线，组成两种观看城市的方式。',
       香港: '白色立面、红色出租车、电车与港湾，在紧密的空间中交替出现。白昼的细节，延续成夜里的光轨。',
-      北京: '穹顶、楼梯与曲线立面，把视线引向建筑内部。再回到街边与绿地，城市的尺度随之舒展开来。',
+      北京: '穹顶、楼梯与曲线立面，把视线引向建筑内部。再回到绿地，城市的尺度随之舒展开来。',
     },
     title: '城市脉冲',
     englishTitle: 'Urban Pulse',
@@ -131,21 +131,6 @@ export const series: Series[] = [
           iso: 'ISO 400',
         },
         layout: 'portrait',
-      },
-      {
-        src: '/portfolio-previews/urban-pulse/tokyo-zbz-8187-1800.jpg',
-        width: 2800,
-        height: 1200,
-        alt: '林荫参道尽头的鸟居',
-        caption: '东京 · 2025',
-        exif: {
-          camera: 'Nikon Z7 II',
-          focalLength: '70mm',
-          aperture: 'f/8',
-          shutterSpeed: '1/8s',
-          iso: 'ISO 400',
-        },
-        layout: 'wide',
       },
       {
         src: '/portfolio-previews/urban-pulse/tokyo-zbz-8379-1800.jpg',
@@ -400,6 +385,7 @@ export const series: Series[] = [
           shutterSpeed: '1/250s',
           iso: 'ISO 64',
         },
+        layout: 'feature',
       },
       {
         src: '/portfolio-previews/urban-pulse/nanchang-zbz-1370-1800.jpg',
@@ -414,7 +400,7 @@ export const series: Series[] = [
           shutterSpeed: '4s',
           iso: 'ISO 64',
         },
-        layout: 'portrait',
+        layout: 'feature',
       },
       {
         src: '/portfolio-previews/urban-pulse/hong-kong-zbz-7859-1800.jpg',
@@ -563,21 +549,6 @@ export const series: Series[] = [
           aperture: 'f/6.3',
           shutterSpeed: '1/10s',
           iso: 'ISO 64',
-        },
-        layout: 'portrait',
-      },
-      {
-        src: '/portfolio-previews/urban-pulse/beijing-zbz-9579-1800.jpg',
-        width: 4966,
-        height: 7542,
-        alt: '入夜的北京街边商铺与远处高楼',
-        caption: '北京 · 2026',
-        exif: {
-          camera: 'Nikon Z7 II',
-          focalLength: '36mm',
-          aperture: 'f/6.3',
-          shutterSpeed: '1/15s',
-          iso: 'ISO 640',
         },
         layout: 'portrait',
       },
@@ -913,7 +884,7 @@ export const series: Series[] = [
     location: '上海 · 西安 · 内蒙古赤峰乌兰布统',
     statement:
       '一场球赛中的转身、扬尘中的骑行，与动物近距离的凝视，都是生活里短暂而完整的动作。镜头靠近，让熟悉的人与生命重新显出重量。',
-    cover: '/portfolio-previews/nearby-moments/football-zbz-8440-1800.jpg',
+    cover: '/portfolio-previews/nearby-moments/wulanbutong-zbz-0723-1800.jpg',
     preview: {
       path: '/covers/nearby-moments.jpg',
       width: 2400,

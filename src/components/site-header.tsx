@@ -19,17 +19,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
           aria-label="主导航"
           className="-mr-2.5 flex items-center text-xs tracking-[0.14em] md:gap-3"
         >
-          <a
-            className={cn(
-              'site-nav-link relative inline-flex min-h-11 min-w-11 items-center justify-center px-2.5 after:absolute after:inset-x-2.5 after:bottom-2 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100',
-              active === 'tools' && 'after:scale-x-100',
-            )}
-            href="/tools/"
-            aria-current={active === 'tools' ? 'page' : undefined}
-          >
-            工具
-          </a>
-          <a
+        <a
             className={cn(
               'site-nav-link relative inline-flex min-h-11 min-w-11 items-center justify-center px-2.5 after:absolute after:inset-x-2.5 after:bottom-2 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100',
               active === 'series' && 'after:scale-x-100',
@@ -48,6 +38,16 @@ export function SiteHeader({ active }: SiteHeaderProps) {
             aria-current={active === 'about' ? 'page' : undefined}
           >
             关于
+          </a>
+          <a
+            className={cn(
+              'site-nav-link relative inline-flex min-h-11 min-w-11 items-center justify-center px-2.5 after:absolute after:inset-x-2.5 after:bottom-2 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100',
+              active === 'tools' && 'after:scale-x-100',
+            )}
+            href="/tools/"
+            aria-current={active === 'tools' ? 'page' : undefined}
+          >
+            工具
           </a>
         </nav>
       </header>

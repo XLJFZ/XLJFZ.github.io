@@ -90,7 +90,7 @@ function buildGalleryRows(items: GalleryItem[]) {
 
   while (pending.length > 0) {
     const first = pending.shift()!;
-    if (first.image.layout === 'wide') {
+    if (first.image.layout === 'wide' || first.image.layout === 'feature') {
       rows.push([first]);
       continue;
     }
@@ -98,10 +98,10 @@ function buildGalleryRows(items: GalleryItem[]) {
     const orientation = imageOrientation(first.image);
     let partnerIndex = pending.findIndex(
       ({ image }) =>
-        image.layout !== 'wide' && imageOrientation(image) === orientation,
+        image.layout !== 'wide' && image.layout !== 'feature' && imageOrientation(image) === orientation,
     );
     if (partnerIndex < 0) {
-      partnerIndex = pending.findIndex(({ image }) => image.layout !== 'wide');
+      partnerIndex = pending.findIndex(({ image }) => image.layout !== 'wide' && image.layout !== 'feature');
     }
     const row = [first];
     if (partnerIndex >= 0) row.push(pending.splice(partnerIndex, 1)[0]);
@@ -559,7 +559,7 @@ export function LightboxGallery({
                       (item) => item.sourceIndex === sourceIndex,
                     );
                     const isUnpaired =
-                      row.length === 1 && image.layout !== 'wide';
+                      row.length === 1 && image.layout !== 'wide' && image.layout !== 'feature';
                     return (
                       <figure
                         data-gallery-opening={
@@ -578,6 +578,7 @@ export function LightboxGallery({
                         }
                         className={cn(
                           'w-full min-w-0',
+                          image.layout === 'feature' && imageOrientation(image) === 'portrait' && 'md:w-[65%] md:justify-self-center',
                           row.length === 2 &&
                             'md:w-[var(--gallery-paired-width)]',
                           row.length === 2 &&
@@ -612,7 +613,9 @@ export function LightboxGallery({
                               )
                               .join(', ')}
                             sizes={
-                              image.layout === 'wide'
+                              image.layout === 'feature' && imageOrientation(image) === 'portrait'
+                                ? '(min-width: 1536px) 879px, (min-width: 768px) calc((100vw - 8rem) * .65), calc(100vw - 40px)'
+                                : image.layout === 'wide' || image.layout === 'feature'
                                 ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
                                 : '(min-width: 1536px) 620px, (min-width: 768px) 44vw, calc(100vw - 40px)'
                             }
