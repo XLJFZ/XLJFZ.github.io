@@ -370,6 +370,108 @@ a {
   animation: hero-enter 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Native timelines preserve normal scrolling and visible fallbacks. */
+@keyframes home-hero-push {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.09);
+  }
+}
+@keyframes home-hero-copy-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0.35;
+    transform: translateY(-24px);
+  }
+}
+@keyframes home-series-enter {
+  from {
+    opacity: 0.35;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-hero {
+      view-timeline-name: --home-hero;
+      view-timeline-axis: block;
+    }
+    .home-hero .hero-image {
+      animation: home-hero-push linear both;
+      animation-timeline: --home-hero;
+      animation-range: exit 0% exit 100%;
+    }
+    .home-hero-copy {
+      animation: home-hero-copy-leave linear both;
+      animation-timeline: --home-hero;
+      animation-range: exit 0% exit 85%;
+    }
+    .home-series-image,
+    .home-series-copy {
+      animation: home-series-enter linear both;
+      animation-timeline: view(block);
+      animation-range: entry 0% entry 80%;
+    }
+    .home-series-copy {
+      animation-range: entry 5% entry 100%;
+    }
+    .home-hero-copy:focus-within,
+    #selected-series
+      a:focus-visible
+      :is(.home-series-image, .home-series-copy) {
+      animation: none;
+    }
+  }
+}
+@media (max-width: 767px) {
+  @keyframes home-hero-push {
+    from {
+      transform: scale(1.02);
+    }
+    to {
+      transform: scale(1.045);
+    }
+  }
+  @keyframes home-hero-copy-leave {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0.65;
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes home-series-enter {
+    from {
+      opacity: 0.65;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero .hero-image,
+  .home-hero-copy,
+  .home-series-image,
+  .home-series-copy {
+    animation: none !important;
+    transform: none;
+  }
+}
+
 @supports (content-visibility: auto) {
   .gallery-chapter-deferred {
     content-visibility: auto;

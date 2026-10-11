@@ -7,7 +7,7 @@ export default function Home() {
     <main id="top">
       <section
         id="content"
-        className="relative flex min-h-[100svh] flex-col overflow-hidden bg-neutral-950 text-white"
+        className="home-hero relative flex min-h-[100svh] flex-col overflow-hidden bg-neutral-950 text-white"
       >
         <SiteHeader />
         <img
@@ -27,7 +27,7 @@ export default function Home() {
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,18,.18)_0%,transparent_35%,rgba(8,10,18,.18)_52%,rgba(8,10,18,.72)_78%,rgba(8,10,18,.88)_100%)]"
           aria-hidden="true"
         />
-        <div className="relative z-10 mx-auto mt-auto w-full max-w-[1600px] px-5 pb-5 pt-40 md:px-10 md:pb-7 md:pt-52">
+        <div className="home-hero-copy relative z-10 mx-auto mt-auto w-full max-w-[1600px] px-5 pb-5 pt-40 md:px-10 md:pb-7 md:pt-52">
           <div className="grid gap-7 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
             <div className="max-w-3xl">
               <p className="mb-4 flex items-center gap-3 text-xs tracking-[.18em] text-white/75">
@@ -97,7 +97,7 @@ export default function Home() {
                 className={`group grid gap-5 md:items-end md:gap-10 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : 'md:grid-cols-[1.45fr_.55fr]'}`}
               >
                 <div
-                  className={`relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}
+                  className={`home-series-image relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}
                 >
                   <img
                     src={item.preview.mobilePath}
@@ -119,7 +119,9 @@ export default function Home() {
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <div className={index % 2 ? 'md:order-1' : ''}>
+                <div
+                  className={`home-series-copy ${index % 2 ? 'md:order-1' : ''}`}
+                >
                   <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-foreground/10 pt-3 text-xs leading-5 tracking-[.08em] text-foreground/65">
                     <span className="whitespace-nowrap">
                       {String(index + 1).padStart(2, '0')} · {item.category}
