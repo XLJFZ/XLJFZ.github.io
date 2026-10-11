@@ -14,7 +14,16 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = getSeries((await params).slug);
   if (!item) return {};
-  const title = `${item.title}｜迅雷疾风`;
+  const title = `${item.title} · ${item.englishTitle}｜迅雷疾风`;
+  const shareImage = {
+    url: item.preview.mobilePath,
+    width: item.preview.mobileWidth,
+    height: Math.round(
+      (item.preview.height * item.preview.mobileWidth) / item.preview.width,
+    ),
+    alt:
+      item.images.find((image) => image.src === item.cover)?.alt ?? item.title,
+  };
   return {
     title,
     description: item.statement,
@@ -23,13 +32,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description: item.statement,
       url: `/series/${item.slug}/`,
-      images: [{ url: item.cover, alt: item.title }],
+      type: 'website',
+      locale: 'zh_CN',
+      siteName: '迅雷疾风｜建筑与风光摄影',
+      images: [shareImage],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description: item.statement,
-      images: [item.cover],
+      images: [{ url: shareImage.url, alt: shareImage.alt }],
     },
   };
 }
