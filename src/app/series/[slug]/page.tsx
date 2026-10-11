@@ -48,12 +48,12 @@ export default async function SeriesPage({ params }: Props) {
       <SiteHeader active="series" />
       <section
         id="content"
-        className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16"
+        className="mx-auto grid max-w-[1480px] gap-7 px-5 pb-8 pt-8 sm:px-8 md:gap-10 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16"
       >
         <div className="series-opening-title">
           <a
             href="/series/"
-            className="mb-6 inline-flex min-h-11 items-center gap-3 text-xs tracking-[.08em] text-foreground/65 transition-colors hover:text-foreground"
+            className="mb-4 inline-flex md:mb-6 min-h-11 items-center gap-3 text-xs tracking-[.08em] text-foreground/65 transition-colors hover:text-foreground"
           >
             <span aria-hidden="true">←</span> 浏览全部系列
           </a>
@@ -68,7 +68,7 @@ export default async function SeriesPage({ params }: Props) {
           <p className="text-sm font-light leading-7 text-foreground/65">
             {item.statement}
           </p>
-          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-foreground/10 pt-4 text-sm leading-6">
+          <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-foreground/10 pt-3 text-sm leading-6 md:mt-8 md:gap-4 md:pt-4">
             <div className="col-span-2">
               <dt className="text-foreground/65">地点</dt>
               <dd className="mt-1">{item.location}</dd>
@@ -87,9 +87,27 @@ export default async function SeriesPage({ params }: Props) {
       <section className="mx-auto max-w-[1480px] px-5 max-md:w-full max-md:min-w-0 sm:px-8 md:px-10 lg:px-14 xl:px-16">
         <LightboxGallery images={item.images} />
       </section>
+      <section
+        aria-label="专题收尾"
+        className="mx-auto mt-10 w-full max-w-[1480px] px-5 md:mt-16 sm:px-8 md:px-10 lg:px-14 xl:px-16"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-foreground/10 pt-5">
+          <p className="text-sm leading-7 text-foreground/65">
+            {item.title} · 已浏览全部 {item.images.length} 幅作品
+          </p>
+          {!item.images.some((image) => image.chapter) && (
+            <a
+              href="/series/"
+              className="inline-flex min-h-11 items-center gap-3 text-sm text-foreground/75 transition-colors hover:text-foreground"
+            >
+              返回系列目录 <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </div>
+      </section>
       <a
         href={`/series/${next.slug}/`}
-        className="series-cover-link group mx-auto my-20 grid max-w-[1480px] gap-8 border-y border-foreground/10 px-5 py-10 sm:px-8 md:grid-cols-[.75fr_1.25fr] md:items-end md:px-10 md:py-14 lg:px-14 xl:px-16"
+        className="series-cover-link group mx-auto mb-20 mt-8 grid max-w-[1480px] gap-8 border-y border-foreground/10 px-5 py-10 sm:px-8 md:grid-cols-[.75fr_1.25fr] md:items-end md:px-10 md:py-14 lg:px-14 xl:px-16"
       >
         <div className="md:pb-1">
           <p className="text-xs leading-5 tracking-[.12em] text-foreground/65">
