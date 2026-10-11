@@ -549,6 +549,9 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                       row.length === 1 && image.layout !== 'wide';
                     return (
                       <figure
+                        data-gallery-opening={
+                          displayIndex === 0 ? true : undefined
+                        }
                         key={`${image.src}-${sourceIndex}`}
                         style={
                           row.length === 2

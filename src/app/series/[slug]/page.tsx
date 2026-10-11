@@ -44,13 +44,16 @@ export default async function SeriesPage({ params }: Props) {
     ];
   const nextCover = next.preview;
   return (
-    <main id="top">
+    <main
+      id="top"
+      data-opening={item.slug === 'urban-pulse' ? 'urban' : undefined}
+    >
       <SiteHeader active="series" />
       <section
         id="content"
         className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16"
       >
-        <div>
+        <div className="series-opening-title">
           <a
             href="/series/"
             className="mb-6 inline-flex min-h-11 items-center gap-3 text-xs tracking-[.08em] text-foreground/65 transition-colors hover:text-foreground"
@@ -64,7 +67,7 @@ export default async function SeriesPage({ params }: Props) {
             {item.title}
           </h1>
         </div>
-        <div className="max-w-lg md:self-end">
+        <div className="series-opening-intro max-w-lg md:self-end">
           <p className="text-sm font-light leading-7 text-foreground/65">
             {item.statement}
           </p>
