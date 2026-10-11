@@ -164,7 +164,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/65/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 44);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 45);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -490,7 +490,7 @@ test('series year labels cover the confirmed years of their photographs', async 
   assert.match(source, /slug: 'urban-pulse',[\s\S]*?year: '2022—2026'/);
   assert.match(source, /slug: 'distant-weather',[\s\S]*?year: '2024—2025'/);
   assert.match(source, /slug: 'textures-of-time',[\s\S]*?year: '2025—2026'/);
-  assert.match(source, /slug: 'nearby-moments',[\s\S]*?year: '2023—2024'/);
+  assert.match(source, /slug: 'nearby-moments',[\s\S]*?year: '2023—2026'/);
 });
 
 test('nearby moments pairs the two confirmed portrait photographs', async () => {
@@ -498,7 +498,7 @@ test('nearby moments pairs the two confirmed portrait photographs', async () => 
 
   assert.match(
     source,
-    /slug: 'nearby-moments',[\s\S]*?location: '上海 · 西安'[\s\S]*?football-zbz-8440-1800\.jpg[\s\S]*?caption: '上海 · 2023'[\s\S]*?cat-img-20240724-1800\.jpg[\s\S]*?caption: '西安 · 2024'/,
+    /slug: 'nearby-moments',[\s\S]*?location: '上海 · 西安 · 内蒙古赤峰乌兰布统'[\s\S]*?football-zbz-8440-1800\.jpg[\s\S]*?caption: '上海 · 2023'[\s\S]*?cat-img-20240724-1800\.jpg[\s\S]*?caption: '西安 · 2024'/,
   );
 });
 
@@ -605,4 +605,18 @@ test('Beijing photographs retain their verified dimensions, dates, and exposure 
       assert.ok(record.includes(detail), `${id}: missing ${detail}`);
     }
   }
+});
+
+test('Wulanbutong riders retain their verified source metadata and location', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+  const record = portfolioRecord(
+    source,
+    '/portfolio-previews/nearby-moments/wulanbutong-zbz-0723-1800.jpg',
+  );
+  assert.match(record, /width: 8256,[\s\S]*?height: 5504/);
+  assert.match(record, /caption: '内蒙古 · 赤峰 · 乌兰布统 · 2026'/);
+  assert.match(
+    record,
+    /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '160mm',[\s\S]*?aperture: 'f\/4\.8',[\s\S]*?shutterSpeed: '1\/500s',[\s\S]*?iso: 'ISO 110'/,
+  );
 });
