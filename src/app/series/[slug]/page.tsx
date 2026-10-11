@@ -44,10 +44,7 @@ export default async function SeriesPage({ params }: Props) {
     ];
   const nextCover = next.preview;
   return (
-    <main
-      id="top"
-      data-opening={item.slug === 'urban-pulse' ? 'urban' : undefined}
-    >
+    <main id="top" data-opening="series">
       <SiteHeader active="series" />
       <section
         id="content"
