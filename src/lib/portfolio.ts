@@ -25,6 +25,7 @@ export type Series = {
   year: string;
   location: string;
   statement: string;
+  chapterIntroductions?: Record<string, string>;
   cover: string;
   preview: {
     path: string;
@@ -43,6 +44,16 @@ export const galleryMaxWidth = maximumPreviewWidth;
 export const series: Series[] = [
   {
     slug: 'urban-pulse',
+    chapterIntroductions: {
+      重庆: '江岸的灯光与船行的轨迹，在夜色里勾出城市的层次；转入建筑之间，视线又被密集的立面收拢。',
+      东京: '电线、街巷与轨道交织成日常的秩序。远处的塔与近处的招牌，让视线在不同尺度之间往返。',
+      上海: '从街道到高处，建筑的线条与日常的片段交替出现。城市的节奏，也藏在这些视角的切换里。',
+      广州: '教堂前的人群与草坡后的高楼，构成两种街头尺度。人的身影，让建筑之间的距离变得具体。',
+      深圳: '云层的流动掠过天际线，建筑保持清晰的轮廓。时间被拉长，城市也显出更安静的一面。',
+      南昌: '仰望摩天轮的座舱，再沿城市道路望向远处。弧线与直线，组成两种观看城市的方式。',
+      香港: '白色立面、红色出租车、电车与港湾，在紧密的空间中交替出现。白昼的细节，延续成夜里的光轨。',
+      北京: '穹顶、楼梯与曲线立面，把视线引向建筑内部。再回到街边与绿地，城市的尺度随之舒展开来。',
+    },
     title: '城市脉冲',
     englishTitle: 'Urban Pulse',
     category: '城市',

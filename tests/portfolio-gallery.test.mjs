@@ -20,7 +20,7 @@ function portfolioRecord(source, filename) {
   const start = source.indexOf(`src: '${filename}'`);
   if (start < 0) return '';
   const end = source.indexOf('}', start);
-  return source.slice(start, end);
+  return source.slice(start, end).replace(/\r\n/g, '\n');
 }
 
 test('series gallery is two-column on desktop and one-column on mobile', async () => {

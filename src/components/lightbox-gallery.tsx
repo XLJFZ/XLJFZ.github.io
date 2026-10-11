@@ -127,7 +127,13 @@ function buildGallerySections(images: PortfolioImage[]): GallerySection[] {
   }));
 }
 
-export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
+export function LightboxGallery({
+  images,
+  chapterIntroductions,
+}: {
+  images: PortfolioImage[];
+  chapterIntroductions?: Record<string, string>;
+}) {
   const sections = useMemo(() => buildGallerySections(images), [images]);
   const hasChapters = sections.some((section) => section.label);
   const displayedItems = useMemo(
@@ -521,7 +527,7 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
               <div
                 data-chapter-marker
                 data-chapter-index={sectionIndex}
-                className="mb-8 flex items-center gap-4 border-t border-foreground/10 pt-4 md:mb-12"
+                className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-foreground/10 pt-4 md:mb-12"
               >
                 <span className="text-xs tracking-[.1em] text-foreground/65">
                   {String(sectionIndex + 1).padStart(2, '0')}
@@ -529,6 +535,13 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 <h2 className="text-sm font-normal tracking-[.08em] text-foreground/75">
                   {section.label}
                 </h2>
+                {chapterIntroductions?.[section.label] && (
+                  <p className="basis-full text-sm font-light leading-7 text-foreground/65">
+                    <span className="block max-w-2xl">
+                      {chapterIntroductions[section.label]}
+                    </span>
+                  </p>
+                )}
               </div>
             )}
             <div className="space-y-10 md:space-y-[clamp(3.5rem,7vw,8rem)]">
