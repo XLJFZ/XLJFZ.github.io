@@ -371,6 +371,35 @@ a {
 }
 
 /* Native timelines preserve normal scrolling and visible fallbacks. */
+.series-cover-frame {
+  transition: box-shadow 450ms var(--interaction-ease);
+}
+.series-cover-link:focus-visible .series-cover-frame {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.35),
+    0 24px 70px rgb(0 0 0 / 0.35);
+}
+@media (hover: hover) and (pointer: fine) {
+  .series-cover-link:hover .series-cover-frame {
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.12),
+      0 28px 80px rgb(0 0 0 / 0.4);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .series-cover-link:focus-visible .series-cover-frame img {
+    transform: scale(1.025);
+  }
+  .series-cover-link:focus-visible span[aria-hidden='true'] {
+    transform: translateX(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .series-cover-link .series-cover-frame img,
+  .series-cover-link span {
+    transform: none !important;
+  }
+}
 @keyframes home-hero-push {
   from {
     transform: scale(1.02);

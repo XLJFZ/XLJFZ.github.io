@@ -94,10 +94,10 @@ export default function Home() {
               <a
                 href={`/series/${item.slug}/`}
                 key={item.slug}
-                className={`group grid gap-5 md:items-end md:gap-10 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : 'md:grid-cols-[1.45fr_.55fr]'}`}
+                className={`series-cover-link group grid gap-5 md:items-end md:gap-10 ${index % 2 ? 'md:grid-cols-[.55fr_1.45fr]' : 'md:grid-cols-[1.45fr_.55fr]'}`}
               >
                 <div
-                  className={`home-series-image relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}
+                  className={`series-cover-frame home-series-image relative overflow-hidden bg-[#292824] shadow-[0_22px_70px_rgba(0,0,0,.28)] ${index % 2 ? 'md:order-2' : ''}`}
                 >
                   <img
                     src={item.preview.mobilePath}

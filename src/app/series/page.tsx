@@ -31,9 +31,9 @@ export default function SeriesIndex() {
               <a
                 href={`/series/${item.slug}/`}
                 key={item.slug}
-                className="group flex min-w-0 flex-col"
+                className="series-cover-link group flex min-w-0 flex-col"
               >
-                <div className="relative overflow-hidden bg-[#292824] shadow-[0_24px_80px_rgba(0,0,0,.28)]">
+                <div className="series-cover-frame relative overflow-hidden bg-[#292824] shadow-[0_24px_80px_rgba(0,0,0,.28)]">
                   <img
                     src={item.preview.mobilePath}
                     srcSet={`${item.preview.mobilePath} ${item.preview.mobileWidth}w, ${item.preview.path} ${item.preview.width}w`}

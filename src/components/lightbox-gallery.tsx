@@ -627,6 +627,42 @@ export function LightboxGallery({ images }: { images: PortfolioImage[] }) {
                 </div>
               ))}
             </div>
+            {hasChapters && (
+              <nav
+                aria-label={`${section.label}章节翻页`}
+                className="mt-8 flex items-center justify-between gap-5 border-t border-foreground/10 pt-3 md:mt-12"
+              >
+                {sectionIndex > 0 ? (
+                  <a
+                    href={`#chapter-${sectionIndex}`}
+                    onClick={() => setActiveChapter(sectionIndex - 1)}
+                    className="site-nav-link inline-flex min-h-11 min-w-0 items-center gap-3 text-xs leading-6 text-foreground/65 hover:text-foreground"
+                  >
+                    <span aria-hidden="true">←</span>
+                    <span>上一章 · {sections[sectionIndex - 1].label}</span>
+                  </a>
+                ) : (
+                  <span />
+                )}
+                {sectionIndex < sections.length - 1 ? (
+                  <a
+                    href={`#chapter-${sectionIndex + 2}`}
+                    onClick={() => setActiveChapter(sectionIndex + 1)}
+                    className="site-nav-link inline-flex min-h-11 min-w-0 items-center justify-end gap-3 text-right text-xs leading-6 text-foreground/65 hover:text-foreground"
+                  >
+                    <span>下一章 · {sections[sectionIndex + 1].label}</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <a
+                    href="/series/"
+                    className="site-nav-link inline-flex min-h-11 items-center gap-3 text-xs text-foreground/65 hover:text-foreground"
+                  >
+                    浏览全部系列 <span aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </nav>
+            )}
           </section>
         ))}
       </div>

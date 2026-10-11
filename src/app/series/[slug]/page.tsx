@@ -51,6 +51,12 @@ export default async function SeriesPage({ params }: Props) {
         className="mx-auto grid max-w-[1480px] gap-10 px-5 pb-14 pt-12 sm:px-8 md:grid-cols-[1.35fr_.65fr] md:px-10 md:pb-24 md:pt-24 lg:px-14 xl:px-16"
       >
         <div>
+          <a
+            href="/series/"
+            className="mb-6 inline-flex min-h-11 items-center gap-3 text-xs tracking-[.08em] text-foreground/65 transition-colors hover:text-foreground"
+          >
+            <span aria-hidden="true">←</span> 浏览全部系列
+          </a>
           <p className="text-xs leading-6 tracking-[.12em] text-foreground/65">
             {item.category} · {item.englishTitle}
           </p>
@@ -83,7 +89,7 @@ export default async function SeriesPage({ params }: Props) {
       </section>
       <a
         href={`/series/${next.slug}/`}
-        className="group mx-auto my-20 grid max-w-[1480px] gap-8 border-y border-foreground/10 px-5 py-10 sm:px-8 md:grid-cols-[.75fr_1.25fr] md:items-end md:px-10 md:py-14 lg:px-14 xl:px-16"
+        className="series-cover-link group mx-auto my-20 grid max-w-[1480px] gap-8 border-y border-foreground/10 px-5 py-10 sm:px-8 md:grid-cols-[.75fr_1.25fr] md:items-end md:px-10 md:py-14 lg:px-14 xl:px-16"
       >
         <div className="md:pb-1">
           <p className="text-xs leading-5 tracking-[.12em] text-foreground/65">
@@ -99,7 +105,7 @@ export default async function SeriesPage({ params }: Props) {
             </span>
           </p>
         </div>
-        <div className="overflow-hidden bg-[#292824]">
+        <div className="series-cover-frame overflow-hidden bg-[#292824]">
           <img
             src={nextCover.mobilePath}
             srcSet={`${nextCover.mobilePath} ${nextCover.mobileWidth}w, ${nextCover.path} ${nextCover.width}w`}
