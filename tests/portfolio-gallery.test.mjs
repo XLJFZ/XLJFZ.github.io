@@ -16,6 +16,26 @@ async function listImages(directory) {
   return nested.flat();
 }
 
+test('backfilled EXIF agrees with the individually matched source evidence', async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+  const evidence = JSON.parse(
+    await readFile('docs/EXIF-BACKFILL-2026-10-11.json', 'utf8'),
+  );
+  assert.equal(evidence.length, 11);
+  for (const { src, fields } of evidence) {
+    const record = portfolioRecord(source, src);
+    for (const [key, value] of Object.entries(fields))
+      assert.ok(record.includes(`${key}: '${value}'`), `${src}: ${key}`);
+  }
+  assert.match(
+    portfolioRecord(
+      source,
+      '/portfolio-previews/urban-pulse/tokyo-ochanomizu-trains-1800.jpg',
+    ),
+    /exif:/,
+  );
+});
+
 function portfolioRecord(source, filename) {
   const start = source.indexOf(`src: '${filename}'`);
   if (start < 0) return '';
@@ -164,7 +184,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/65/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 45);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 56);
 
   const chongqingNight = portfolioRecord(
     source,

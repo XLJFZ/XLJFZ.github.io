@@ -107,6 +107,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '电线与街巷之间的东京晴空塔',
         caption: '东京 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '150mm',
+          aperture: 'f/10',
+          shutterSpeed: '1/320s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
         chapter: '东京',
       },
@@ -116,6 +123,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '东京夜间街巷与霓虹招牌',
         caption: '东京 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '49mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/13s',
+          iso: 'ISO 400',
+        },
         layout: 'portrait',
       },
       {
@@ -124,6 +138,13 @@ export const series: Series[] = [
         height: 1200,
         alt: '林荫参道尽头的鸟居',
         caption: '东京 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '70mm',
+          aperture: 'f/8',
+          shutterSpeed: '1/8s',
+          iso: 'ISO 400',
+        },
         layout: 'wide',
       },
       {
@@ -132,6 +153,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '东京街道与远处的东京塔',
         caption: '东京 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '57mm',
+          aperture: 'f/9',
+          shutterSpeed: '15s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -140,6 +168,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '御茶之水多列电车交汇的城市景观',
         caption: '东京 · 御茶之水 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '29mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/160s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -295,6 +330,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '上海老街通向陆家嘴高楼的红色车轨',
         caption: '上海 · 2024',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '33mm',
+          aperture: 'f/13',
+          shutterSpeed: '20s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -351,6 +393,13 @@ export const series: Series[] = [
         alt: '低角度仰望南昌摩天轮座舱',
         caption: '南昌 · 2024',
         chapter: '南昌',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '70mm',
+          aperture: 'f/8',
+          shutterSpeed: '1/250s',
+          iso: 'ISO 64',
+        },
       },
       {
         src: '/portfolio-previews/urban-pulse/nanchang-zbz-1370-1800.jpg',
@@ -358,6 +407,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '南昌红谷滩商务区与城市道路',
         caption: '南昌 · 2024',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '16mm',
+          aperture: 'f/8',
+          shutterSpeed: '4s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -732,6 +788,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '洞窟光线中的大同石刻造像',
         caption: '大同 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '28mm',
+          aperture: 'f/5.6',
+          shutterSpeed: '1/6s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -740,6 +803,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '林木环绕的应县木塔',
         caption: '应县 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '40mm',
+          aperture: 'f/7.1',
+          shutterSpeed: '1/40s',
+          iso: 'ISO 64',
+        },
         layout: 'portrait',
       },
       {
@@ -748,6 +818,13 @@ export const series: Series[] = [
         height: 2800,
         alt: '景德镇街头龙形表演道具的细节',
         caption: '景德镇 · 2025',
+        exif: {
+          camera: 'Nikon Z7 II',
+          focalLength: '70mm',
+          aperture: 'f/2.8',
+          shutterSpeed: '1/320s',
+          iso: 'ISO 140',
+        },
         layout: 'portrait',
       },
       {
@@ -881,6 +958,7 @@ export const series: Series[] = [
         height: 5504,
         alt: '金色扬尘中两位骑马的人物与远处的树坡',
         caption: '内蒙古 · 赤峰 · 乌兰布统 · 2026',
+        layout: 'wide',
         exif: {
           camera: 'Nikon Z7 II',
           focalLength: '160mm',

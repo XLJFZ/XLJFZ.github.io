@@ -31,6 +31,12 @@ for (const [, base, width, height] of records) {
   if (path.relative(sourceRoot, original).startsWith('..'))
     throw new Error('Invalid original path');
   const meta = await sharp(original).metadata();
+  const profileDescription =
+    meta.icc?.toString('latin1').replaceAll('\0', '') ?? '';
+  if (!/Display\s*P3|sP3/i.test(profileDescription))
+    throw new Error(
+      `${base}: expected a verified Display P3 JPEG export with embedded ICC; do not convert an old sRGB export automatically`,
+    );
   const oriented = meta.autoOrient ?? meta;
   if (oriented.width !== Number(width) || oriented.height !== Number(height))
     throw new Error(
@@ -47,8 +53,10 @@ for (const input of inputs) {
     const destination = path.join(staged, `${input.base}-${width}.jpg`);
     await mkdir(path.dirname(destination), { recursive: true });
     await sharp(input.original)
+      .pipelineColourspace('rgb16')
       .rotate()
       .resize({ width, withoutEnlargement: true })
+      .withIccProfile('p3')
       .jpeg({
         quality: 90,
         chromaSubsampling: '4:4:4',
@@ -56,6 +64,11 @@ for (const input of inputs) {
         mozjpeg: true,
       })
       .toFile(destination);
+    const metadata = await sharp(destination).metadata();
+    if (!metadata.icc || metadata.exif || metadata.xmp || metadata.iptc)
+      throw new Error(
+        `${input.base}: missing colour profile or unexpected descriptive metadata`,
+      );
     generated++;
   }
 }

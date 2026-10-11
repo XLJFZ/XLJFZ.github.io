@@ -1,0 +1,124 @@
+[
+  {
+    "src": "/portfolio-previews/urban-pulse/tokyo-zbz-8136-1680.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "150mm",
+      "aperture": "f/10",
+      "shutterSpeed": "1/320s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 寒假\\2025.01.19-25 日本（东京+大阪+京都）\\ZBZ_8136-HDR.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/tokyo-zbz-8295-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "49mm",
+      "aperture": "f/7.1",
+      "shutterSpeed": "1/13s",
+      "iso": "ISO 400"
+    },
+    "sourceFile": "D:\\照片\\大一 寒假\\2025.01.19-25 日本（东京+大阪+京都）\\ZBZ_8295.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/tokyo-zbz-8187-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "70mm",
+      "aperture": "f/8",
+      "shutterSpeed": "1/8s",
+      "iso": "ISO 400"
+    },
+    "sourceFile": "D:\\照片\\大一 寒假\\2025.01.19-25 日本（东京+大阪+京都）\\ZBZ_8187.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/tokyo-zbz-8379-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "57mm",
+      "aperture": "f/9",
+      "shutterSpeed": "15s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 寒假\\2025.01.19-25 日本（东京+大阪+京都）\\ZBZ_8379.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/shanghai-zbz-9081-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "33mm",
+      "aperture": "f/13",
+      "shutterSpeed": "20s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 暑假\\2024.07.31 栖霞路东方路天桥+国金+金茂底下\\未命名导出\\ZBZ_9081.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/nanchang-zbz-1447-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "70mm",
+      "aperture": "f/8",
+      "shutterSpeed": "1/250s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 暑假\\2024.08.17 南昌+上饶\\未命名导出\\ZBZ_1447.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/nanchang-zbz-1370-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "16mm",
+      "aperture": "f/8",
+      "shutterSpeed": "4s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 暑假\\2024.08.17 南昌+上饶\\未命名导出\\ZBZ_1370.jpg"
+  },
+  {
+    "src": "/portfolio-previews/textures-of-time/datong-zbz-3752-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "28mm",
+      "aperture": "f/5.6",
+      "shutterSpeed": "1/6s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 下\\2025.06.25-29 山西 太原+大同\\ZBZ_3752.jpg"
+  },
+  {
+    "src": "/portfolio-previews/textures-of-time/yingxian-zbz-4640-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "40mm",
+      "aperture": "f/7.1",
+      "shutterSpeed": "1/40s",
+      "iso": "ISO 64"
+    },
+    "sourceFile": "D:\\照片\\大一 下\\2025.06.25-29 山西 太原+大同\\ZBZ_4640.jpg"
+  },
+  {
+    "src": "/portfolio-previews/textures-of-time/jingdezhen-zbz-9983-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "70mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/320s",
+      "iso": "ISO 140"
+    },
+    "sourceFile": "D:\\照片\\大一 寒假\\2025.02.01 景德镇 陶阳里\\ZBZ_9983.jpg"
+  },
+  {
+    "src": "/portfolio-previews/urban-pulse/tokyo-ochanomizu-trains-1800.jpg",
+    "fields": {
+      "camera": "Nikon Z7 II",
+      "focalLength": "29mm",
+      "aperture": "f/7.1",
+      "shutterSpeed": "1/160s",
+      "iso": "ISO 64"
+    },
+    "sourceFiles": ["ZBZ_8300.xmp", "ZBZ_8301.xmp", "ZBZ_8302.xmp"],
+    "basis": "2026-10-11 用户确认以 ZBZ_8300–8302 作为合成图代表参数；三个旁车的五项参数一致，非合成图内嵌 EXIF。"
+  }
+]

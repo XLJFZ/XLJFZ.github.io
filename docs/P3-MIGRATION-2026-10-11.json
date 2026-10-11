@@ -1,0 +1,170 @@
+[
+  {
+    "base": "urban-pulse/chongqing-zbz-9292-hq",
+    "sourceFile": "D:\\照片\\大二 上\\2025.10.04-08 重庆旅拍\\ZBZ_9292.jpg",
+    "sourceSha256": "7fca8f363e5bb30718e1db750f3833ebabc45f0dfbe245aa5c8813919ca9222a",
+    "width": 3600,
+    "height": 2197
+  },
+  {
+    "base": "urban-pulse/chongqing-zbz-9356",
+    "sourceFile": "D:\\照片\\大二 上\\2025.10.04-08 重庆旅拍\\ZBZ_9356_SDR.jpg",
+    "sourceSha256": "f2e6317e3229e10d153ba68309c15d98f19d675f9d1cb3130df8740c257abaa0",
+    "width": 2240,
+    "height": 2800
+  },
+  {
+    "base": "urban-pulse/shanghai-zbz-8199",
+    "sourceFile": "D:\\照片\\大二 暑假\\2025.08.15 - 外滩天幕1715\\ZBZ_8199.jpg",
+    "sourceSha256": "b66798d9e491b8bb9969d777ba5c5c9b979a8c720ffef082d7def9446ad2b89d",
+    "width": 2800,
+    "height": 2041
+  },
+  {
+    "base": "urban-pulse/shanghai-zbz-8285",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.07.26-27 唐城公寓 蓝调+朝霞\\ZBZ_8285.jpg",
+    "sourceSha256": "a700195d1a8c58ad79370cb6922440f0b92923853f33a8d27bc8c95ca66ff766",
+    "width": 1867,
+    "height": 2800
+  },
+  {
+    "base": "urban-pulse/shanghai-zbz-7973",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.07.25 洛克·外滩源\\ZBZ_7973.jpg",
+    "sourceSha256": "f49a5e0e383235866d05492714a722913dd21481e568221de0afa775cf5ad5ae",
+    "width": 1867,
+    "height": 2800
+  },
+  {
+    "base": "urban-pulse/shanghai-zbz-7974",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.07.25 洛克·外滩源\\ZBZ_7974.jpg",
+    "sourceSha256": "c83fbafd22e26207d4f1a8f3d1c12405856bd75c3d5dc223361424d7c49b5d95",
+    "width": 8256,
+    "height": 5504
+  },
+  {
+    "base": "urban-pulse/shanghai-zbz-8705",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.08 明日星城 晚霞\\ZBZ_8705.jpg",
+    "sourceSha256": "3dafa4c98850a4c1b22bae77fbf6c0f34f336854b8de86b77a1ad4afe71d6bbb",
+    "width": 2800,
+    "height": 1655
+  },
+  {
+    "base": "urban-pulse/hong-kong-zbz-8030",
+    "sourceFile": "D:\\照片\\大二 暑假\\2025.08.08-13 广州-深圳-香港\\ZBZ_8030.jpg",
+    "sourceSha256": "f03028b592915b52d80ed80143d427e785ce232406a6f2446d3ab07f82394641",
+    "width": 2240,
+    "height": 2800
+  },
+  {
+    "base": "urban-pulse/hong-kong-zbz-8171",
+    "sourceFile": "D:\\照片\\大二 暑假\\2025.08.08-13 广州-深圳-香港\\ZBZ_8171.jpg",
+    "sourceSha256": "ab47781c209d298758a1c02cf97387a26e4d76c9ea06c4e05e8ede2887895c2f",
+    "width": 1867,
+    "height": 2800
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9255",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9255.avif",
+    "sourceSha256": "d2795cd66078a4b84118beca2f0c4a106e6bf5f16130aa9c78143406b4371373",
+    "width": 5111,
+    "height": 7155
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9525",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9525.avif",
+    "sourceSha256": "6cb14b4c75635f38ef5ba382687c58ebd2f8da6c66945091cb68b0490cfd0d10",
+    "width": 8256,
+    "height": 5504
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9533",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9533.avif",
+    "sourceSha256": "d0ed793524e4ecb7073827d6af7fed1905f98962c584c628d5ea8dd834eb6cd6",
+    "width": 5504,
+    "height": 8256
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9542",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9542.avif",
+    "sourceSha256": "fb7ce0ee1917c1aad0dab1065002613df13c15a9710ee5180308fe865f53385b",
+    "width": 5453,
+    "height": 7634
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9556",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9556.avif",
+    "sourceSha256": "597fed96538eae0ac35c661d8a6c1685952c008efc01977b9d92ad0b2b6b9d6d",
+    "width": 4537,
+    "height": 6398
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9579",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9579.avif",
+    "sourceSha256": "14006bcfea99eaa825d436a698be1172efcb90e091d37314f975edcad4f4705f",
+    "width": 4966,
+    "height": 7542
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9633-hdr",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9633-HDR.avif",
+    "sourceSha256": "11033d623fcb89c97829f59ac5fae84b3883977fdade4269e98d24171cfdfde9",
+    "width": 5504,
+    "height": 8256
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9649",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9649.avif",
+    "sourceSha256": "ba1a11025b1e50a555b1f3cc5dcbca19461bfe30cee4df88098da13073aeb6b0",
+    "width": 8256,
+    "height": 5504
+  },
+  {
+    "base": "urban-pulse/beijing-zbz-9670",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9670.avif",
+    "sourceSha256": "04838096d4cbe865e34e2dbc8317b99b1e59924bf9c69f485702d7a4d43a9a10",
+    "width": 5504,
+    "height": 8256
+  },
+  {
+    "base": "distant-weather/dsc-2989-shangri-la",
+    "sourceFile": "D:\\照片\\大二 上\\2025.11.27-12.3 丽江 香格里拉 德钦 旅拍\\DSC_2989.jpg",
+    "sourceSha256": "4341764e66c4b2f746cdd44af03719e28402b382e0cf7f6160ed940c9781cf5e",
+    "width": 2800,
+    "height": 1034
+  },
+  {
+    "base": "distant-weather/zbz-1242-meili",
+    "sourceFile": "D:\\照片\\大二 上\\2025.11.27-12.3 丽江 香格里拉 德钦 旅拍\\ZBZ_1242.jpg",
+    "sourceSha256": "897143843e4e66fad58183b9e0adc56b6e4b818d38d7b67b9a09764a4f55be74",
+    "width": 2800,
+    "height": 2800
+  },
+  {
+    "base": "textures-of-time/huizhou-zbz-6156",
+    "sourceFile": "D:\\照片\\大二 寒假\\2026.02.18-20 黄山-瞻淇+呈坎\\ZBZ_6156.jpg",
+    "sourceSha256": "40ecde81124f4e0471f17593cb3f8973c6ba6ac17abb86bfe93e98a27bb84ad1",
+    "width": 5504,
+    "height": 8256
+  },
+  {
+    "base": "textures-of-time/huizhou-zbz-5682",
+    "sourceFile": "D:\\照片\\大二 寒假\\2026.02.18-20 黄山-瞻淇+呈坎\\ZBZ_5682.jpg",
+    "sourceSha256": "a65812594a84f2110881e0e9c8f21578b0d9ddd12f78d7ad0a15efb9fec31e65",
+    "width": 7630,
+    "height": 5504
+  },
+  {
+    "base": "textures-of-time/beijing-zbz-9496",
+    "sourceFile": "D:\\照片\\大三 暑假\\2026.08.16-19 北京\\ZBZ_9496.avif",
+    "sourceSha256": "17bbf65e1d3e008d184cfc2726c2191e57e88f5f975cbe362c3c30b3cea92675",
+    "width": 4826,
+    "height": 6033
+  },
+  {
+    "base": "nearby-moments/wulanbutong-zbz-0723",
+    "sourceFile": "D:\\照片\\大三 上\\2026.10.02-06 赤峰（乌兰布统周边）\\ZBZ_0723.avif",
+    "sourceSha256": "ac3012807c7a5c0f475354e5a39d61a7716ad479aee379d50dcf9bfd8f26997d",
+    "width": 8256,
+    "height": 5504
+  }
+]
