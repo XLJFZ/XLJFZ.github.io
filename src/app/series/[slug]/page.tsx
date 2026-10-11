@@ -97,7 +97,10 @@ export default async function SeriesPage({ params }: Props) {
         </div>
       </section>
       <section className="mx-auto max-w-[1480px] px-5 max-md:w-full max-md:min-w-0 sm:px-8 md:px-10 lg:px-14 xl:px-16">
-        <LightboxGallery images={item.images} />
+        <LightboxGallery
+          images={item.images}
+          chapterIntroductions={item.chapterIntroductions}
+        />
       </section>
       <section
         aria-label="专题收尾"
