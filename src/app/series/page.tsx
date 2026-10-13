@@ -51,7 +51,7 @@ export default function SeriesIndex() {
                     className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100"
                     aria-hidden="true"
                   />
-                  <span className="absolute left-4 top-4 border border-white/30 bg-black/30 px-2.5 py-1 text-xs tracking-[.16em] text-white backdrop-blur-sm md:left-5 md:top-5">
+                  <span className="absolute left-4 top-4 border border-white/30 bg-black/30 px-2.5 py-1 text-xs tabular-nums tracking-[.16em] text-white backdrop-blur-sm md:left-5 md:top-5">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>

@@ -98,10 +98,14 @@ function buildGalleryRows(items: GalleryItem[]) {
     const orientation = imageOrientation(first.image);
     let partnerIndex = pending.findIndex(
       ({ image }) =>
-        image.layout !== 'wide' && image.layout !== 'feature' && imageOrientation(image) === orientation,
+        image.layout !== 'wide' &&
+        image.layout !== 'feature' &&
+        imageOrientation(image) === orientation,
     );
     if (partnerIndex < 0) {
-      partnerIndex = pending.findIndex(({ image }) => image.layout !== 'wide' && image.layout !== 'feature');
+      partnerIndex = pending.findIndex(
+        ({ image }) => image.layout !== 'wide' && image.layout !== 'feature',
+      );
     }
     const row = [first];
     if (partnerIndex >= 0) row.push(pending.splice(partnerIndex, 1)[0]);
@@ -487,7 +491,7 @@ export function LightboxGallery({
                     >
                       <span
                         className={cn(
-                          'text-[11px] transition-colors group-hover:text-foreground/75',
+                          'text-xs tabular-nums transition-colors group-hover:text-foreground/75',
                           activeChapter === sectionIndex
                             ? 'text-foreground/75'
                             : 'text-foreground/55',
@@ -527,19 +531,21 @@ export function LightboxGallery({
               <div
                 data-chapter-marker
                 data-chapter-index={sectionIndex}
-                className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-foreground/10 pt-4 md:mb-12"
+                className="mb-8 grid gap-4 border-t border-foreground/15 pt-5 md:mb-12 md:grid-cols-[.55fr_1.45fr] md:gap-10 md:pt-6"
               >
-                <span className="text-xs tracking-[.1em] text-foreground/65">
-                  {String(sectionIndex + 1).padStart(2, '0')}
-                </span>
-                <h2 className="text-sm font-normal tracking-[.08em] text-foreground/75">
-                  {section.label}
-                </h2>
+                <div>
+                  <p className="text-xs tabular-nums leading-6 tracking-[.1em] text-foreground/65">
+                    {String(sectionIndex + 1).padStart(2, '0')} ·{' '}
+                    {section.rows.reduce((count, row) => count + row.length, 0)}{' '}
+                    幅
+                  </p>
+                  <h2 className="mt-2 text-2xl font-medium leading-tight tracking-[-.025em] md:text-3xl">
+                    {section.label}
+                  </h2>
+                </div>
                 {chapterIntroductions?.[section.label] && (
-                  <p className="basis-full text-sm font-light leading-7 text-foreground/65">
-                    <span className="block max-w-2xl">
-                      {chapterIntroductions[section.label]}
-                    </span>
+                  <p className="max-w-[34em] text-sm font-light leading-7 text-foreground/75 md:pt-8">
+                    {chapterIntroductions[section.label]}
                   </p>
                 )}
               </div>
@@ -559,7 +565,9 @@ export function LightboxGallery({
                       (item) => item.sourceIndex === sourceIndex,
                     );
                     const isUnpaired =
-                      row.length === 1 && image.layout !== 'wide' && image.layout !== 'feature';
+                      row.length === 1 &&
+                      image.layout !== 'wide' &&
+                      image.layout !== 'feature';
                     return (
                       <figure
                         data-gallery-opening={
@@ -578,7 +586,9 @@ export function LightboxGallery({
                         }
                         className={cn(
                           'w-full min-w-0',
-                          image.layout === 'feature' && imageOrientation(image) === 'portrait' && 'md:w-[65%] md:justify-self-center',
+                          image.layout === 'feature' &&
+                            imageOrientation(image) === 'portrait' &&
+                            'md:w-[65%] md:justify-self-center',
                           row.length === 2 &&
                             'md:w-[var(--gallery-paired-width)]',
                           row.length === 2 &&
@@ -613,11 +623,13 @@ export function LightboxGallery({
                               )
                               .join(', ')}
                             sizes={
-                              image.layout === 'feature' && imageOrientation(image) === 'portrait'
+                              image.layout === 'feature' &&
+                              imageOrientation(image) === 'portrait'
                                 ? '(min-width: 1536px) 879px, (min-width: 768px) calc((100vw - 8rem) * .65), calc(100vw - 40px)'
-                                : image.layout === 'wide' || image.layout === 'feature'
-                                ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
-                                : '(min-width: 1536px) 620px, (min-width: 768px) 44vw, calc(100vw - 40px)'
+                                : image.layout === 'wide' ||
+                                    image.layout === 'feature'
+                                  ? '(min-width: 1536px) 1352px, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 40px)'
+                                  : '(min-width: 1536px) 620px, (min-width: 768px) 44vw, calc(100vw - 40px)'
                             }
                             width={image.width}
                             height={image.height}

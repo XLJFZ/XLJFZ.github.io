@@ -77,7 +77,7 @@ export default async function SeriesPage({ params }: Props) {
           </h1>
         </div>
         <div className="series-opening-intro max-w-lg md:self-end">
-          <p className="text-sm font-light leading-7 text-foreground/65">
+          <p className="text-sm font-light leading-7 text-foreground/75">
             {item.statement}
           </p>
           <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-foreground/10 pt-3 text-sm leading-6 md:mt-8 md:gap-4 md:pt-4">
