@@ -22,7 +22,10 @@ test('backfilled EXIF agrees with the individually matched source evidence', asy
     await readFile('docs/EXIF-BACKFILL-2026-10-11.json', 'utf8'),
   );
   assert.equal(evidence.length, 11);
-  for (const { src, fields } of evidence.filter(({ src }) => !src.includes('tokyo-zbz-8187-') && !src.includes('beijing-zbz-9579-'))) {
+  for (const { src, fields } of evidence.filter(
+    ({ src }) =>
+      !src.includes('tokyo-zbz-8187-') && !src.includes('beijing-zbz-9579-'),
+  )) {
     const record = portfolioRecord(source, src);
     for (const [key, value] of Object.entries(fields))
       assert.ok(record.includes(`${key}: '${value}'`), `${src}: ${key}`);
@@ -566,7 +569,7 @@ test('series photographs retain the editorial sequence', async () => {
 test('Beijing photographs retain their verified dimensions, dates, and exposure data', async () => {
   const source = await readFile('src/lib/portfolio.ts', 'utf8');
   const records = [
-    ['9255', 'urban-pulse', 5111, 7155, '25.5mm', 'f/7.1', '1/20s', 'ISO 64'],
+    ['9255', 'urban-pulse', 4696, 6575, '25.5mm', 'f/7.1', '1/20s', 'ISO 64'],
     [
       '9496',
       'textures-of-time',

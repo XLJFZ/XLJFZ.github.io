@@ -479,8 +479,8 @@ export const series: Series[] = [
       },
       {
         src: '/portfolio-previews/urban-pulse/beijing-zbz-9255-1800.jpg',
-        width: 5111,
-        height: 7155,
+        width: 4696,
+        height: 6575,
         alt: '暮色中的绿地与远处的北京城市天际线',
         caption: '北京 · 2026',
         exif: {
