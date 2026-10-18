@@ -24,6 +24,7 @@ import {
 import * as SunCalc from 'suncalc';
 
 import { Button } from '@/components/ui/button';
+import { PlannerWeather } from '@/components/planner-weather';
 import {
   createRooftopOverlay,
   type RooftopScene,
@@ -1512,6 +1513,31 @@ export function LightPlanner() {
           </div>
         </section>
       </div>
+      <PlannerWeather
+        key={[
+          cameraPoint.lat,
+          cameraPoint.lng,
+          date,
+          timezone,
+          cameraBearing,
+          distance > 0,
+        ].join(':')}
+        lat={cameraPoint.lat}
+        lon={cameraPoint.lng}
+        date={date}
+        timezone={timezone}
+        bearing={distance > 0 ? cameraBearing : null}
+        sunset={sunTimes.sunset}
+        sunsetAzimuth={
+          sunTimes.sunset
+            ? SunCalc.getPosition(
+                sunTimes.sunset,
+                cameraPoint.lat,
+                cameraPoint.lng,
+              ).azimuth
+            : Number.NaN
+        }
+      />
     </div>
   );
 }

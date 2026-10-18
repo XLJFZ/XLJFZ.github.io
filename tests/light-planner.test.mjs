@@ -84,3 +84,18 @@ test('light planner is included in the tool index, sitemap and static export', a
   ]);
   for (const source of sources) assert.match(source, /tools\/light-planner/);
 });
+
+test('weather panel shares camera plan without automatic location requests', async () => {
+  const [planner, weather] = await Promise.all([
+    readFile('src/components/light-planner.tsx', 'utf8'),
+    readFile('src/components/planner-weather.tsx', 'utf8'),
+  ]);
+  assert.match(planner, /lat=\{cameraPoint.lat\}/);
+  assert.match(planner, /date=\{date\}/);
+  assert.match(planner, /sunset=\{sunTimes.sunset\}/);
+  assert.match(weather, /onClick=\{predict\}/);
+  assert.match(weather, /generation.current/);
+  assert.match(weather, /request.current\?\.abort/);
+  assert.match(weather, /火烧云观赏潜力/);
+  assert.match(weather, /不是发生概率/);
+});

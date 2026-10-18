@@ -7,7 +7,7 @@ import { SiteHeader } from '@/components/site-header';
 export const metadata: Metadata = {
   title: '机位与光线规划器｜迅雷疾风',
   description:
-    '在地图上规划建筑、城市与风光摄影机位，查看太阳、月亮、黄金时刻、蓝调时刻与焦段覆盖。',
+    '在地图上规划建筑、城市与风光摄影机位，查看太阳、月亮、黄金时刻、蓝调时刻与焦段覆盖，并综合多源天气评估晚霞及火烧云观赏潜力。',
   alternates: { canonical: '/tools/light-planner/' },
 };
 
@@ -28,7 +28,7 @@ export default function LightPlannerPage() {
             </h1>
           </div>
           <p className="max-w-xl text-sm font-light leading-7 text-white/48 md:justify-self-end md:text-base">
-            去哪里站，什么时候去，光从哪边来，带什么焦段。
+            去哪里站，什么时候去，光从哪边来，带什么焦段，以及天空是否值得期待。
           </p>
         </div>
         <LightPlanner />
