@@ -183,7 +183,7 @@ test('regional evaluates actual grid rows at each own event, never demo data', a
   let calls = 0;
   global.fetch = async (url) => {
     calls++;
-    const q = new URL(String(url)).searchParams,
+    const q = new URL(url instanceof Request ? url.url : url).searchParams,
       count = q.get('latitude').split(',').length;
     const day = q.get('start_date');
     const times = Array.from(
