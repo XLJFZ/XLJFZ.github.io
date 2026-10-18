@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { constants } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { access, copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,6 +31,32 @@ export const routes = [
   '/404',
 ];
 
+// Preserve the framework's font declarations byte-for-byte and in cascade order.
+// Root-relative URLs remain valid from every nested Pages route.
+export async function externalizeFontStyles(html, outputDir) {
+  const pattern = /<style data-vinext-fonts>([\s\S]*?)<\/style>/g;
+  const replacements = new Map();
+  for (const match of html.matchAll(pattern)) {
+    const css = match[1];
+    if (
+      !css.includes('@font-face') ||
+      /url\(\s*['"]?(?!\/|https?:|data:|['"])/.test(css)
+    ) {
+      throw new Error('Unexpected vinext font stylesheet; export stopped');
+    }
+    const hash = createHash('sha256').update(css).digest('hex');
+    const href = `/_next/static/fonts/fonts-${hash}.css`;
+    const destination = path.join(outputDir, href.slice(1));
+    await mkdir(path.dirname(destination), { recursive: true });
+    await writeFile(destination, css, 'utf8');
+    replacements.set(
+      match[0],
+      `<link rel="stylesheet" href="${href}" data-vinext-fonts>`,
+    );
+  }
+  return html.replace(pattern, (style) => replacements.get(style));
+}
+
 export async function exportPages({
   clientDir,
   outputDir,
@@ -49,7 +76,8 @@ export async function exportPages({
           : path.join(route.slice(1), 'index.html');
     const destination = path.join(outputDir, relativePath);
     await mkdir(path.dirname(destination), { recursive: true });
-    await writeFile(destination, await fetchPage(route), 'utf8');
+    const html = await externalizeFontStyles(await fetchPage(route), outputDir);
+    await writeFile(destination, html, 'utf8');
   }
 
   await writeFile(path.join(outputDir, '.nojekyll'), '', 'utf8');

@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import {
+  memo,
   startTransition,
   useCallback,
   useEffect,
@@ -139,19 +140,15 @@ export function LightboxGallery({
   chapterIntroductions?: Record<string, string>;
 }) {
   const sections = useMemo(() => buildGallerySections(images), [images]);
-  const hasChapters = sections.some((section) => section.label);
   const displayedItems = useMemo(
     () => sections.flatMap(({ rows }) => rows.flat()),
     [sections],
   );
-  const [activeChapter, setActiveChapter] = useState(0);
-  const [hasUsedChapterAnchor, setHasUsedChapterAnchor] = useState(false);
   const [active, setActive] = useState<number | null>(null);
   const [visible, setVisible] = useState<number | null>(null);
   const [detailRequest, setDetailRequest] = useState<string | null>(null);
   const [loadedDetail, setLoadedDetail] = useState<string | null>(null);
   const [failedDetail, setFailedDetail] = useState<string | null>(null);
-  const [navigationReady, setNavigationReady] = useState<string | null>(null);
   const [loadedOriginal, setLoadedOriginal] = useState<string | null>(null);
   const [failedOriginal, setFailedOriginal] = useState<string | null>(null);
   const [originalRequest, setOriginalRequest] = useState<string | null>(null);
@@ -168,11 +165,13 @@ export function LightboxGallery({
   const navigationToken = useRef(0);
 
   const preloadLightboxPreview = useCallback(
-    (image: PortfolioImage, priority: 'auto' | 'high' = 'auto') => {
+    (image: PortfolioImage, priority: 'auto' | 'high' | 'low' = 'auto') => {
       const src = galleryPreviewSrc(image, 1200);
       const cached = previewPreloads.current.get(src);
       if (cached) {
-        cached.image.fetchPriority = priority;
+        if (priority === 'high' || cached.image.fetchPriority !== 'high') {
+          cached.image.fetchPriority = priority;
+        }
         previewPreloads.current.delete(src);
         previewPreloads.current.set(src, cached);
         return cached.ready;
@@ -327,39 +326,50 @@ export function LightboxGallery({
     return () => window.removeEventListener('keydown', onKey, true);
   }, [active, next, prev]);
 
+  // Current detail never waits for adjacent downloads or their decode promises.
   useEffect(() => {
-    if (active === null || displayedItems.length < 2) return;
+    if (active === null || visible !== active) return;
+    const src = displayedItems[active].image.src;
+    const detailTimer = window.setTimeout(() => setDetailRequest(src), 180);
+    return () => window.clearTimeout(detailTimer);
+  }, [active, displayedItems, visible]);
+
+  useEffect(() => {
+    if (active === null || visible !== active || displayedItems.length < 2)
+      return;
+    const src = displayedItems[active].image.src;
+    if (loadedDetail !== src && failedDetail !== src) return;
     let cancelled = false;
-    const preloadOffsets = (offsets: number[], priority: 'auto' | 'high') =>
+    const preloadOffsets = (offsets: number[]) =>
       Promise.all(
-        offsets.map((offset) => {
-          const index =
-            (active + offset + displayedItems.length) % displayedItems.length;
-          return preloadLightboxPreview(displayedItems[index].image, priority);
-        }),
+        [
+          ...new Set(
+            offsets.map(
+              (offset) =>
+                (active + offset + displayedItems.length) %
+                displayedItems.length,
+            ),
+          ),
+        ]
+          .filter((index) => index !== active)
+          .map((index) =>
+            preloadLightboxPreview(displayedItems[index].image, 'low'),
+          ),
       );
-    const preloads = preloadOffsets([-1, 1], 'high').then(() => {
-      if (cancelled) return;
-      return preloadOffsets([-2, 2], 'auto');
-    });
-    void preloads.then(() => {
-      if (!cancelled && activeIndex.current === active) {
-        setNavigationReady(displayedItems[active].image.src);
-      }
+    void preloadOffsets([-1, 1]).then(() => {
+      if (!cancelled) void preloadOffsets([-2, 2]);
     });
     return () => {
       cancelled = true;
     };
-  }, [active, displayedItems, preloadLightboxPreview]);
-
-  useEffect(() => {
-    if (active === null) return;
-    const src = displayedItems[active].image.src;
-    if (visible !== active) return;
-    if (navigationReady !== src) return;
-    const detailTimer = window.setTimeout(() => setDetailRequest(src), 180);
-    return () => window.clearTimeout(detailTimer);
-  }, [active, displayedItems, navigationReady, visible]);
+  }, [
+    active,
+    visible,
+    displayedItems,
+    loadedDetail,
+    failedDetail,
+    preloadLightboxPreview,
+  ]);
 
   useEffect(() => {
     if (active === null) return;
@@ -382,6 +392,264 @@ export function LightboxGallery({
     };
   }, [active, displayedItems]);
 
+  const visibleItem = visible === null ? null : displayedItems[visible];
+
+  return (
+    <>
+      <GalleryContent
+        sections={sections}
+        displayedItems={displayedItems}
+        chapterIntroductions={chapterIntroductions}
+        preloadLightboxPreview={preloadLightboxPreview}
+        showImage={showImage}
+      />
+      <Dialog
+        open={active !== null}
+        onOpenChange={(open) => !open && closeLightbox()}
+      >
+        <DialogContent
+          motion="fade"
+          showCloseButton={false}
+          overlayClassName="bg-black backdrop-blur-none"
+          style={{
+            display: 'block',
+            width: '100vw',
+            maxWidth: 'none',
+            height: '100svh',
+            maxHeight: 'none',
+          }}
+          onClick={(event) => {
+            const target = event.target;
+            if (
+              target instanceof Element &&
+              target.closest('[data-lightbox-interactive]')
+            ) {
+              return;
+            }
+            if (suppressBackdropClick.current) {
+              suppressBackdropClick.current = false;
+              return;
+            }
+            closeLightbox();
+          }}
+          onTouchStart={(event) => {
+            const touch = event.changedTouches[0];
+            touchStart.current = { x: touch.clientX, y: touch.clientY };
+            suppressBackdropClick.current = false;
+          }}
+          onTouchEnd={(event) => {
+            if (!touchStart.current) return;
+            const touch = event.changedTouches[0];
+            const deltaX = touch.clientX - touchStart.current.x;
+            const deltaY = touch.clientY - touchStart.current.y;
+            touchStart.current = null;
+            if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) {
+              return;
+            }
+            suppressBackdropClick.current = true;
+            if (deltaX > 0) prev();
+            else next();
+          }}
+          className="touch-pan-y gap-0 overflow-hidden rounded-none border-0 bg-black p-0 text-white ring-0 sm:max-w-none"
+        >
+          <DialogTitle className="sr-only">大图浏览</DialogTitle>
+          <DialogDescription className="sr-only">
+            使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接
+          </DialogDescription>
+          {active !== null && visibleItem && (
+            <div
+              className="relative h-full w-full"
+              aria-busy={
+                active !== visible ||
+                (loadedOriginal !== visibleItem.image.src &&
+                  failedOriginal !== visibleItem.image.src)
+              }
+            >
+              <p className="sr-only" aria-live="polite">
+                {active !== visible
+                  ? '正在加载下一幅作品'
+                  : failedOriginal === visibleItem.image.src
+                    ? '大图加载失败，当前显示高清预览'
+                    : loadedOriginal === visibleItem.image.src
+                      ? '大图加载完成'
+                      : '正在加载大图'}
+              </p>
+              <img
+                src={galleryPreviewSrc(visibleItem.image, 1200)}
+                width={visibleItem.image.width}
+                height={visibleItem.image.height}
+                alt={visibleItem.image.alt}
+                decoding="async"
+                fetchPriority="high"
+                data-lightbox-current
+                data-lightbox-interactive
+                className={cn(
+                  'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-150 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                  active === visible ? 'opacity-100' : 'opacity-60',
+                )}
+              />
+              {active === visible &&
+                detailRequest === visibleItem.image.src &&
+                failedDetail !== visibleItem.image.src && (
+                  <img
+                    key={`${visibleItem.image.src}-detail`}
+                    src={galleryPreviewSrc(visibleItem.image, 1800)}
+                    width={visibleItem.image.width}
+                    height={visibleItem.image.height}
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                    fetchPriority="high"
+                    onLoad={(event) => {
+                      const src = visibleItem.image.src;
+                      void event.currentTarget
+                        .decode()
+                        .catch(() => undefined)
+                        .then(() => {
+                          if (activeIndex.current === visible) {
+                            setLoadedDetail(src);
+                          }
+                        });
+                    }}
+                    onError={() => setFailedDetail(visibleItem.image.src)}
+                    data-lightbox-interactive
+                    className={cn(
+                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-200 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                      loadedDetail === visibleItem.image.src
+                        ? 'opacity-100'
+                        : 'opacity-0',
+                    )}
+                  />
+                )}
+              {active === visible &&
+                loadedDetail === visibleItem.image.src &&
+                originalRequest === visibleItem.image.src &&
+                failedOriginal !== visibleItem.image.src && (
+                  <img
+                    key={visibleItem.image.src}
+                    src={galleryMaxSrc(visibleItem.image)}
+                    width={visibleItem.image.width}
+                    height={visibleItem.image.height}
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                    fetchPriority="low"
+                    onLoad={(event) => {
+                      const src = visibleItem.image.src;
+                      void event.currentTarget
+                        .decode()
+                        .catch(() => undefined)
+                        .then(() => {
+                          if (activeIndex.current === visible) {
+                            setLoadedOriginal(src);
+                          }
+                        });
+                    }}
+                    onError={() => setFailedOriginal(visibleItem.image.src)}
+                    data-lightbox-interactive
+                    className={cn(
+                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                      loadedOriginal === visibleItem.image.src
+                        ? 'opacity-100'
+                        : 'opacity-0',
+                    )}
+                  />
+                )}
+            </div>
+          )}
+          <button
+            type="button"
+            data-lightbox-interactive
+            onClick={closeLightbox}
+            aria-label="关闭"
+            className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7 md:top-7"
+          >
+            <X />
+          </button>
+          <button
+            type="button"
+            data-lightbox-interactive
+            onClick={copyCurrentImageLink}
+            aria-label="复制当前作品链接"
+            className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
+          >
+            {copyStatus?.tone === 'default' && !copyStatus.leaving ? (
+              <Check aria-hidden="true" />
+            ) : (
+              <Link2 aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            data-lightbox-interactive
+            onClick={prev}
+            aria-label="上一张"
+            aria-keyshortcuts="ArrowLeft"
+            className="absolute left-[max(.75rem,env(safe-area-inset-left))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7"
+          >
+            <ChevronLeft />
+          </button>
+          <button
+            type="button"
+            data-lightbox-interactive
+            onClick={next}
+            aria-label="下一张"
+            aria-keyshortcuts="ArrowRight"
+            className="absolute right-[max(.75rem,env(safe-area-inset-right))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7"
+          >
+            <ChevronRight />
+          </button>
+          {active !== null && (
+            <div className="pointer-events-none absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end justify-between gap-5 md:inset-x-7">
+              <div className="min-w-0">
+                <p className="text-xs leading-6 tracking-[.05em] text-white/80">
+                  {displayedItems[active].image.caption}
+                </p>
+                {exifSummary(displayedItems[active].image) && (
+                  <p className="mt-0.5 truncate text-[11px] leading-5 tracking-[.03em] text-white/65">
+                    {exifSummary(displayedItems[active].image)}
+                  </p>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-3 text-xs tracking-[.08em] text-white/70">
+                {active !== visible && (
+                  <span className="text-[10px] text-white/55">加载中</span>
+                )}
+                <p aria-live="polite">
+                  {String(active + 1).padStart(2, '0')} /{' '}
+                  {String(displayedItems.length).padStart(2, '0')}
+                </p>
+              </div>
+            </div>
+          )}
+          <TemporaryStatus message={copyStatus} onDismiss={dismissStatus} />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+// Only gallery props and chapter navigation can re-render the photograph list.
+const GalleryContent = memo(function GalleryContent({
+  sections,
+  displayedItems,
+  chapterIntroductions,
+  preloadLightboxPreview,
+  showImage,
+}: {
+  sections: GallerySection[];
+  displayedItems: GalleryItem[];
+  chapterIntroductions?: Record<string, string>;
+  preloadLightboxPreview: (image: PortfolioImage) => Promise<void>;
+  showImage: (index: number, historyMode?: 'push' | 'replace') => void;
+}) {
+  // Development-only render counter for performance verification; removed in production.
+  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    console.count('portfolio:gallery-content-render');
+  }
+  const hasChapters = sections.some((section) => section.label);
+  const [activeChapter, setActiveChapter] = useState(0);
+  const [hasUsedChapterAnchor, setHasUsedChapterAnchor] = useState(false);
   useEffect(() => {
     if (!hasChapters) return;
     let settleTimer: number | undefined;
@@ -455,8 +723,6 @@ export function LightboxGallery({
       });
     }
   }, [activeChapter]);
-
-  const visibleItem = visible === null ? null : displayedItems[visible];
 
   return (
     <>
@@ -697,228 +963,6 @@ export function LightboxGallery({
           </section>
         ))}
       </div>
-      <Dialog
-        open={active !== null}
-        onOpenChange={(open) => !open && closeLightbox()}
-      >
-        <DialogContent
-          motion="fade"
-          showCloseButton={false}
-          overlayClassName="bg-black backdrop-blur-none"
-          style={{
-            display: 'block',
-            width: '100vw',
-            maxWidth: 'none',
-            height: '100svh',
-            maxHeight: 'none',
-          }}
-          onClick={(event) => {
-            const target = event.target;
-            if (
-              target instanceof Element &&
-              target.closest('[data-lightbox-interactive]')
-            ) {
-              return;
-            }
-            if (suppressBackdropClick.current) {
-              suppressBackdropClick.current = false;
-              return;
-            }
-            closeLightbox();
-          }}
-          onTouchStart={(event) => {
-            const touch = event.changedTouches[0];
-            touchStart.current = { x: touch.clientX, y: touch.clientY };
-            suppressBackdropClick.current = false;
-          }}
-          onTouchEnd={(event) => {
-            if (!touchStart.current) return;
-            const touch = event.changedTouches[0];
-            const deltaX = touch.clientX - touchStart.current.x;
-            const deltaY = touch.clientY - touchStart.current.y;
-            touchStart.current = null;
-            if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) {
-              return;
-            }
-            suppressBackdropClick.current = true;
-            if (deltaX > 0) prev();
-            else next();
-          }}
-          className="touch-pan-y gap-0 overflow-hidden rounded-none border-0 bg-black p-0 text-white ring-0 sm:max-w-none"
-        >
-          <DialogTitle className="sr-only">大图浏览</DialogTitle>
-          <DialogDescription className="sr-only">
-            使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接
-          </DialogDescription>
-          {active !== null && visibleItem && (
-            <div
-              className="relative h-full w-full"
-              aria-busy={
-                active !== visible ||
-                (loadedOriginal !== visibleItem.image.src &&
-                  failedOriginal !== visibleItem.image.src)
-              }
-            >
-              <p className="sr-only" aria-live="polite">
-                {active !== visible
-                  ? '正在加载下一幅作品'
-                  : failedOriginal === visibleItem.image.src
-                    ? '大图加载失败，当前显示高清预览'
-                    : loadedOriginal === visibleItem.image.src
-                      ? '大图加载完成'
-                      : '正在加载大图'}
-              </p>
-              <img
-                src={galleryPreviewSrc(visibleItem.image, 1200)}
-                width={visibleItem.image.width}
-                height={visibleItem.image.height}
-                alt={visibleItem.image.alt}
-                decoding="async"
-                fetchPriority="high"
-                data-lightbox-current
-                data-lightbox-interactive
-                className={cn(
-                  'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-150 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
-                  active === visible ? 'opacity-100' : 'opacity-60',
-                )}
-              />
-              {active === visible &&
-                detailRequest === visibleItem.image.src &&
-                failedDetail !== visibleItem.image.src && (
-                  <img
-                    key={`${visibleItem.image.src}-detail`}
-                    src={galleryPreviewSrc(visibleItem.image, 1800)}
-                    width={visibleItem.image.width}
-                    height={visibleItem.image.height}
-                    alt=""
-                    aria-hidden="true"
-                    decoding="async"
-                    fetchPriority="high"
-                    onLoad={(event) => {
-                      const src = visibleItem.image.src;
-                      void event.currentTarget
-                        .decode()
-                        .catch(() => undefined)
-                        .then(() => {
-                          if (activeIndex.current === visible) {
-                            setLoadedDetail(src);
-                          }
-                        });
-                    }}
-                    onError={() => setFailedDetail(visibleItem.image.src)}
-                    data-lightbox-interactive
-                    className={cn(
-                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-200 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
-                      loadedDetail === visibleItem.image.src
-                        ? 'opacity-100'
-                        : 'opacity-0',
-                    )}
-                  />
-                )}
-              {active === visible &&
-                loadedDetail === visibleItem.image.src &&
-                originalRequest === visibleItem.image.src &&
-                failedOriginal !== visibleItem.image.src && (
-                  <img
-                    key={visibleItem.image.src}
-                    src={galleryMaxSrc(visibleItem.image)}
-                    width={visibleItem.image.width}
-                    height={visibleItem.image.height}
-                    alt=""
-                    aria-hidden="true"
-                    decoding="async"
-                    fetchPriority="low"
-                    onLoad={(event) => {
-                      const src = visibleItem.image.src;
-                      void event.currentTarget
-                        .decode()
-                        .catch(() => undefined)
-                        .then(() => {
-                          if (activeIndex.current === visible) {
-                            setLoadedOriginal(src);
-                          }
-                        });
-                    }}
-                    onError={() => setFailedOriginal(visibleItem.image.src)}
-                    data-lightbox-interactive
-                    className={cn(
-                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
-                      loadedOriginal === visibleItem.image.src
-                        ? 'opacity-100'
-                        : 'opacity-0',
-                    )}
-                  />
-                )}
-            </div>
-          )}
-          <button
-            type="button"
-            data-lightbox-interactive
-            onClick={closeLightbox}
-            aria-label="关闭"
-            className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7 md:top-7"
-          >
-            <X />
-          </button>
-          <button
-            type="button"
-            data-lightbox-interactive
-            onClick={copyCurrentImageLink}
-            aria-label="复制当前作品链接"
-            className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
-          >
-            {copyStatus?.tone === 'default' && !copyStatus.leaving ? (
-              <Check aria-hidden="true" />
-            ) : (
-              <Link2 aria-hidden="true" />
-            )}
-          </button>
-          <button
-            type="button"
-            data-lightbox-interactive
-            onClick={prev}
-            aria-label="上一张"
-            aria-keyshortcuts="ArrowLeft"
-            className="absolute left-[max(.75rem,env(safe-area-inset-left))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7"
-          >
-            <ChevronLeft />
-          </button>
-          <button
-            type="button"
-            data-lightbox-interactive
-            onClick={next}
-            aria-label="下一张"
-            aria-keyshortcuts="ArrowRight"
-            className="absolute right-[max(.75rem,env(safe-area-inset-right))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7"
-          >
-            <ChevronRight />
-          </button>
-          {active !== null && (
-            <div className="pointer-events-none absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end justify-between gap-5 md:inset-x-7">
-              <div className="min-w-0">
-                <p className="text-xs leading-6 tracking-[.05em] text-white/80">
-                  {displayedItems[active].image.caption}
-                </p>
-                {exifSummary(displayedItems[active].image) && (
-                  <p className="mt-0.5 truncate text-[11px] leading-5 tracking-[.03em] text-white/65">
-                    {exifSummary(displayedItems[active].image)}
-                  </p>
-                )}
-              </div>
-              <div className="flex shrink-0 items-center gap-3 text-xs tracking-[.08em] text-white/70">
-                {active !== visible && (
-                  <span className="text-[10px] text-white/55">加载中</span>
-                )}
-                <p aria-live="polite">
-                  {String(active + 1).padStart(2, '0')} /{' '}
-                  {String(displayedItems.length).padStart(2, '0')}
-                </p>
-              </div>
-            </div>
-          )}
-          <TemporaryStatus message={copyStatus} onDismiss={dismissStatus} />
-        </DialogContent>
-      </Dialog>
     </>
   );
-}
+});

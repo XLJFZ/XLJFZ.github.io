@@ -427,7 +427,7 @@ git diff --check
 
 - 默认只发布到 GitHub Pages，站点为 https://xljfz.github.io/。配置以 [.github/workflows/pages.yml](../.github/workflows/pages.yml) 为准。
 - main 推送与 workflow_dispatch 触发；相同 pages 并发组的新运行会取消旧运行。跟踪目标完整 SHA，不能将取消或其他提交的成功算作本次结果。
-- 工作流顺序：检出、Node 22、npm ci、源资产检查、build、静态导出、产物资产检查、上传 _site、部署。权限保持 contents: read、pages: write、id-token: write。lint 与测试目前仍需本地执行。
+- 工作流顺序：检出、Node 22、npm ci、源资产检查、build、静态导出、产物资产检查、性能门禁、上传 _site、部署。权限保持 contents: read、pages: write、id-token: write。lint 与测试目前仍需本地执行。
 - 当前工作流使用 `actions/checkout@v7`、`actions/setup-node@v7`、`actions/configure-pages@v6`、`actions/upload-pages-artifact@v5`、`actions/deploy-pages@v5`；应用构建仍指定 Node 22，不能从 Action 的主版本推断应用 Node 版本。版本以 `.github/workflows/pages.yml` 为准，后续升级应同步本节并核对该提交的部署结果。
 - 推送前检查远端差异和工作区，保留双方修改；仅显式暂存本次文件。提交身份使用项目约定的 GitHub noreply 邮箱，不公开私人邮箱，不修改全局身份。
 - 明确得到发布授权后正常提交推送；工作区恢复、历史重写和强制推送遵守 §10.1。
@@ -526,3 +526,5 @@ git diff --check
 - 灯箱当前照片的清晰档不得等待邻图下载；邻图以低优先级准备，继续保留切换解码、最新请求优先、关闭安全和失败回退。
 - 画廊与章节状态由独立的记忆化组件持有；灯箱切换及清晰档加载不重新渲染照片列表。照片顺序、配对、深链接、键盘、触控与减少动态效果保持原有行为。
 - 性能结果区分导出字节、确定性渲染次数和浏览器耗时；不得从体积变化推断实际提速倍数。
+
+- 导出后运行 `npm run check:performance`：首页 HTML 上限 65000 字节、城市专题 125000 字节，并核对全部 18 个路由共享字体 CSS 及内容哈希。开发环境可通过控制台 `portfolio:gallery-content-render` 计数复核灯箱操作不增加照片列表渲染；该计数在生产构建移除。

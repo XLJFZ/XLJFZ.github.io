@@ -38,6 +38,7 @@ jobs:
       - run: npm run build
       - run: npm run export:github-pages
       - run: npm run check:assets -- --export
+      - run: npm run check:performance
 
       - uses: actions/configure-pages@v6
 
