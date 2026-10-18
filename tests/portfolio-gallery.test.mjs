@@ -111,8 +111,8 @@ test('long galleries expose editorial chapters without breaking orientation pair
   );
   assert.match(globals, /@supports \(content-visibility: auto\)/);
   assert.match(globals, /content-visibility:\s*auto/);
-  assert.match(globals, /contain-intrinsic-size:\s*auto 1200px/);
-  assert.match(globals, /contain-intrinsic-size:\s*auto 1800px/);
+  assert.match(globals, /contain-intrinsic-size:\s*none auto 1200px/);
+  assert.match(globals, /contain-intrinsic-size:\s*none auto 1800px/);
   for (const chapter of [
     '重庆',
     '东京',
@@ -641,4 +641,10 @@ test('Wulanbutong riders retain their verified source metadata and location', as
     record,
     /camera: 'Nikon Z7 II',[\s\S]*?focalLength: '160mm',[\s\S]*?aperture: 'f\/4\.8',[\s\S]*?shutterSpeed: '1\/500s',[\s\S]*?iso: 'ISO 110'/,
   );
+});
+
+test('gallery width is constrained across the desktop breakpoint, not just on phones', async () => {
+  const page = await readFile('src/app/series/[slug]/page.tsx', 'utf8');
+  assert.match(page, /mx-auto w-full min-w-0 max-w-\[1480px\] px-5/);
+  assert.doesNotMatch(page, /max-md:w-full max-md:min-w-0/);
 });

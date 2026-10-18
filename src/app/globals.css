@@ -504,7 +504,7 @@ a {
 @supports (content-visibility: auto) {
   .gallery-chapter-deferred {
     content-visibility: auto;
-    contain-intrinsic-size: auto 1200px;
+    contain-intrinsic-size: none auto 1200px;
   }
 
   @media (max-width: 767px) {
@@ -516,7 +516,7 @@ a {
 
   @media (min-width: 768px) {
     .gallery-chapter-deferred {
-      contain-intrinsic-size: auto 1800px;
+      contain-intrinsic-size: none auto 1800px;
     }
   }
 }
