@@ -37,7 +37,7 @@ export default function Home() {
               <h1 className="text-[clamp(2.5rem,5.6vw,5.6rem)] font-medium leading-[1.12] tracking-[-0.035em]">
                 风从群山来
               </h1>
-              <p className="mt-5 max-w-md text-sm font-light leading-7 text-white/80">
+              <p className="mt-5 max-w-md text-[15px] font-normal leading-7 text-white/85 md:text-base md:leading-8">
                 在抵达与离开之间，记录光线、天气和地景短暂相遇的瞬间。
               </p>
             </div>
@@ -83,12 +83,12 @@ export default function Home() {
           <p className="text-xs leading-5 tracking-[0.16em] text-foreground/65">
             精选系列 · 01—{String(series.length).padStart(2, '0')}
           </p>
-          <p className="max-w-xl text-lg font-light leading-8 tracking-[-0.02em] md:justify-self-end md:text-xl md:leading-9">
+          <p className="max-w-xl text-lg font-normal leading-8 tracking-[-0.02em] md:justify-self-end md:text-xl md:leading-9">
             在城市的秩序与自然的偶然之间，寻找安静、准确而有余韵的画面。
           </p>
         </div>
 
-        <div className="space-y-20 md:space-y-28">
+        <div className="space-y-14 md:space-y-20">
           {series.map((item, index) => {
             return (
               <a
@@ -122,7 +122,7 @@ export default function Home() {
                 <div
                   className={`home-series-copy ${index % 2 ? 'md:order-1' : ''}`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-foreground/10 pt-3 text-xs leading-5 tracking-[.08em] text-foreground/65">
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-foreground/10 pt-3 text-xs leading-5 tracking-[.08em] text-foreground/70">
                     <span className="whitespace-nowrap">
                       {String(index + 1).padStart(2, '0')} · {item.category}
                       {' · '}
@@ -133,16 +133,10 @@ export default function Home() {
                   <h2 className="mt-5 text-4xl font-medium leading-tight tracking-[-.05em] md:text-[clamp(1.5rem,3vw,3rem)]">
                     {item.title}
                   </h2>
-                  <p className="mt-3 text-sm leading-6 tracking-[.05em] text-foreground/65">
+                  <p className="mt-3 text-sm leading-6 tracking-[.05em] text-foreground/70">
                     {item.englishTitle}
                   </p>
-                  <p className="mt-6 max-w-sm text-sm font-light leading-7 text-foreground/70">
-                    {item.statement}
-                  </p>
-                  <p className="mt-4 text-xs leading-6 tracking-[.05em] text-foreground/65">
-                    {item.location}
-                  </p>
-                  <span className="mt-7 inline-flex items-center gap-4 text-xs tracking-[.1em]">
+                  <span className="mt-6 inline-flex items-center gap-4 text-[13px] tracking-[.1em]">
                     进入系列{' '}
                     <span className="transition-transform group-hover:translate-x-1">
                       →
@@ -152,6 +146,20 @@ export default function Home() {
               </a>
             );
           })}
+        </div>
+        <div className="mt-12 flex justify-end border-t border-foreground/10 pt-4 md:mt-16">
+          <a
+            href="/series/"
+            className="group inline-flex min-h-11 items-center gap-5 text-sm tracking-[.08em] text-foreground/80 transition-colors hover:text-foreground"
+          >
+            查看全部作品
+            <span
+              aria-hidden="true"
+              className="transition-transform group-hover:translate-x-1 motion-reduce:transform-none"
+            >
+              →
+            </span>
+          </a>
         </div>
       </section>
 
@@ -175,7 +183,7 @@ export default function Home() {
             </p>
           </div>
           <div className="w-full max-w-lg md:justify-self-end">
-            <p className="text-sm font-light leading-7 text-white/75 md:text-base md:leading-8">
+            <p className="text-sm font-normal leading-7 text-white/75 md:text-base md:leading-8">
               若你有一个等待被看见的地点，欢迎来信。聊聊你的想法，让我们从一次交流开始。
             </p>
             <a
