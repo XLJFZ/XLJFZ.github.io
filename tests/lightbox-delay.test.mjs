@@ -7,7 +7,9 @@ import ts from 'typescript';
 // Execute the production callbacks with controlled decode promises. This is a
 // navigation unit test, not browser rendering or real-network emulation.
 async function harness() {
-  const source = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+  const source = (
+    await readFile('src/components/lightbox-gallery.tsx', 'utf8')
+  ).replaceAll('\r\n', '\n');
   const begin = source.indexOf('  const preloadLightboxPreview = useCallback(');
   const end = source.indexOf('  const prev = useCallback(', begin);
   assert.ok(begin >= 0 && end > begin);
@@ -23,6 +25,7 @@ async function harness() {
     setVisible: (value) => {
       state.visible = value;
     },
+    setShowOverview: () => {},
     activeIndex: { current: null },
     requestedIndex: { current: null },
     navigationToken: { current: 0 },
@@ -121,7 +124,9 @@ async function loadingHarness({
   count = 3,
   loadedDetail = null,
 } = {}) {
-  const source = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+  const source = (
+    await readFile('src/components/lightbox-gallery.tsx', 'utf8')
+  ).replaceAll('\r\n', '\n');
   const begin = source.indexOf('  // Current detail never waits');
   const end = source.indexOf(
     '  useEffect(() => {\n    if (active === null) return;\n    const src = displayedItems[active].image.src;\n    let idleId',

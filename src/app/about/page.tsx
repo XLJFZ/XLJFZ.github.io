@@ -61,7 +61,7 @@ export default function About() {
               <br />
               而是持续观看世界的方式。
             </p>
-            <div className="mt-6 max-w-xl space-y-4 text-sm font-light leading-7 text-foreground/75 lg:text-base lg:leading-8">
+            <div className="mt-6 max-w-xl space-y-4 text-[15px] font-normal leading-7 text-foreground/80 lg:text-base lg:leading-8">
               <p>
                 我是一名关注城市建筑与自然地景的摄影师，现就读于西安交通大学，在学习与行走之间记录光线、空间与时间。
               </p>

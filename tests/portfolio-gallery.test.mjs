@@ -104,6 +104,9 @@ test('long galleries expose editorial chapters without breaking orientation pair
     /第 \$\{sectionIndex \+ 1\} 章，共 \$\{sections\.length\} 章/,
   );
   assert.match(gallery, /track\.scrollBy\(/);
+  assert.match(gallery, /章节较多时可横向滑动选择/);
+  assert.match(gallery, /after:bg-foreground/);
+  assert.match(gallery, /from-background to-transparent md:hidden/);
   assert.doesNotMatch(gallery, /currentLink\??\.scrollIntoView\(/);
   assert.match(
     gallery,
@@ -154,6 +157,31 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /target\.closest\('\[data-lightbox-interactive\]'\)/);
   assert.match(gallery, /data-lightbox-interactive/);
   assert.match(gallery, /max-h-\[calc\(100%-5rem\)\]/);
+});
+
+test('lightbox overview is on-demand, accessible and isolated from swipe navigation', async () => {
+  const gallery = await readFile('src/components/lightbox-gallery.tsx', 'utf8');
+
+  assert.match(gallery, /function LightboxOverview/);
+  assert.match(gallery, /active !== null && showOverview/);
+  assert.match(gallery, /aria-label="作品总览"/);
+  assert.match(gallery, /aria-expanded={showOverview}/);
+  assert.match(
+    gallery,
+    /aria-current={active === index \? 'true' : undefined}/,
+  );
+  assert.match(gallery, /onSelect={showImage}/);
+  assert.match(gallery, /loading="lazy"/);
+  assert.match(gallery, /fetchPriority="low"/);
+  assert.match(
+    gallery,
+    /onTouchStart={\(event\) => event\.stopPropagation\(\)}/,
+  );
+  assert.match(gallery, /onTouchEnd={\(event\) => event\.stopPropagation\(\)}/);
+  assert.match(
+    gallery,
+    /showOverview \? 'bottom-36 md:bottom-48' : 'bottom-0'/,
+  );
 });
 
 test('lightbox image URLs are shareable and browser back closes the viewer', async () => {

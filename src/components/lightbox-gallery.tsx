@@ -132,6 +132,79 @@ function buildGallerySections(images: PortfolioImage[]): GallerySection[] {
   }));
 }
 
+function LightboxOverview({
+  items,
+  active,
+  onSelect,
+}: {
+  items: GalleryItem[];
+  active: number;
+  onSelect: (index: number) => void;
+}) {
+  const trackRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    const current = track?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!track || !current) return;
+    const currentBounds = current.getBoundingClientRect();
+    const trackBounds = track.getBoundingClientRect();
+    if (
+      currentBounds.left < trackBounds.left ||
+      currentBounds.right > trackBounds.right
+    ) {
+      track.scrollBy({
+        left:
+          currentBounds.left -
+          trackBounds.left -
+          (trackBounds.width - currentBounds.width) / 2,
+        behavior: 'instant',
+      });
+    }
+  }, [active]);
+
+  return (
+    <nav
+      id="lightbox-overview"
+      ref={trackRef}
+      aria-label="作品总览"
+      data-lightbox-interactive
+      onTouchStart={(event) => event.stopPropagation()}
+      onTouchEnd={(event) => event.stopPropagation()}
+      className="absolute inset-x-0 bottom-20 flex h-16 touch-pan-x items-center overflow-x-auto border-t border-white/10 bg-black/85 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:bottom-[5.5rem] md:h-20"
+    >
+      <div className="mx-auto flex w-max gap-2 px-4 md:px-7">
+        {items.map(({ image }, index) => (
+          <button
+            key={image.src}
+            type="button"
+            aria-label={`查看第 ${index + 1} 幅，共 ${items.length} 幅：${image.alt}`}
+            aria-current={active === index ? 'true' : undefined}
+            onClick={() => onSelect(index)}
+            className={cn(
+              'h-12 w-[4.5rem] shrink-0 overflow-hidden border bg-neutral-900 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:h-14 md:w-24',
+              active === index
+                ? 'border-white opacity-100'
+                : 'border-white/15 opacity-55 hover:opacity-90',
+            )}
+          >
+            <img
+              src={galleryPreviewSrc(image, 1200)}
+              width={image.width}
+              height={image.height}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              className="h-full w-full object-cover"
+            />
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 export function LightboxGallery({
   images,
   chapterIntroductions,
@@ -146,6 +219,7 @@ export function LightboxGallery({
   );
   const [active, setActive] = useState<number | null>(null);
   const [visible, setVisible] = useState<number | null>(null);
+  const [showOverview, setShowOverview] = useState(false);
   const [detailRequest, setDetailRequest] = useState<string | null>(null);
   const [loadedDetail, setLoadedDetail] = useState<string | null>(null);
   const [failedDetail, setFailedDetail] = useState<string | null>(null);
@@ -246,6 +320,7 @@ export function LightboxGallery({
     activeIndex.current = null;
     requestedIndex.current = null;
     setVisible(null);
+    setShowOverview(false);
     if (window.history.state?.portfolioLightbox) {
       window.history.back();
       return;
@@ -293,6 +368,7 @@ export function LightboxGallery({
         requestedIndex.current = null;
         setVisible(null);
         setActive(null);
+        setShowOverview(false);
         return;
       }
       const index = displayedItems.findIndex(
@@ -454,11 +530,14 @@ export function LightboxGallery({
         >
           <DialogTitle className="sr-only">大图浏览</DialogTitle>
           <DialogDescription className="sr-only">
-            使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接
+            使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接；总览按钮可展开缩略图并直接选择作品
           </DialogDescription>
           {active !== null && visibleItem && (
             <div
-              className="relative h-full w-full"
+              className={cn(
+                'absolute inset-x-0 top-0',
+                showOverview ? 'bottom-36 md:bottom-48' : 'bottom-0',
+              )}
               aria-busy={
                 active !== visible ||
                 (loadedOriginal !== visibleItem.image.src &&
@@ -579,6 +658,24 @@ export function LightboxGallery({
               <Link2 aria-hidden="true" />
             )}
           </button>
+          {active !== null && (
+            <button
+              type="button"
+              data-lightbox-interactive
+              onClick={() => setShowOverview((current) => !current)}
+              aria-label={showOverview ? '收起作品总览' : '展开作品总览'}
+              aria-expanded={showOverview}
+              aria-controls="lightbox-overview"
+              className={cn(
+                'absolute left-1/2 top-[max(1rem,env(safe-area-inset-top))] inline-flex min-h-11 -translate-x-1/2 items-center justify-center border px-4 text-xs tracking-[.08em] backdrop-blur transition-colors md:top-7',
+                showOverview
+                  ? 'border-white/55 bg-white/15 text-white'
+                  : 'border-white/20 bg-black/30 text-white/75 hover:text-white',
+              )}
+            >
+              总览
+            </button>
+          )}
           <button
             type="button"
             data-lightbox-interactive
@@ -599,6 +696,13 @@ export function LightboxGallery({
           >
             <ChevronRight />
           </button>
+          {active !== null && showOverview && (
+            <LightboxOverview
+              items={displayedItems}
+              active={active}
+              onSelect={showImage}
+            />
+          )}
           {active !== null && (
             <div className="pointer-events-none absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end justify-between gap-5 md:inset-x-7">
               <div className="min-w-0">
@@ -732,43 +836,52 @@ const GalleryContent = memo(function GalleryContent({
           className="gallery-chapter-nav sticky z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-0.5 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
         >
           <div className="mx-auto flex max-w-[1480px] items-center gap-4 sm:gap-6">
-            <span className="shrink-0 text-xs tracking-[.08em] text-foreground/65 tabular-nums">
+            <span className="shrink-0 text-xs tracking-[.08em] text-foreground/70 tabular-nums">
               章节 {String(activeChapter + 1).padStart(2, '0')}/
               {String(sections.length).padStart(2, '0')}
             </span>
-            <div className="flex min-w-0 gap-4 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6 md:gap-8">
-              {sections.map(
-                (section, sectionIndex) =>
-                  section.label && (
-                    <a
-                      key={section.label}
-                      href={`#chapter-${sectionIndex + 1}`}
-                      aria-label={`第 ${sectionIndex + 1} 章，共 ${sections.length} 章：${section.label}`}
-                      aria-current={
-                        activeChapter === sectionIndex ? 'location' : undefined
-                      }
-                      onClick={() => setActiveChapter(sectionIndex)}
-                      className={cn(
-                        'site-nav-link group flex min-h-11 shrink-0 items-center gap-2 text-xs tracking-[.08em] transition-colors hover:text-foreground',
-                        activeChapter === sectionIndex
-                          ? 'text-foreground'
-                          : 'text-foreground/65',
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          'text-xs tabular-nums transition-colors group-hover:text-foreground/75',
+            <span className="sr-only">章节较多时可横向滑动选择</span>
+            <div className="relative min-w-0 flex-1">
+              <div className="flex min-w-0 gap-4 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6 md:gap-8">
+                {sections.map(
+                  (section, sectionIndex) =>
+                    section.label && (
+                      <a
+                        key={section.label}
+                        href={`#chapter-${sectionIndex + 1}`}
+                        aria-label={`第 ${sectionIndex + 1} 章，共 ${sections.length} 章：${section.label}`}
+                        aria-current={
                           activeChapter === sectionIndex
-                            ? 'text-foreground/75'
-                            : 'text-foreground/55',
+                            ? 'location'
+                            : undefined
+                        }
+                        onClick={() => setActiveChapter(sectionIndex)}
+                        className={cn(
+                          'site-nav-link group relative flex min-h-11 shrink-0 items-center gap-2 text-[13px] tracking-[.08em] transition-colors hover:text-foreground',
+                          activeChapter === sectionIndex
+                            ? 'font-medium text-foreground after:absolute after:inset-x-0 after:bottom-1 after:h-px after:bg-foreground'
+                            : 'text-foreground/65',
                         )}
                       >
-                        {String(sectionIndex + 1).padStart(2, '0')}
-                      </span>
-                      {section.label}
-                    </a>
-                  ),
-              )}
+                        <span
+                          className={cn(
+                            'text-xs tabular-nums transition-colors group-hover:text-foreground/75',
+                            activeChapter === sectionIndex
+                              ? 'text-foreground/75'
+                              : 'text-foreground/55',
+                          )}
+                        >
+                          {String(sectionIndex + 1).padStart(2, '0')}
+                        </span>
+                        {section.label}
+                      </a>
+                    ),
+                )}
+              </div>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden"
+              />
             </div>
           </div>
           <span
@@ -810,7 +923,7 @@ const GalleryContent = memo(function GalleryContent({
                   </h2>
                 </div>
                 {chapterIntroductions?.[section.label] && (
-                  <p className="max-w-[34em] text-sm font-light leading-7 text-foreground/75 md:pt-8">
+                  <p className="max-w-[34em] text-sm font-normal leading-7 text-foreground/80 md:pt-8">
                     {chapterIntroductions[section.label]}
                   </p>
                 )}

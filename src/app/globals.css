@@ -683,7 +683,11 @@ a {
     [class~='text-white/38'],
     [class~='text-white/40'],
     [class~='text-white/42'],
-    [class~='text-white/45']
+    [class~='text-white/45'],
+    [class~='text-white/48'],
+    [class~='text-white/50'],
+    [class~='text-white/52'],
+    [class~='text-white/55']
   ) {
   color: rgb(255 255 255 / 0.62);
 }
