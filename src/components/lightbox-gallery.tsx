@@ -562,8 +562,9 @@ export function LightboxGallery({
             data-lightbox-interactive
             onClick={closeLightbox}
             aria-label="关闭"
-            className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7 md:top-7"
+            className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] liquid-glass-button grid size-11 place-items-center rounded-full md:right-7 md:top-7"
           >
+            <span className="liquid-glass-surface" aria-hidden="true" />
             <X />
           </button>
           <button
@@ -571,8 +572,9 @@ export function LightboxGallery({
             data-lightbox-interactive
             onClick={copyCurrentImageLink}
             aria-label="复制当前作品链接"
-            className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7 md:top-7"
+            className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] liquid-glass-button grid size-11 place-items-center rounded-full md:left-7 md:top-7"
           >
+            <span className="liquid-glass-surface" aria-hidden="true" />
             {copyStatus?.tone === 'default' && !copyStatus.leaving ? (
               <Check aria-hidden="true" />
             ) : (
@@ -585,8 +587,9 @@ export function LightboxGallery({
             onClick={prev}
             aria-label="上一张"
             aria-keyshortcuts="ArrowLeft"
-            className="absolute left-[max(.75rem,env(safe-area-inset-left))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:left-7"
+            className="absolute left-[max(.75rem,env(safe-area-inset-left))] top-1/2 liquid-glass-button grid size-11 -translate-y-1/2 place-items-center rounded-full md:left-7"
           >
+            <span className="liquid-glass-surface" aria-hidden="true" />
             <ChevronLeft />
           </button>
           <button
@@ -595,8 +598,9 @@ export function LightboxGallery({
             onClick={next}
             aria-label="下一张"
             aria-keyshortcuts="ArrowRight"
-            className="absolute right-[max(.75rem,env(safe-area-inset-right))] top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/30 backdrop-blur transition-colors hover:bg-black/55 md:right-7"
+            className="absolute right-[max(.75rem,env(safe-area-inset-right))] top-1/2 liquid-glass-button grid size-11 -translate-y-1/2 place-items-center rounded-full md:right-7"
           >
+            <span className="liquid-glass-surface" aria-hidden="true" />
             <ChevronRight />
           </button>
           {active !== null && (

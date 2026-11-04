@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Noto_Sans_SC } from 'next/font/google';
 import './globals.css';
+import { LiquidGlassFilters } from '@/components/liquid-glass-filters';
 
 const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });
 const chinese = Noto_Sans_SC({
@@ -71,6 +72,7 @@ export default function RootLayout({
         >
           跳至正文
         </a>
+        <LiquidGlassFilters />
         {children}
         <script
           type="application/ld+json"
