@@ -21,7 +21,7 @@ export default function SeriesIndex() {
           <h1 className="text-[clamp(2.8rem,6.5vw,5.8rem)] font-medium leading-none tracking-[-0.055em]">
             作品系列
           </h1>
-          <p className="max-w-md text-sm font-light leading-7 text-foreground/70 md:justify-self-end">
+          <p className="max-w-md text-[15px] font-normal leading-7 text-foreground/80 md:justify-self-end md:text-base md:leading-8">
             从城市街巷到高原腹地，在建筑、地景与日常之间观察光线和时间。
           </p>
         </div>

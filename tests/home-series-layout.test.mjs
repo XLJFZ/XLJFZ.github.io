@@ -16,6 +16,15 @@ test('alternating home series rows keep the image in the wider column', async ()
   );
 });
 
+test('home series cards stay concise and link to the complete index', async () => {
+  const source = await readFile('src/app/page.tsx', 'utf8');
+
+  assert.doesNotMatch(source, /item\.statement/);
+  assert.doesNotMatch(source, /item\.location/);
+  assert.match(source, /查看全部作品/);
+  assert.match(source, /space-y-14 md:space-y-20/);
+});
+
 test('the homepage hero uses the user-confirmed Deqin location label', async () => {
   const source = await readFile('src/app/page.tsx', 'utf8');
 

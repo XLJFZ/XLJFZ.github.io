@@ -17,7 +17,7 @@ export default function NotFound() {
             <h1 className="text-[clamp(2.7rem,7vw,6.5rem)] font-medium leading-[.92] tracking-[-.055em]">
               这一帧不在这里
             </h1>
-            <p className="mt-5 max-w-lg text-sm font-light leading-7 text-foreground/55">
+            <p className="mt-5 max-w-lg text-[15px] font-normal leading-7 text-foreground/75 md:text-base md:leading-8">
               页面可能已经移动，或链接有误。可以回到作品目录，继续浏览完整专题。
             </p>
           </div>
