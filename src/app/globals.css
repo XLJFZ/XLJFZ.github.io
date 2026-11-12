@@ -83,7 +83,7 @@ html {
   height: var(--chapter-nav-height);
 }
 .gallery-chapter-track {
-  touch-action: pan-x pan-y;
+  touch-action: manipulation;
   cursor: grab;
   user-select: none;
 }
@@ -91,7 +91,7 @@ html {
   cursor: grabbing;
 }
 .gallery-chapter-track .site-nav-link {
-  touch-action: pan-x pan-y;
+  touch-action: manipulation;
 }
 .gallery-chapter {
   scroll-margin-top: calc(
