@@ -758,6 +758,66 @@ const GalleryContent = memo(function GalleryContent({
   const hasChapters = sections.some((section) => section.label);
   const [activeChapter, setActiveChapter] = useState(0);
   const [hasUsedChapterAnchor, setHasUsedChapterAnchor] = useState(false);
+  const chapterTrack = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const track = chapterTrack.current;
+    if (!track) return;
+    let drag: {
+      pointer: number;
+      x: number;
+      left: number;
+      moved: boolean;
+    } | null = null;
+    let suppressClick = false;
+    const down = (event: PointerEvent) => {
+      // Touch and trackpads retain native scrolling; add dragging for a mouse.
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      suppressClick = false;
+      drag = {
+        pointer: event.pointerId,
+        x: event.clientX,
+        left: track.scrollLeft,
+        moved: false,
+      };
+    };
+    const move = (event: PointerEvent) => {
+      if (!drag || event.pointerId !== drag.pointer) return;
+      const distance = event.clientX - drag.x;
+      if (!drag.moved && Math.abs(distance) < 5) return;
+      if (!drag.moved) {
+        drag.moved = true;
+        track.setPointerCapture(event.pointerId);
+        track.dataset.dragging = 'true';
+      }
+      event.preventDefault();
+      track.scrollLeft = drag.left - distance;
+    };
+    const up = () => {
+      suppressClick = drag?.moved ?? false;
+      if (drag && track.hasPointerCapture(drag.pointer))
+        track.releasePointerCapture(drag.pointer);
+      drag = null;
+      delete track.dataset.dragging;
+    };
+    const click = (event: MouseEvent) => {
+      if (!suppressClick || event.detail === 0) return;
+      suppressClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    track.addEventListener('pointerdown', down);
+    track.addEventListener('pointermove', move);
+    track.addEventListener('click', click, true);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    return () => {
+      track.removeEventListener('pointerdown', down);
+      track.removeEventListener('pointermove', move);
+      track.removeEventListener('click', click, true);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+  }, [hasChapters]);
   useEffect(() => {
     if (!hasChapters) return;
     let settleTimer: number | undefined;
@@ -809,27 +869,33 @@ const GalleryContent = memo(function GalleryContent({
   }, [hasChapters]);
 
   useEffect(() => {
-    const currentLink = document.querySelector(
-      'nav[aria-label="专题章节"] [aria-current="location"]',
-    );
-    if (!(currentLink instanceof HTMLElement)) return;
-    const track = currentLink.parentElement;
+    const track = chapterTrack.current;
     if (!track) return;
-    const linkBounds = currentLink.getBoundingClientRect();
-    const trackBounds = track.getBoundingClientRect();
-    if (
-      linkBounds.left < trackBounds.left ||
-      linkBounds.right > trackBounds.right
-    ) {
-      // Only move the chapter strip; scrollIntoView can also move the page.
-      track.scrollBy({
-        left:
-          linkBounds.left -
-          trackBounds.left -
-          (trackBounds.width - linkBounds.width) / 2,
-        behavior: 'instant',
-      });
-    }
+    const revealActiveChapter = () => {
+      const currentLink = document.querySelector(
+        'nav[aria-label="专题章节"] [aria-current="location"]',
+      );
+      if (!(currentLink instanceof HTMLElement)) return;
+      const linkBounds = currentLink.getBoundingClientRect();
+      const trackBounds = track.getBoundingClientRect();
+      if (
+        linkBounds.left < trackBounds.left ||
+        linkBounds.right > trackBounds.right
+      ) {
+        // Only move the chapter strip; scrollIntoView can also move the page.
+        track.scrollBy({
+          left:
+            linkBounds.left -
+            trackBounds.left -
+            (trackBounds.width - linkBounds.width) / 2,
+          behavior: 'instant',
+        });
+      }
+    };
+    revealActiveChapter();
+    const observer = new ResizeObserver(revealActiveChapter);
+    observer.observe(track);
+    return () => observer.disconnect();
   }, [activeChapter]);
 
   return (
@@ -837,7 +903,7 @@ const GalleryContent = memo(function GalleryContent({
       {hasChapters && (
         <nav
           aria-label="专题章节"
-          className="gallery-chapter-nav sticky z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background/90 px-5 py-0.5 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
+          className="gallery-chapter-nav sticky z-10 -mx-5 mb-16 border-y border-foreground/10 bg-background px-5 py-0.5 backdrop-blur-md sm:-mx-8 sm:px-8 md:-mx-10 md:mb-24 md:px-10 lg:-mx-14 lg:px-14 xl:-mx-16 xl:px-16"
         >
           <div className="mx-auto flex max-w-[1480px] items-center gap-4 sm:gap-6">
             <span className="shrink-0 text-xs tracking-[.08em] text-foreground/70 tabular-nums">
@@ -846,7 +912,10 @@ const GalleryContent = memo(function GalleryContent({
             </span>
             <span className="sr-only">章节较多时可横向滑动选择</span>
             <div className="relative min-w-0 flex-1">
-              <div className="flex min-w-0 gap-4 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6 md:gap-8">
+              <div
+                ref={chapterTrack}
+                className="gallery-chapter-track flex min-w-0 gap-4 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6 md:gap-8"
+              >
                 {sections.map(
                   (section, sectionIndex) =>
                     section.label && (

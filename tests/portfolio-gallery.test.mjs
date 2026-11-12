@@ -215,7 +215,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/65/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 54);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 65);
 
   const chongqingNight = portfolioRecord(
     source,

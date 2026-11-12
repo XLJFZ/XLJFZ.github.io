@@ -78,8 +78,20 @@ html {
   }
 }
 .gallery-chapter-nav {
-  top: var(--site-header-height);
+  /* Overlap the header border to avoid a fractional-pixel seam at browser zoom. */
+  top: calc(var(--site-header-height) - 1px);
   height: var(--chapter-nav-height);
+}
+.gallery-chapter-track {
+  touch-action: pan-x pan-y;
+  cursor: grab;
+  user-select: none;
+}
+.gallery-chapter-track[data-dragging] {
+  cursor: grabbing;
+}
+.gallery-chapter-track .site-nav-link {
+  touch-action: pan-x pan-y;
 }
 .gallery-chapter {
   scroll-margin-top: calc(
