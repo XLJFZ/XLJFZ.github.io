@@ -116,7 +116,10 @@ docs/SITE-GUIDELINES.md       网站维护规范 / Site maintenance guidelines
 
 ## 版权声明 / Copyright
 
-网站中的摄影作品、文字与视觉内容归 XLJFZ 所有。未经许可，不得复制、转载、修改或用于商业用途。
+Copyright (c) 2026 XLJFZ。保留所有权利。本仓库不采用开源许可证。
 
-All photographs, texts, and visual materials on this website belong to XLJFZ.  
-No reproduction, redistribution, modification, or commercial use is permitted without permission.
+本仓库的原创代码、脚本、文档、文字、摄影作品及其他原创资产，未经相应权利人事先书面许可，不得复制、修改、分发或用于其他项目，无论是否用于商业用途。第三方材料仍适用各自的许可证；法律规定的权利、GitHub 服务条款要求的权利和另行有效授予的许可不受本声明限制。
+
+Copyright (c) 2026 XLJFZ. All rights reserved. This repository is not open source. Original code and content may not be copied, modified, distributed, or reused without prior written permission, whether for commercial or non-commercial purposes. Third-party materials retain their respective licenses. Statutory rights, rights required by GitHub's Terms of Service, and separately granted valid permissions are unaffected.
+
+完整条款见 [LICENSE](LICENSE)。授权申请请使用[关于页面](https://xljfz.github.io/about/)中的联系方式，并说明所需材料和用途。
