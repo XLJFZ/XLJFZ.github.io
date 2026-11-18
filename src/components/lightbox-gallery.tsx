@@ -388,6 +388,7 @@ export function LightboxGallery({
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (active === null) return;
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
         prev();
