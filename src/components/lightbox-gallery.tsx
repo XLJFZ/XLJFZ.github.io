@@ -396,6 +396,14 @@ export function LightboxGallery({
         event.preventDefault();
         next();
       }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        prev();
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        next();
+      }
     };
     // The dialog focus manager handles arrow keys during bubbling.
     window.addEventListener('keydown', onKey, true);
@@ -530,7 +538,7 @@ export function LightboxGallery({
         >
           <DialogTitle className="sr-only">大图浏览</DialogTitle>
           <DialogDescription className="sr-only">
-            使用左右箭头键或左右滑动切换照片，左上角按钮可复制当前作品链接；总览按钮可展开缩略图并直接选择作品
+            使用方向键或左右滑动切换照片，左上角按钮可复制当前作品链接；总览按钮可展开缩略图并直接选择作品
           </DialogDescription>
           {active !== null && visibleItem && (
             <div

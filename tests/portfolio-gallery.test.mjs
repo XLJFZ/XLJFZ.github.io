@@ -147,6 +147,8 @@ test('the lightbox supports touch navigation and adjacent-image preloading', asy
   assert.match(gallery, /env\(safe-area-inset-top\)/);
   assert.match(gallery, /aria-keyshortcuts="ArrowLeft"/);
   assert.match(gallery, /aria-keyshortcuts="ArrowRight"/);
+  assert.match(gallery, /event\.key === 'ArrowUp'/);
+  assert.match(gallery, /event\.key === 'ArrowDown'/);
   assert.match(gallery, /width: '100vw'/);
   assert.match(gallery, /height: '100svh'/);
   assert.match(gallery, /display: 'block'/);
