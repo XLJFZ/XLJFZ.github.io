@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import sharp from 'sharp';
 import {
   analyzePixels,
   findEmbeddedJpeg,
@@ -42,13 +43,12 @@ test('groups exact hashes separately and near duplicates by perceptual distance'
   );
 });
 
-test('accepts common RAW formats and finds an embedded JPEG preview', () => {
+test('accepts common RAW formats and finds an embedded JPEG preview', async () => {
   for (const extension of ['dng', 'nef', 'arw', 'cr2', 'raf', '3fr', 'fff'])
     assert.equal(isQualityPhoto({ name: `raw.${extension}`, type: '' }), true);
-  const source = Uint8Array.from([
-    1, 2, 0xff, 0xd8, 8, 9, 0xff, 0xd9, 3,
-  ]).buffer;
-  assert.deepEqual(findEmbeddedJpeg(source), [2, 8]);
+  const jpeg = await makeJpeg(24);
+  const source = Uint8Array.from(Buffer.concat([Buffer.of(1, 2), jpeg, Buffer.of(3)])).buffer;
+  assert.deepEqual(findEmbeddedJpeg(source), [2, 2 + jpeg.length]);
 });
 
 test('page keeps analysis local, sequential and evidence bounded', async () => {
@@ -77,10 +77,29 @@ test('compares perceptual hashes when both exact hashes are empty', () => {
   });
 });
 
-test('returns the full main JPEG when its APP1 contains a thumbnail', () => {
-  const source = Uint8Array.from([
-    0, 0xff, 0xd8, 0xff, 0xe1, 0, 9, 0xff, 0xd8, 1, 2, 3, 0xff, 0xd9,
-    4, 5, 6, 0xff, 0xd9, 0,
-  ]).buffer;
-  assert.deepEqual(findEmbeddedJpeg(source), [1, 19]);
+function makeJpeg(width) {
+  return sharp({ create: { width, height: width, channels: 3, background: 'white' } })
+    .jpeg({ progressive: true })
+    .toBuffer();
+}
+
+function addAppSegment(jpeg, marker, payload) {
+  const header = Buffer.of(0xff, marker, 0, 0);
+  header.writeUInt16BE(payload.length + 2, 2);
+  return Buffer.concat([jpeg.subarray(0, 2), header, payload, jpeg.subarray(2)]);
+}
+
+test('returns the full main JPEG when its APP1 contains a thumbnail', async () => {
+  const jpeg = addAppSegment(await makeJpeg(24), 0xe1, await makeJpeg(8));
+  const source = Uint8Array.from(Buffer.concat([Buffer.of(0), jpeg, Buffer.of(0)])).buffer;
+  assert.deepEqual(findEmbeddedJpeg(source), [1, 1 + jpeg.length]);
+});
+
+test('ignores marker-like APP payload bytes and extracts a decodable preview', async () => {
+  const jpeg = addAppSegment(await makeJpeg(24), 0xe2, Buffer.of(1, 0xff, 0xd9, 2));
+  const source = Uint8Array.from(jpeg).buffer;
+  const span = findEmbeddedJpeg(source);
+  assert.deepEqual(span, [0, jpeg.length]);
+  const { info } = await sharp(Buffer.from(source.slice(...span))).raw().toBuffer({ resolveWithObject: true });
+  assert.equal(info.width, 24);
 });

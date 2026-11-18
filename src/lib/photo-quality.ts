@@ -150,19 +150,43 @@ export function isQualityPhoto(file: Pick<File, 'name' | 'type'>) {
   );
 }
 
+function jpegEnd(bytes: Uint8Array, offset: number) {
+  let inScan = false;
+  let hasScan = false;
+  while (offset < bytes.length) {
+    if (bytes[offset++] !== 0xff) {
+      if (inScan) continue;
+      return null;
+    }
+    while (bytes[offset] === 0xff) offset += 1;
+    const marker = bytes[offset++];
+    if (inScan && (marker === 0 || (marker >= 0xd0 && marker <= 0xd7)))
+      continue;
+    if (marker === 0xd9) return hasScan ? offset : null;
+    if (marker === 0x01) continue;
+    if (marker < 0xc0 || (marker >= 0xd0 && marker <= 0xd8) || offset + 2 > bytes.length)
+      return null;
+
+    // APP segments can contain previews and arbitrary marker-like bytes.
+    const length = bytes[offset] * 256 + bytes[offset + 1];
+    if (length < 2 || offset + length > bytes.length) return null;
+    offset += length;
+    inScan = marker === 0xda;
+    hasScan ||= inScan;
+  }
+  return null;
+}
+
 export function findEmbeddedJpeg(source: ArrayBuffer) {
   const bytes = new Uint8Array(source);
   let best: [number, number] | null = null;
-  const starts: number[] = [];
-  for (let index = 0; index < bytes.length - 1; index += 1) {
-    if (bytes[index] === 0xff && bytes[index + 1] === 0xd8) starts.push(index);
-    if (bytes[index] === 0xff && bytes[index + 1] === 0xd9) {
-      const start = starts.pop();
-      if (start === undefined) continue;
-      const candidate: [number, number] = [start, index + 2];
-      if (!best || candidate[1] - candidate[0] > best[1] - best[0])
-        best = candidate;
-    }
+  for (let start = 0; start < bytes.length - 1; start += 1) {
+    if (bytes[start] !== 0xff || bytes[start + 1] !== 0xd8) continue;
+    const end = jpegEnd(bytes, start + 2);
+    if (end === null) continue;
+    if (!best || end - start > best[1] - best[0]) best = [start, end];
+    // Any embedded thumbnail is smaller than this complete JPEG.
+    start = end - 1;
   }
   return best;
 }
