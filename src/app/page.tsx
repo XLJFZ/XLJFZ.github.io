@@ -183,7 +183,7 @@ export default function Home() {
             </p>
           </div>
           <div className="w-full max-w-lg md:justify-self-end">
-            <p className="text-sm font-normal leading-7 text-white/75 md:text-base md:leading-8">
+            <p className="text-balance text-sm font-normal leading-7 text-white/75 md:text-base md:leading-8">
               若你有一个等待被看见的地点，欢迎来信。聊聊你的想法，让我们从一次交流开始。
             </p>
             <a

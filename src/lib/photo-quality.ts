@@ -121,7 +121,7 @@ export function groupDuplicates<
   for (let i = 0; i < items.length; i += 1) {
     for (let j = i + 1; j < items.length; j += 1) {
       if (
-        items[i].exactHash === items[j].exactHash ||
+        (items[i].exactHash && items[i].exactHash === items[j].exactHash) ||
         !items[i].perceptualHash ||
         !items[j].perceptualHash
       )
@@ -153,14 +153,15 @@ export function isQualityPhoto(file: Pick<File, 'name' | 'type'>) {
 export function findEmbeddedJpeg(source: ArrayBuffer) {
   const bytes = new Uint8Array(source);
   let best: [number, number] | null = null;
-  let start = -1;
+  const starts: number[] = [];
   for (let index = 0; index < bytes.length - 1; index += 1) {
-    if (bytes[index] === 0xff && bytes[index + 1] === 0xd8) start = index;
-    if (start >= 0 && bytes[index] === 0xff && bytes[index + 1] === 0xd9) {
+    if (bytes[index] === 0xff && bytes[index + 1] === 0xd8) starts.push(index);
+    if (bytes[index] === 0xff && bytes[index + 1] === 0xd9) {
+      const start = starts.pop();
+      if (start === undefined) continue;
       const candidate: [number, number] = [start, index + 2];
       if (!best || candidate[1] - candidate[0] > best[1] - best[0])
         best = candidate;
-      start = -1;
     }
   }
   return best;

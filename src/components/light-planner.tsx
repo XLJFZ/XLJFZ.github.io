@@ -1022,7 +1022,7 @@ export function LightPlanner() {
                 id="place-search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="如 云南德钦、Paris France，或纬度, 经度"
+                placeholder="地名或纬度、经度"
                 className="min-w-0 flex-1 border border-white/12 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-[#d8c19b]/60"
               />
               <button
@@ -1060,7 +1060,7 @@ export function LightPlanner() {
                 </div>
               )}
             </div>
-            <p className="mt-2 text-[11px] leading-5 text-white/28">
+            <p className="mt-2 text-balance text-xs leading-5 text-white/28">
               全球可用。点击搜索会将关键词发送给 OpenStreetMap Nominatim；
               经纬度仅在本页计算。定位后请核对时区。
             </p>

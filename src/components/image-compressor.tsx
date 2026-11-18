@@ -37,7 +37,7 @@ const presets = [
 ] as const;
 
 function outputName(name: string) {
-  return `${name.replace(/\.(jpe?g)$/i, '')}-web.jpg`;
+  return `${name.replace(/(?<=.)\.[^.]+$/, '')}-web.jpg`;
 }
 
 async function compress(file: File, maxEdge: number, quality: number) {
@@ -182,7 +182,29 @@ export function ImageCompressor() {
   };
 
   const download = () => {
-    const zip = createZip(outputs);
+    const usedNames = new Set<string>();
+    const reservedNames = new Set(outputs.map(({ name }) => name.toLowerCase()));
+    const entries = outputs.map((output) => {
+      const { name } = output;
+      const key = name.toLowerCase();
+      if (!usedNames.has(key)) {
+        usedNames.add(key);
+        return output;
+      }
+
+      const extensionIndex = name.lastIndexOf('.');
+      const stem = name.slice(0, extensionIndex);
+      const extension = name.slice(extensionIndex);
+      let suffix = 2;
+      let uniqueName = `${stem}-${suffix}${extension}`;
+      while (reservedNames.has(uniqueName.toLowerCase())) {
+        suffix += 1;
+        uniqueName = `${stem}-${suffix}${extension}`;
+      }
+      reservedNames.add(uniqueName.toLowerCase());
+      return { ...output, name: uniqueName };
+    });
+    const zip = createZip(entries);
     const url = URL.createObjectURL(zip);
     const link = document.createElement('a');
     link.href = url;

@@ -111,7 +111,7 @@ export default function ToolsPage() {
               摄影工具
             </h1>
           </div>
-          <p className="max-w-xl text-base font-light leading-7 text-white/65 md:justify-self-end">
+          <p className="max-w-xl text-balance text-base font-light leading-7 text-white/65 md:justify-self-end">
             为整理作品与理解拍摄习惯准备的小工具。照片只在你的浏览器中处理，不会上传到服务器。
           </p>
         </div>

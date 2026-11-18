@@ -77,13 +77,13 @@ export default async function SeriesPage({ params }: Props) {
           </h1>
         </div>
         <div className="series-opening-intro max-w-lg md:self-end">
-          <p className="text-[15px] font-normal leading-7 text-foreground/80 md:text-base md:leading-8">
+          <p className="text-balance text-[15px] font-normal leading-7 text-foreground/80 md:text-base md:leading-8">
             {item.statement}
           </p>
           <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-foreground/10 pt-3 text-sm leading-6 md:mt-8 md:gap-4 md:pt-4">
             <div className="col-span-2">
               <dt className="text-foreground/65">地点</dt>
-              <dd className="mt-1">{item.location}</dd>
+              <dd className="mt-1">{item.location.replace(/\s*·\s*/g, '\u00A0· ')}</dd>
             </div>
             <div>
               <dt className="text-foreground/65">年份</dt>

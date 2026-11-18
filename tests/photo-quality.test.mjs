@@ -65,3 +65,22 @@ test('page keeps analysis local, sequential and evidence bounded', async () => {
   assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|FormData/);
   assert.deepEqual(Object.keys(QUALITY_PRESETS), ['宽松', '推荐', '严格']);
 });
+
+test('compares perceptual hashes when both exact hashes are empty', () => {
+  const items = [
+    { exactHash: '', perceptualHash: '0000000000000000' },
+    { exactHash: '', perceptualHash: '0000000000000001' },
+  ];
+  assert.deepEqual(groupDuplicates(items, 1), {
+    exactGroups: [],
+    nearGroups: [items],
+  });
+});
+
+test('returns the full main JPEG when its APP1 contains a thumbnail', () => {
+  const source = Uint8Array.from([
+    0, 0xff, 0xd8, 0xff, 0xe1, 0, 9, 0xff, 0xd8, 1, 2, 3, 0xff, 0xd9,
+    4, 5, 6, 0xff, 0xd9, 0,
+  ]).buffer;
+  assert.deepEqual(findEmbeddedJpeg(source), [1, 19]);
+});

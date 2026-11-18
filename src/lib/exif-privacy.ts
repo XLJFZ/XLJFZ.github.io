@@ -237,11 +237,18 @@ function gpsSummary(bytes: Uint8Array, gpsEntries: Entry[]) {
     });
     return values[0] + values[1] / 60 + values[2] / 3600;
   };
+  const directionRef = (tag: number) => {
+    const entry = base.get(tag);
+    if (!entry || entry.type !== 2 || entry.count < 1 || entry.valueOffset >= bytes.length)
+      return undefined;
+    return String.fromCharCode(bytes[entry.valueOffset]).toUpperCase();
+  };
   const lat = coordinate(2);
   const lon = coordinate(4);
-  return lat !== undefined && lon !== undefined
-    ? `${lat.toFixed(5)}, ${lon.toFixed(5)}`
-    : '已记录位置数据';
+  if (lat === undefined || lon === undefined) return '已记录位置数据';
+  const signedLat = directionRef(1) === 'S' ? -Math.abs(lat) : lat;
+  const signedLon = directionRef(3) === 'W' ? -Math.abs(lon) : lon;
+  return `${signedLat.toFixed(5)}, ${signedLon.toFixed(5)}`;
 }
 
 export function inspectExifPrivacy(source: ArrayBuffer): PrivacyFinding[] {

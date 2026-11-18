@@ -31,8 +31,7 @@ export default function ExifPrivacyPage() {
           <div className="max-w-xl md:justify-self-end">
             <p className="text-base font-light leading-7 text-white/52">
               检查
-              GPS、设备序列号、所有者、拍摄时间、备注与编辑信息。按需要勾选清理项，一键生成经过复查的
-              原格式副本。
+              GPS、设备序列号、所有者、拍摄时间、备注与编辑信息。按需要勾选清理项，一键生成经过复查的原格式副本。
             </p>
             <p className="mt-4 text-xs leading-5 tracking-[.04em] text-white/38">
               支持 JPEG、JXL、HEIC、HEIF、AVIF、WebP、TIFF · 不改变画质与像素 ·

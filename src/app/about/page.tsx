@@ -85,7 +85,7 @@ export default function About() {
             </dl>
             <div className="mt-8 border-t border-foreground/15 pt-5">
               <h2 className="text-base font-medium">让一次相遇，成为影像</h2>
-              <p className="mt-3 text-sm leading-7 text-foreground/70">
+              <p className="mt-3 text-balance text-sm leading-7 text-foreground/70">
                 可接受拍摄委托，欢迎来信交流地点、想法与拍摄计划。
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-4 text-sm">

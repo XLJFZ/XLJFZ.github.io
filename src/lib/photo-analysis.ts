@@ -101,7 +101,7 @@ export function analyzePhotos(records: PhotoRecord[]) {
     .map((item) => item.exposureTime)
     .filter((value): value is number => typeof value === 'number');
   const hours = metadata
-    .map((item) => item.capturedAt?.match(/(?:^|\s)(\d{2}):\d{2}:\d{2}/)?.[1])
+    .map((item) => item.capturedAt?.match(/(?:^|[\sT])(\d{2}):\d{2}:\d{2}/)?.[1])
     .filter((value): value is string => Boolean(value))
     .map(Number);
 

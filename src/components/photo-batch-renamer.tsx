@@ -111,7 +111,7 @@ export function PhotoBatchRenamer() {
             /\.(jpe?g|png|webp)$/i.test(file.name),
         )
         .map(async (file) => {
-          const metadata = parsePhotoMetadata(await file.arrayBuffer());
+          const metadata = parsePhotoMetadata(await file.slice(0, 16 * 1024 * 1024).arrayBuffer());
           return {
             file,
             metadata,

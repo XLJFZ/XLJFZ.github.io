@@ -155,3 +155,12 @@ test('selective cleaning removes chosen privacy tags and preserves unselected EX
   assert.match(text, /2026:09:04 12:34:56/);
   assert.doesNotMatch(text, /Alice|BODY-123/);
 });
+
+test('reports negative latitude and longitude for south and west GPS references', async () => {
+  const { inspectExifPrivacy } = await import('../src/lib/exif-privacy.ts');
+  const source = privateJpegFixture();
+  source[12 + 145 + 8] = 'S'.charCodeAt(0);
+  source[12 + 169 + 8] = 'W'.charCodeAt(0);
+  const gps = inspectExifPrivacy(source.buffer).find(({ category }) => category === 'location');
+  assert.equal(gps?.value, '-31.22500, -121.47500');
+});

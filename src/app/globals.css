@@ -933,3 +933,38 @@ a {
 .site-header .liquid-glass-surface::before {
   inset: -8px;
 }
+
+
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+p,
+dd {
+  text-wrap: pretty;
+}
+
+.tools-index-card-description {
+  text-wrap: balance;
+}
+
+.gallery-print-image {
+  outline: 1px solid rgb(255 255 255 / 0.05);
+  outline-offset: -1px;
+}
+
+.gallery-chapter-track:focus-within + span {
+  opacity: 0;
+}
+
+@media (min-width: 768px) {
+  .gallery-paired-row {
+    --gallery-pair-gap: clamp(1.5rem, 3vw, 3.75rem);
+    container-type: inline-size;
+  }
+
+  .gallery-paired-row .gallery-print-image {
+    height: calc((100cqw - var(--gallery-pair-gap)) / 2 * var(--gallery-height-ratio));
+    object-fit: contain;
+  }
+}

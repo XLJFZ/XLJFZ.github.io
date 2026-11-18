@@ -42,14 +42,17 @@ function preferredPairedWidth(image: PortfolioImage) {
   return 1;
 }
 
-function pairedWidth(row: GalleryItem[], itemIndex: number) {
-  const equalHeight = Math.min(
+function pairedHeightRatio(row: GalleryItem[]) {
+  return Math.min(
     ...row.map(
       ({ image }) => (preferredPairedWidth(image) * image.height) / image.width,
     ),
   );
+}
+
+function pairedWidth(row: GalleryItem[], itemIndex: number) {
   const image = row[itemIndex].image;
-  return `${((equalHeight * image.width * 100) / image.height).toFixed(4)}%`;
+  return `${((pairedHeightRatio(row) * image.width * 100) / image.height).toFixed(4)}%`;
 }
 
 function galleryPreviewSrc(image: PortfolioImage, width = 1200) {
@@ -572,7 +575,7 @@ export function LightboxGallery({
                 data-lightbox-current
                 data-lightbox-interactive
                 className={cn(
-                  'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-150 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                  'gallery-print-image absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-150 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
                   active === visible ? 'opacity-100' : 'opacity-60',
                 )}
               />
@@ -602,7 +605,7 @@ export function LightboxGallery({
                     onError={() => setFailedDetail(visibleItem.image.src)}
                     data-lightbox-interactive
                     className={cn(
-                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-200 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                      'gallery-print-image absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-200 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
                       loadedDetail === visibleItem.image.src
                         ? 'opacity-100'
                         : 'opacity-0',
@@ -636,7 +639,7 @@ export function LightboxGallery({
                     onError={() => setFailedOriginal(visibleItem.image.src)}
                     data-lightbox-interactive
                     className={cn(
-                      'absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
+                      'gallery-print-image absolute left-1/2 top-1/2 h-auto w-auto max-h-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-300 md:max-h-[calc(100%-5rem)] md:max-w-[calc(100%-5rem)]',
                       loadedOriginal === visibleItem.image.src
                         ? 'opacity-100'
                         : 'opacity-0',
@@ -723,7 +726,7 @@ export function LightboxGallery({
                   {displayedItems[active].image.caption}
                 </p>
                 {exifSummary(displayedItems[active].image) && (
-                  <p className="mt-0.5 truncate text-[11px] leading-5 tracking-[.03em] text-white/65">
+                  <p className="mt-0.5 truncate text-xs leading-5 tracking-[.03em] text-white/65">
                     {exifSummary(displayedItems[active].image)}
                   </p>
                 )}
@@ -962,7 +965,7 @@ const GalleryContent = memo(function GalleryContent({
               </div>
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden"
+                className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-background to-transparent md:hidden"
               />
             </div>
           </div>
@@ -1015,10 +1018,15 @@ const GalleryContent = memo(function GalleryContent({
               {section.rows.map((row, rowIndex) => (
                 <div
                   key={`row-${rowIndex}-${row[0].image.src}`}
+                  style={
+                    row.length === 2
+                      ? ({ '--gallery-height-ratio': pairedHeightRatio(row) } as CSSProperties)
+                      : undefined
+                  }
                   className={cn(
                     'grid grid-cols-1 items-start gap-y-10',
                     row.length === 2 &&
-                      'md:grid-cols-2 md:gap-x-[clamp(1.5rem,3vw,3.75rem)]',
+                      'gallery-paired-row md:grid-cols-2 md:gap-x-[var(--gallery-pair-gap)]',
                   )}
                 >
                   {row.map(({ image, sourceIndex }, columnIndex) => {
@@ -1098,7 +1106,7 @@ const GalleryContent = memo(function GalleryContent({
                             loading={displayIndex === 0 ? 'eager' : 'lazy'}
                             fetchPriority={displayIndex === 0 ? 'high' : 'auto'}
                             decoding="async"
-                            className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.008] group-focus-visible:scale-[1.008]"
+                            className="gallery-print-image h-auto w-full transition-transform duration-700 group-hover:scale-[1.008] group-focus-visible:scale-[1.008]"
                           />
                         </button>
                         {image.caption && (
