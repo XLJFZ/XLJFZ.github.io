@@ -74,6 +74,10 @@ test('long galleries expose editorial chapters without breaking orientation pair
   const portfolio = await readFile('src/lib/portfolio.ts', 'utf8');
 
   assert.match(gallery, /function buildGallerySections/);
+  assert.match(
+    gallery,
+    /image\.chapter && groups\[groups\.length - 1\]\.label !== image\.chapter/,
+  );
   assert.match(gallery, /section\.label/);
   assert.match(gallery, /aria-label="专题章节"/);
   assert.match(gallery, /href={`#chapter-\${sectionIndex \+ 1}`}/);
@@ -218,7 +222,7 @@ test('lightbox shows only verified EXIF metadata when it is available', async ()
   assert.match(gallery, /function exifSummary/);
   assert.match(gallery, /values\.join\(' · '\)/);
   assert.match(gallery, /text-white\/65/);
-  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 65);
+  assert.equal((source.match(/\bexif:\s*\{/g) ?? []).length, 69);
 
   const chongqingNight = portfolioRecord(
     source,
@@ -525,6 +529,34 @@ test('user-confirmed dates are retained for the identified photographs', async (
     const record = portfolioRecord(source, reference);
     assert.ok(record.includes(caption), `${reference} must keep ${caption}`);
   }
+});
+
+test("Xi'an hotel photographs retain their verified dimensions and EXIF", async () => {
+  const source = await readFile('src/lib/portfolio.ts', 'utf8');
+  const records = [
+    ['1886', 6880, 5504, '16mm', '1/160s'],
+    ['1896', 5504, 6880, '16mm', '1/80s'],
+    ['1897', 5428, 6785, '16.5mm', '1/40s'],
+    ['1902', 4652, 5815, '18.5mm', '1/80s'],
+  ];
+
+  for (const [id, width, height, focalLength, shutterSpeed] of records) {
+    const record = portfolioRecord(
+      source,
+      `/portfolio-previews/urban-pulse/xian-castle-hotel-zbz-${id}-1800.jpg`,
+    );
+    assert.ok(record.includes(`width: ${width},\n        height: ${height}`));
+    assert.match(record, /caption: '西安 · 2026'/);
+    assert.match(record, /camera: 'Nikon Z7 II'/);
+    assert.ok(record.includes(`focalLength: '${focalLength}'`));
+    assert.match(record, /aperture: 'f\/7\.1'/);
+    assert.ok(record.includes(`shutterSpeed: '${shutterSpeed}'`));
+    assert.match(record, /iso: 'ISO 64'/);
+  }
+  assert.match(
+    source,
+    /slug: 'urban-pulse',[\s\S]*?location:\s*'重庆 · 东京 · 上海 · 广州 · 深圳 · 南昌 · 香港 · 北京 · 厦门 · 西安'/,
+  );
 });
 
 test('the Meili photograph uses Deqin as its location label', async () => {

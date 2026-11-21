@@ -100,7 +100,7 @@ test('every photograph has correctly described responsive previews', async () =>
       /src: '(\/portfolio-previews\/[^']+)',\s*width: (\d+),\s*height: (\d+)/g,
     ),
   ];
-  assert.equal(records.length, 65);
+  assert.equal(records.length, 69);
   for (const [, src, w, h] of records) {
     assert.ok((await stat(`public${src}`)).size > 0);
     for (const width of previewWidths({ width: +w, height: +h })) {

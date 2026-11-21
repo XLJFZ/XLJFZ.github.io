@@ -123,7 +123,10 @@ function buildGallerySections(images: PortfolioImage[]): GallerySection[] {
   const groups: Array<{ label?: string; items: GalleryItem[] }> = [];
 
   images.forEach((image, sourceIndex) => {
-    if (groups.length === 0 || image.chapter) {
+    if (
+      groups.length === 0 ||
+      (image.chapter && groups[groups.length - 1].label !== image.chapter)
+    ) {
       groups.push({ label: image.chapter, items: [] });
     }
     groups[groups.length - 1].items.push({ image, sourceIndex });
