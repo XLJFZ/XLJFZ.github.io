@@ -1,5 +1,7 @@
 'use client';
 
+import { LiquidGlassSurface } from '@/components/liquid-glass-surface';
+
 import type { CSSProperties } from 'react';
 import {
   memo,
@@ -658,7 +660,7 @@ export function LightboxGallery({
             aria-label="关闭"
             className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] liquid-glass-button grid size-11 place-items-center rounded-full md:right-7 md:top-7"
           >
-            <span className="liquid-glass-surface" aria-hidden="true" />
+            <LiquidGlassSurface />
             <X />
           </button>
           <button
@@ -668,7 +670,7 @@ export function LightboxGallery({
             aria-label="复制当前作品链接"
             className="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] liquid-glass-button grid size-11 place-items-center rounded-full md:left-7 md:top-7"
           >
-            <span className="liquid-glass-surface" aria-hidden="true" />
+            <LiquidGlassSurface />
             {copyStatus?.tone === 'default' && !copyStatus.leaving ? (
               <Check aria-hidden="true" />
             ) : (
@@ -701,7 +703,7 @@ export function LightboxGallery({
             aria-keyshortcuts="ArrowLeft"
             className="absolute left-[max(.75rem,env(safe-area-inset-left))] top-1/2 liquid-glass-button grid size-11 -translate-y-1/2 place-items-center rounded-full md:left-7"
           >
-            <span className="liquid-glass-surface" aria-hidden="true" />
+            <LiquidGlassSurface />
             <ChevronLeft />
           </button>
           <button
@@ -712,7 +714,7 @@ export function LightboxGallery({
             aria-keyshortcuts="ArrowRight"
             className="absolute right-[max(.75rem,env(safe-area-inset-right))] top-1/2 liquid-glass-button grid size-11 -translate-y-1/2 place-items-center rounded-full md:right-7"
           >
-            <span className="liquid-glass-surface" aria-hidden="true" />
+            <LiquidGlassSurface />
             <ChevronRight />
           </button>
           {active !== null && showOverview && (

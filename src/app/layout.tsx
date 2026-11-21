@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Noto_Sans_SC } from 'next/font/google';
 import './globals.css';
+import './liquid-glass.css';
 import { LiquidGlassFilters } from '@/components/liquid-glass-filters';
 
 const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });

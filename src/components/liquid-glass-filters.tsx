@@ -21,7 +21,7 @@ export function LiquidGlassFilters() {
           <feDisplacementMap
             in="SourceGraphic"
             in2="lens"
-            scale="9"
+            scale="32"
             xChannelSelector="R"
             yChannelSelector="G"
           />
@@ -44,7 +44,7 @@ export function LiquidGlassFilters() {
           <feDisplacementMap
             in="SourceGraphic"
             in2="lens"
-            scale="12"
+            scale="25"
             xChannelSelector="R"
             yChannelSelector="G"
           />
