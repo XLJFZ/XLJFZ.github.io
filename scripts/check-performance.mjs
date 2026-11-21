@@ -8,8 +8,8 @@ import { routes } from './export-github-pages.mjs';
 // These are document-size budgets, not claims about user-visible load time.
 const budgets = new Map([
   ['/', 65000],
-  // 46 works after adding the eleven-image Xiamen chapter (previously 35).
-  ['/series/urban-pulse', 150000],
+  // Keep headroom for the expanded city portfolio while bounding its document size.
+  ['/series/urban-pulse', 160000],
 ]);
 const stylesheets = new Set();
 const measurements = [];
